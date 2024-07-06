@@ -1,0 +1,53 @@
+# Table of Contents
+- [SQL Injection](#sql-injection)
+- [Path Traversal](#path-traversal)
+- [Authentication](#authentication)
+- [Business Logic Vulnerabilities](#business-logic-vulnerabilities)
+- [Command Injection](#command-injection)
+- [Information Disclosure](#information-disclosure)
+- [Access Control](#access-control)
+- [File Upload](#file-upload)
+- [Race Condition](#race-condition)
+- [SSRF (Server-Side Request Forgery)](#ssrf-server-side-request-forgery)
+- [NoSQL Injection](#nosql-injection)
+- [XXE Injection](#xxe-injection)
+- [API](#api)
+
+## SQL Injection
+Content for SQL Injection...
+
+## Path Traversal
+Content for Path Traversal...
+
+## Authentication
+Content for Authentication...
+
+## Business Logic Vulnerabilities
+Content for Business Logic Vulnerabilities...
+
+## Command Injection
+Content for Command Injection...
+
+## Information Disclosure
+Content for Information Disclosure...
+
+## Access Control
+Content for Access Control...
+
+## File Upload
+Content for File Upload...
+
+## Race Condition
+Content for Race Condition...
+
+## SSRF (Server-Side Request Forgery)
+Content for SSRF...
+
+## NoSQL Injection
+Content for NoSQL Injection...
+
+## XXE Injection
+Content for XXE Injection...
+
+## API
+Content for API...
