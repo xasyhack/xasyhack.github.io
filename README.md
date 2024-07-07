@@ -9,7 +9,7 @@
 # Table of Contents
 **Server-side topics (13)**
 - [SQL Injection](#sql-injection)
-  - [Lab](#lab)
+  - [Lab](#sql-injection-lab)
 - [Path Traversal](#path-traversal)
 - [Authentication](#authentication)
 - [Business Logic Vulnerabilities](#business-logic-vulnerabilities)
@@ -98,7 +98,7 @@
 - Whitelisting permitted input values
 - Escape Special Characters  
 
-### Lab
+### SQL Injection Lab
 1. SQL injection vulnerability in WHERE clause allowing **retrieval of hidden data**
    - GET /filter?category=`' OR 1=1 --`
    - Verify that the response now contains one or more unreleased products
