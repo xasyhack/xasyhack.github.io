@@ -92,6 +92,12 @@
 - Substring: Others: SUBSTRING('footbar', 4, 2); Oracle: SUBSTR('footbar', 4, 2)
 - [SQL injection cheat sheet](https://portswigger.net/web-security/sql-injection/cheat-sheet)
 
+**Remediation**  
+- Prepared Statements (With Parameterized Queries)
+  `PreparedStatement pstmt = connection.prepareStatement(query);`
+- Whitelisting permitted input values
+- Escape Special Characters  
+
 ### Lab
 1. SQL injection vulnerability in WHERE clause allowing **retrieval of hidden data**
    - GET /filter?category=`' OR 1=1 --`
