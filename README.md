@@ -233,6 +233,24 @@
 - Linux forward slash: `../../../etc/passwd`
 - Windows backslash: `..\..\..\windows\win.ini`
 
+**Interesting files**
+| Operating System          | File Path                              | Description                                                   |
+|---------------------------|----------------------------------------|---------------------------------------------------------------|
+| **Linux and Unix-like**   | `/etc/passwd`                          | User account information                                      |
+|                           | `/etc/shadow`                          | Encrypted passwords (requires elevated privileges)             |
+|                           | `/var/log/auth.log`                    | Authentication logs                                           |
+|                           | Web server configuration files, e.g., `/etc/nginx/nginx.conf` | Server configuration settings                      |
+| **Windows**               | `C:\Windows\System32\config\SAM`       | Windows system account information                           |
+|                           | `C:\boot.ini`                          | Boot configuration (older Windows versions)                    |
+|                           | `C:\Windows\win.ini`                   | Initialization file settings                                  |
+|                           | Web server configuration files, e.g., `C:\xampp\apache\conf\httpd.conf` | Server configuration settings          |
+| **Web Application Context**| Web root directory files, e.g., `index.html`, `default.aspx` | Default web pages                        |
+|                           | `.htaccess`                            | Apache configuration file in web root                          |
+|                           | User-uploaded files stored in accessible directories         | Uploaded content                                              |
+|                           | Application configuration files, e.g., `web.config` (ASP.NET), `application.properties` (Java) | Application settings        |
+|                           | Log files, e.g., `access.log`, `error.log`                   | Application and server logs                                   |
+
+
 **Techniques**
 | Technique                   | Description                                                                 | Example                         | Defense Strategy                                                                 |
 |-----------------------------|-----------------------------------------------------------------------------|---------------------------------|----------------------------------------------------------------------------------|
