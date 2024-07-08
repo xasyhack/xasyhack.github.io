@@ -297,10 +297,14 @@
 - Password-based login
   - username: business login in format of firstname.lastname; profile name same as login username; email address disclosed in HTTP response such as administrator or IT support
   - password: min chr + lower and uppercase letter + 1 special character. Fine tune the wordlist such as 'Mypassword1!', 'Mypassword2!'
-  - Infer of correct credential: status code, error message, response times
-- ddd
-- ddd
-
+  - Infer correct credential: status code, error message, response times
+- HTTP basic authentication
+  - identify the authorization header in the request: `Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=`
+  - Decode the Base64 string to get username:password
+  - Use burp suite's intruder to brute force attack
+- Multi-factor authentication  
+- OAuth authentication
+- Other authentication  
 
 ### Authentication Lab
 1. **Username enumeration** via different **responses**
@@ -324,17 +328,34 @@
      payload set 1: X-Forwarded-For: b§1§-->Numbers (1 to 100), Max fraction digits: 0  
      payload set 2: username=analyzer&password=**§pass1§**: password wordlist  
      Observe different **status code**: 302 (monkey) / 200  
-7. Broken brute-force protection, IP block
-8. 44
-9. 55
-10. 6
-11. 77
-12. dd
-13. 565
-14. 4545
-15. 5454
-16. 45454
-17. 454
+7. **Broken brute-force protection**, IP block
+   - Your credentials: wiener:peter
+   - Victim's username: carlos
+   - Enumerate password for victim user 'carlos':Burp intruder>Pitchfork
+     Payload position-->username=§user1§&password=§pass1§
+     Resource pool-->Maximum concurrent: 1
+     payload set 1: wienber, carlos, wiener, carlos....
+     payload set 2: peter, 123456, peter, password.....
+9. **Username enumeration via account lock**
+    - Enumerate username:Burp intruder>Cluster bomb
+      position: username=§user§&password=pass§§
+      payload set 1: username wordlist  
+      payload set 2: null payloads-->Generate 5 payloads  
+      Observe the multiplle same length： You have made too many incorrect login attempts. Please try again in 1 minute(s). Note the username
+    - Enumerate password:Burp intruder>Snipper
+      username=ai§&password=§pass1§  
+      payload set 1: password wordlist
+      Grep - Extract: Invalid username or password.
+      Obsereve the empty extract column: note the password
+11. 55
+12. 6
+13. 77
+14. dd
+15. 565
+16. 4545
+17. 5454
+18. 45454
+19. 454
 
 ## Business Logic Vulnerabilities
 Content for Business Logic Vulnerabilities...
