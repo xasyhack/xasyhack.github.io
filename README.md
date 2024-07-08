@@ -329,23 +329,23 @@
      payload set 2: username=analyzer&password=**§pass1§**: password wordlist  
      Observe different **status code**: 302 (monkey) / 200  
 7. **Broken brute-force protection**, IP block
-   - Your credentials: wiener:peter
-   - Victim's username: carlos
-   - Enumerate password for victim user 'carlos':Burp intruder>Pitchfork
+   - **Your credentials: wiener:peter**
+   - **Victim's username: carlos**
+   - Enumerate password for victim user 'carlos':Burp intruder>**Pitchfork**
      Payload position-->username=§user1§&password=§pass1§
      Resource pool-->Maximum concurrent: 1
      payload set 1: wienber, carlos, wiener, carlos....
      payload set 2: peter, 123456, peter, password.....
 9. **Username enumeration via account lock**
-    - Enumerate username:Burp intruder>Cluster bomb
+    - **Enumerate username**:Burp intruder>**Cluster bomb**
       position: username=§user§&password=pass§§
       payload set 1: username wordlist  
       payload set 2: null payloads-->Generate 5 payloads  
-      Observe the multiplle same length： You have made too many incorrect login attempts. Please try again in 1 minute(s). Note the username
-    - Enumerate password:Burp intruder>Snipper
+      **Observe the multiplle same length**：You have made too many incorrect login attempts. Please try again in 1 minute(s). Note the username
+    - **Enumerate password**:Burp intruder>**Snipper**
       username=ai§&password=§pass1§  
       payload set 1: password wordlist
-      Grep - Extract: Invalid username or password.
+      **Grep - Extract: Invalid username or password.**
       Obsereve the empty extract column: note the password
 11. 55
 12. 6
