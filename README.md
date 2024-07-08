@@ -67,8 +67,8 @@
 
 **In-band: Union-Based Injection**  
 - Determine the number of columns required: `' ORDER BY 1--`  OR `' UNION SELECT NULL,NULL--`
-- Oracle specific syntaxt: `' UNION SELECT NULL FROM DUAL--`
-- Retrieve othe records: `' UNION SELECT 1, username, password FROM users --`
+- Oracle specific syntext: `' UNION SELECT NULL FROM DUAL--`
+- Retrieve other records: `' UNION SELECT 1, username, password FROM users --`
 
 **Blind: Boolean-based Injection**  
 - `' AND '1'='1` (Return results)
@@ -293,9 +293,48 @@
     - GET /image?filename=`../../../etc/passwd%00.png`
 
 ## Authentication
-Content for Authentication...
+**Types of Authentication**  
+- Password-based login
+  - username: business login in format of firstname.lastname; profile name same as login username; email address disclosed in HTTP response such as administrator or IT support
+  - password: min chr + lower and uppercase letter + 1 special character. Fine tune the wordlist such as 'Mypassword1!', 'Mypassword2!'
+  - Infer of correct credential: status code, error message, response times
+- ddd
+- ddd
+
 
 ### Authentication Lab
+1. **Username enumeration** via different **responses**
+   - Enumerate username: Burp intruder>Snipper>Simple list>username=§user1§&password=pass1  
+     Observe different **response length**: Incorrect password (athena)/ Invalid username  
+   - Enumerate password: Burp intruder>Snipper>Simple list>username=athena&password=§pass1§  
+     Observe different **status code**: 302 (jessica)/ 200  
+3. **Username enumeration** via **subtly** different **responses**  
+   - Enumerate username: Burp intruder>Snipper>Simple list>username=§user1§&password=pass1-->  
+     **Grep - Extract**-->Add-->highlight the text content "Invalid username or password."-->OK  
+     Observe different **response length**: Invalid username or password (applications)/ Invalid username or password.  
+   - Enumerate password: Burp intruder>Snipper>Simple list>username=applications&password=§pass1§  
+     Observe different **status code**: 302 (monkey) / 200
+5. Username enumeration via **response timing**
+   - **Bypass max attempt**:You have made too many incorrect login attempts. Please try again in 30 minute(s).
+   - Enumerate username:Burp intruder>**Pitchfork** (Pair up payload 1:1, 2:2, 3:3)>  
+     **payload set 1: X-Forwarded-For: b§1§-->Numbers (1 to 100), Max fraction digits: 0**  
+     payload set 2: username=**§user1§**: username wordlist  
+     Observe the **response received (longer time)** for valid username (test few attempts to see the consistent longer response for same username)  
+   - Enumerate password:Burp intruder>Pitchfork>  
+     payload set 1: X-Forwarded-For: b§1§-->Numbers (1 to 100), Max fraction digits: 0  
+     payload set 2: username=analyzer&password=**§pass1§**: password wordlist  
+     Observe different **status code**: 302 (monkey) / 200  
+7. Broken brute-force protection, IP block
+8. 44
+9. 55
+10. 6
+11. 77
+12. dd
+13. 565
+14. 4545
+15. 5454
+16. 45454
+17. 454
 
 ## Business Logic Vulnerabilities
 Content for Business Logic Vulnerabilities...
