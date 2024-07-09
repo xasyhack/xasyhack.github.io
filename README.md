@@ -366,9 +366,9 @@
         ...
     ]
     ```
-13. 2FA simple bypass
+13. **2FA simple bypass**
     - skip to logged in page after 1FA
-15. 2FA broken logic
+15. **2FA broken logic**
     - POST /login HTTP/2  
       **username=wiener**&password=peter
     - 1 step authentication  
@@ -384,12 +384,23 @@
       **mfa-code=§1381§**  
       Burp intruder-->Sniper-->payload brute forcer 0...9, min/max length 4  
     - Load the 302 response in the browser  
-17. dd
-18. 565
-19. 4545
-20. 5454
-21. 45454
-22. 454
+17. **2FA bypass using a brute-force attack**
+    - Burp capture request > Login (carlos:montoya) with wrong MFA code  
+    - Setting > Project > Sessions > Add session handling rule > click tab 'scope' > URL scope > include all urls  
+    - click Tab 'Details' > Add rule actions > Run a macro > Add select macro > select 3 requests > click OK button  
+      - GET /login  
+      - POST /login
+      - GET /login2
+    - click button 'testmacro' > verify the response - please enter your 4 digit code > OK...OK...OK
+    - send to intruder > POST /login2  
+      position: mfa-code = $2222$
+      payload: Numbers from 0 9999 step 1, min/max 4 digits, max fraction digits 0, resource pool: max concurrent requests 1
+    - Load the 302 response in the browser
+19. 565
+20. 4545
+21. 5454
+22. 45454
+23. 454
 
 ## Business Logic Vulnerabilities
 Content for Business Logic Vulnerabilities...
