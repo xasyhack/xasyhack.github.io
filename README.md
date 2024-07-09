@@ -3,7 +3,8 @@
 
 # Web Penetration Testing Learning path
 1. [TryhackMe - Web Fundamentals](https://tryhackme.com/path/outline/web)  
-1. [PortSwigger - Web Security Academy](https://portswigger.net/web-security/all-topics)  
+1. [PortSwigger - Web Security Academy](https://portswigger.net/web-security/all-topics)
+   - [portswigger-websecurity-academy write-up](https://github.com/frank-leitner/portswigger-websecurity-academy/tree/main)
 1. [iNE - eWPT Web Application Penetration Tester](https://security.ine.com/certifications/ewpt-certification/)
 
 # Table of Contents
