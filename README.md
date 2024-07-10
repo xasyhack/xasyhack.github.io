@@ -276,7 +276,6 @@
 - Allowlisting for file inclusion and access
 - Configure server settings to disallow remote file inclusion and limit the ability of scripts to access the filesystem. PHP `allow_url_fopen` `allow_url_include`
 
-
 ### Path Traversal Lab  
 1. File path traversal, simple case
    - check for image request traffic: Use **burp site map filter**-->check '**Images**'-->Apply
@@ -313,9 +312,9 @@
 - OAuth authentication
 - Other authentication mechanism
   - predictable/cleartext/stealing cookie value (remember me)
-  - resetting user password (sending passwords by email, easily guess reset password URL, steal another user's token and change their password)
+  - resetting user password (sending passwords by email, easily guess reset password URL, steal another user's token and change their password)   
 - authentication flaw
-  - email verification bypass: login without verifying email add
+  - email verification bypass: login without verifying email address
   - duplicate accounts: existing accounts with the same email or username
   - no current password verification
   - does not invalidate active sessions after a password change
@@ -329,10 +328,10 @@
   - lack of 2FA
   - insecure session management
  
-**Remediation**   
-- never disclose credential in cleartext anywhere (use HTTPS, HSTS header   
+**Mitigation**   
+- never disclose credential in cleartext anywhere (use HTTPS, HSTS header)    
 - password policy   
-- use identical, generic error msg, same HTTP status code, response time)   
+- use identical, generic error msg, same HTTP status code, response time   
 - IP-based user rate limiting + CAPTCHA
 - verify logic flaws
 - 2FA with a dedicated device or app to generate the code
