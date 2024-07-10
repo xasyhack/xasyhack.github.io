@@ -314,6 +314,28 @@
 - Other authentication mechanism
   - predictable/cleartext/stealing cookie value (remember me)
   - resetting user password (sending passwords by email, easily guess reset password URL, steal another user's token and change their password)
+- authentication flaw
+  - email verification bypass: login without verifying email add
+  - duplicate accounts: existing accounts with the same email or username
+  - no current password verification
+  - does not invalidate active sessions after a password change
+  - no rate limiting
+  - password reset links are not expiring quickly or easily guessable
+  - using easily guessable security questions
+  - no notification for password reset
+  - login form reveals whether a username or email exists from error message
+  - no account lockout after multiple failed login attempts
+  - allow login from multipe locations simultaneously without any alerts
+  - lack of 2FA
+  - insecure session management
+ 
+**Remediation**   
+- never disclose credential in cleartext anywhere (use HTTPS, HSTS header   
+- password policy   
+- use identical, generic error msg, same HTTP status code, response time)   
+- IP-based user rate limiting + CAPTCHA
+- verify logic flaws
+- 2FA with a dedicated device or app to generate the code
 
 ### Authentication Lab
 1. **Username enumeration** via different **responses**
