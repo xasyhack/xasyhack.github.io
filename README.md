@@ -356,7 +356,7 @@
       payload set 1: password wordlist
       **Grep - Extract: Invalid username or password.**
       Obsereve the empty extract column: note the password
-11. Broken brute-force protection, **multiple credentials per request - Expert**
+11. Broken brute-force protection, **multiple credentials per request (Expert)**
     - replace the single string value of password with an array of password wordlist  
     - 302 response-->right click request-->show response in browser  
     ```json
@@ -387,7 +387,7 @@
       **mfa-code=§1381§**  
       Burp intruder-->Sniper-->payload brute forcer 0...9, min/max length 4  
     - Load the 302 response in the browser  
-17. **2FA bypass using a brute-force attack**
+17. **2FA bypass using a brute-force attack (Expert)**
     - Burp capture request > Login (carlos:montoya) with wrong MFA code  
     - Setting > Project > Sessions > Add session handling rule > click tab 'scope' > URL scope > include all urls  
     - click Tab 'Details' > Add rule actions > Run a macro > Add select macro > select 3 requests > click OK button  
@@ -438,7 +438,11 @@
      10.0.3.157      2024-07-10 15:00:32 +0000 "GET /forgot-password?temp-forgot-password-token=**ofunlh8j6vngx003vnifub7hywv4ppw1**   
    - replace old token with new one and access the password reset url (change carlos password)   
      https://0ade00ee03fb9d7081d461a700980052.web-security-academy.net/forgot-password?**temp-forgot-password-token=ofunlh8j6vngx003vnifub7hywv4ppw1**   
-26. 454
+26. **Password brute-force via password change**
+     - Enter wrong current password (diff pair of new password): Current password is incorrect
+     - Enter correct current password (diff pair of new password): New passwords do not match
+     - Burp Intruder Sniper > **username=carlos**&current-password=**§curr123§**&new-password-1=1234&new-password-2=5678 > password wordlist
+     - Grep match "New passwords do not match"
 
 ## Business Logic Vulnerabilities
 Content for Business Logic Vulnerabilities...
