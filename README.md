@@ -52,7 +52,7 @@
 
 **Burp extension**  
 - Hackvertor: Encoding and Decoding, data transformation (hashing, encryption, decryptin, convert, string)
-- ddd
+- Turbo Intruder: sending large numbers of HTTP requests and analyzing the results   
   
 ## SQL Injection
 **How to detect**     
