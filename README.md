@@ -466,9 +466,71 @@
      - Grep match "New passwords do not match"
 
 ## Business Logic Vulnerabilities
-Content for Business Logic Vulnerabilities...
+**Examples of business logic vulnerabilities**   
+- Excessive trust in **client-side controls**
+  - Relying on client-side validations (e.g., JavaScript checks) without proper server-side validation.
+  - Attackers can bypass client-side checks by manipulating the client (e.g., using browser developer tools) and sending malicious data directly to the server.   
+- Failing to handle **unconventional input**
+  - Not anticipating or properly validating unexpected or unconventional input.
+  - Applications might not sanitize or validate input thoroughly, allowing attackers to inject harmful input, such as SQL injection, command injection, or cross-site scripting (XSS).   
+- Making flawed **assumptions about user behavior**
+  - Assuming users will follow a predictable and correct path or input sequence
+  - Users might interact with the application in unexpected ways, leading to vulnerabilities such as authorization bypass, where an attacker might access restricted functions or data by manipulating parameters or session states   
+- **Domain-specific** flaws
+  - Application logic errors specific to the domain or business logic of the application.
+  - Errors occur when developers do not fully understand the business rules or when complex workflows are not adequately implemented. For example, an e-commerce site might fail to properly check discount eligibility, allowing an attacker to apply discounts inappropriately.   
+- Providing an **encryption oracle**
+  - Exposing encryption or decryption functionality in a way that attackers can exploit to gain unauthorized access
+  - If an application provides an API for encryption or decryption and does not properly secure it, attackers can use it to encrypt or decrypt data without authorization, potentially revealing sensitive information.   
+
+**Common logic flaw vulnerabilities**
+- **Race Conditions**: When two or more processes access shared resources in an uncontrolled manner, leading to unpredictable results
+- **Time-of-Check to Time-of-Use (TOCTOU)**: When there is a delay between checking a condition and using the result of that check, allowing attackers to change the state in between
+- **Authorization Flaws**: When applications do not properly enforce access controls, allowing users to access resources or perform actions they should not be allowed to
+- **State Management Issues**: When the application improperly manages state information (e.g., session tokens, cookies), leading to session fixation or session hijacking attacks
+  
+**Mitigation**   
+- Understand the domain that the application serves
+- void making implicit assumptions about user behavior
+- Maintain clear design documents and data flows for all transactions and workflows
+- Write code as clearly as possible
+- Note any references to other code that uses each component   
 
 ### Business Logic Vulnerabilities Lab
+- Excessive trust in **client-side control**s
+  - The application does not perform adequate server-side validation of the price parameter. It trusts the value sent by the client without verifying it against a known, legitimate price from the database
+  - POST /cart
+    productId=1&redir=PRODUCT&quantity=1&**price=10**    
+- **2FA broken logic**
+  - The application fails to properly bind the 2FA verification process to the original user's session   
+  - Login my account via 2FA
+  - Repeater: GET /login2 - change verify = victim user
+  - Intruder: POST /login2 - brute force mfa-code
+- **High-level logic** vulnerability
+  - The business logic does not account for the **possibility of negative quantities**, leading to incorrect calculations of total price and quantity.
+  - store credit $200
+  - Add one wish list item $1000
+  - Add one cheaper item $150 X (-6) quantity
+  - Amend the quantity to negative number
+    POST /cart
+    productId=12&redir=PRODUCT&**quantity=-6**
+  - $1000 - $900 = total $100 place order
+- **Low-level logic** flaw
+  - The total price is calculated using an integer type that can only hold values up to a certain maximum (2,147,483,647 for a 32-bit signed integer). When the total price exceeds this value, it wraps around to the minimum negative value (-2,147,483,648) due to integer overflow.
+  - observing: Burp Intruder Sniper > **Payloads null payloads> continue indefinitely** > **$2,147,483,647** > wrapped around to the minimum value (**-2,147,483,648**)   
+  - Add Jacket to cart. Burp Intruder > Change quantity=99 > Payloads "Null payloads" > Generate 323 payloads > max concurrent 1 requests > -$-64060.96
+  - Burp Repeater > change qty to 47 > $-1221.96
+  - Add a cheaper item > increase quantity > until total reduce to <$100
+- Inconsistent handling of exceptional input
+- Inconsistent security controls
+- Weak isolation on dual-use endpoint
+- Password reset broken logic
+- 2FA simple bypass
+- Insufficient workflow validation
+- Authentication bypass via flawed state machine
+- Flawed enforcement of business rules
+- Infinite money logic flaw
+- Authentication bypass via encryption oracle   
 
 ## Command Injection
 Content for Command Injection...
