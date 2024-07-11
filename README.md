@@ -498,7 +498,7 @@
 
 ### Business Logic Vulnerabilities Lab
 - Excessive trust in **client-side control**s
-  - The application does not perform adequate server-side validation of the price parameter. It trusts the value sent by the client without verifying it against a known, legitimate price from the database
+  - The application **does not perform adequate server-side validation** of the price parameter. It trusts the value sent by the client without verifying it against a known, legitimate price from the database
   - POST /cart
     productId=1&redir=PRODUCT&quantity=1&**price=10**    
 - **2FA broken logic**
@@ -507,7 +507,7 @@
   - Repeater: GET /login2 - change verify = victim user
   - Intruder: POST /login2 - brute force mfa-code
 - **High-level logic** vulnerability
-  - The business logic does not account for the **possibility of negative quantities**, leading to incorrect calculations of total price and quantity.
+  - The business logic does not account for the **possibility of negative quantities**, leading to incorrect calculations of total price and quantity. **Restrict user input to values that adhere to the business rule**.
   - store credit $200
   - Add one wish list item $1000
   - Add one cheaper item $150 X (-6) quantity
@@ -521,11 +521,22 @@
   - Add Jacket to cart. Burp Intruder > Change quantity=99 > Payloads "Null payloads" > Generate 323 payloads > max concurrent 1 requests > -$-64060.96
   - Burp Repeater > change qty to 47 > $-1221.96
   - Add a cheaper item > increase quantity > until total reduce to <$100
-- Inconsistent handling of exceptional input
+- Inconsistent handling of **exceptional input**
+  - **Site Map** > Right click target url > **Engagement Tools > Discover content** > click button "session is not running"
+  - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
+  - **Email** truncated to **255 chrs**
+  - Register "[Long string chrs total of 255 including sudomain add]@dontwannacry.com.exploit-0a6500480408835d81947f9901c70002.exploit-server.net"
 - Inconsistent security controls
+  - Use admin subdomain as email and login as admin type user
+  - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
+  - Update email as hacker**@DontWannaCry.com**
 - Weak isolation on dual-use endpoint
+  - change password for admin (remove current-password param, and update username)
+  - POST /my-account/change-password
+  - original: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&username=wiener&**current-password=peter**&new-password-1=123456&new-password-2=123456
+  - modified: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&**username=administrator**&&new-password-1=123456&new-password-2=123456
 - Password reset broken logic
-- 2FA simple bypass
+- 2FA simple bypass 
 - Insufficient workflow validation
 - Authentication bypass via flawed state machine
 - Flawed enforcement of business rules
