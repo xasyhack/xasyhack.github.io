@@ -567,12 +567,12 @@
     productId=2&redir=PRODUCT&quantity=1   
   > **add coupon**   
     POST /cart/coupon   
-    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00&coupon=SIGNUP30   
-    GET /cart/order-confirmation?order-confirmed=true   
-    Gift card code = lHdlmj91Nu   
+    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00&coupon=**SIGNUP30**      
+    Gift card code = **lHdlmj91Nu**   
   > **place order**   
     POST /cart/checkout   
-    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00   
+    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00
+    GET /cart/order-confirmation?order-confirmed=true
   > **redeem gift card**   
     POST /gift-card   
     csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00&gift-card=lHdlmj91Nu   
