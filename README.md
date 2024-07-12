@@ -571,8 +571,8 @@
     Gift card code = **lHdlmj91Nu**   
   > **place order**   
     POST /cart/checkout   
-    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00
-    GET /cart/order-confirmation?order-confirmed=true
+    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00   
+    GET /cart/order-confirmation?order-confirmed=true     
   > **redeem gift card**   
     POST /gift-card   
     csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00&gift-card=lHdlmj91Nu   
@@ -586,7 +586,7 @@
     - GET /cart/order-confirmation?order-confirmed=true > click configure item > **add a custom parameter** > name 'gift-card' > **highlight the gift card code** at the bottom of the response > Ok to go back Macro Editor
     - POST /gift-card > click configure item > under **gift-card parameter handling** > select dropdown list **'derive from prior response**' > Ok to go back Macro Editor
   - **Test Macro** > Ok to go back Burp
-  - Burp Intruder > **GET /my-account** > Sniper > **null payloads > generate 412 payloads **> max 1 concurrent request
+  - Burp Intruder > **GET /my-account** > Sniper > **null payloads** > **generate 412 payloads** > max 1 concurrent request
   - Store credit++ (Refresh the page)
 - Authentication bypass via encryption oracle   
 
