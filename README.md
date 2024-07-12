@@ -588,7 +588,7 @@
   - **Test Macro** > Ok to go back Burp
   - Burp Intruder > **GET /my-account** > Sniper > **null payloads** > **generate 412 payloads** > max 1 concurrent request
   - Store credit++ (Refresh the page)
-- Authentication bypass via **encryption oracle** - **SUPER HARD!!**
+- Authentication bypass via **encryption oracle** **(SUPER HARD)**
   - [Tutorial step by step](https://www.youtube.com/watch?v=62spVp-GVPI&t=1s)
   - Stay logged in and post a comment with invalid email to observe encrypted cookies
     ```
