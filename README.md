@@ -51,8 +51,9 @@
 - [Essential Skills](#essential-skills)
 
 **Burp extension**  
-- Hackvertor: Encoding and Decoding, data transformation (hashing, encryption, decryptin, convert, string)
-- Turbo Intruder: sending large numbers of HTTP requests and analyzing the results   
+- Hackvertor: Encoding and Decoding, data transformation (hashing, encryption, decryptin, convert, string) [SQL injection]
+- Turbo Intruder: sending large numbers of HTTP requests and analyzing the results [Brute-force]
+- Logger++: allows the logs to be searched to locate entries which match a specified pattern [Information disclosure]
   
 ## SQL Injection
 **How to detect**     
@@ -732,9 +733,51 @@
   - whoami (the current user's username) appended to .mpfb2unin92joam6r4rgkj360x6ouoid.oastify.com. For e.g **root**.mpfb2unin92joam6r4rgkj360x6ouoid.oastify.com
 
 ## Information Disclosure
-Content for Information Disclosure...
+**Examples of information disclosure**
+- hidden directories such as robots.txt
+- access to source code file such as backup.txt
+- DB info
+- Credit card details
+- Hard-coding API keys, IP addresses, database credentials
+- Hinting at the existence or absence of resources, username
+- 
+**Common sources of information disclosure**
+- Files for web crawlers: robots.txt, sitemap.xml
+- Directory listings: http://example.com/images/
+- Developer comments
+- Error messages, debugging data, user account pages, backup files, insecure configuration, version control history
+
+**How do information disclosure vulnerabilities arise**
+- Failure to remove internal content from public content - Developer comment   
+- Insecure configuration of the website and related technologie - Debugging
+- Flawed design and behavior of the application - returns distinct responses when different error states occur
+
+**How to test**
+- Fuzzing
+  - identify interesting parameters
+  - submitting unexpected data types by using Burp Intruder (fuzz pre-build wordlists)
+  - comparing HTTP status codes, response times, lengths (grep match: error, invalid, SELECT, SQL)   
+- Burp Scanner
+  - Live scanning features for auditing. Alert you if it finds sensitive information such as private keys, email addresses, and credit card numbers.
+- Burp's engagement tools
+  - Search, find comments, discover content
+- Engingeering informative responses
+
+**Best practices**
+- Everyone aware of what information is considered sensitive
+- Audit any code for potential information disclosure as part of QA or build processes
+- Use generic error messages
+- Double-check that any debugging or diagnostic features are disabled in the production environment
+- Understand the configuration settings, and security implications, of any third-party technology that you implement
 
 ### Information Disclosure Lab
+- Information disclosure in error messages
+  - GET /product?productId=`"example"`
+  - full stack trace leaked: HTTP/2 500 Internal Server Error...**Apache Struts 2 2.3.31**
+- Information disclosure on debug page
+- Source code disclosure via backup files
+- Authentication bypass via information disclosure
+- Information disclosure in version control history   
 
 ## Access Control
 Content for Access Control...
