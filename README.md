@@ -741,7 +741,7 @@
 - Credit card details
 - Hard-coding API keys, IP addresses, database credentials
 - Hinting at the existence or absence of resources, username
-- 
+  
 **Common sources of information disclosure**
 - Files for web crawlers: robots.txt, sitemap.xml
 - Directory listings: http://example.com/images/
@@ -794,7 +794,16 @@
   - the hard-coded password in diff on admin.conf file `git show` `git diff HEAD^ HEAD`
 
 ## Access Control
-Content for Access Control...
+**Types of control**
+- vertical access control: admin (privilege account type)
+- horizontal access control: access other user's resource
+- context-dependent access control (referer, location)
+
+**Mitigation**
+- Never rely on obfuscation alone for access control
+- Use a single application-wide mechanism for enforcing access controls
+- Declare the access that is allowed for each resource
+- Deny access by default
 
 ### Access Control Lab
 
