@@ -876,7 +876,7 @@
     username=carlos&action=upgrade > access denied   
   - 2nd step Confirmation: POST /admin-roles   
     action=upgrade&**confirmed=true**&**username=wiener**   
-    **Replace cookies with attacker's one** and reply it > OK   
+    **Replace cookies with attacker's one** and replay it > OK   
 - **Referer**-based access control   
   GET /admin-roles?**username=wiener**&action=upgrade   
   Referer: https://0a6700d3044a5e898157ed94008d007c.web-security-academy.net/admin   
