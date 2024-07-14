@@ -872,10 +872,10 @@
   - view other chat history   
     GET /download-transcript/`1.txt`
 - **Multi-step process** with no access control on one step
-  - 1st step: POST /admin-roles
-    username=carlos&action=upgrade > access denied
-  - 2nd step Confirmation: POST /admin-roles
-    action=upgrade&**confirmed=true**&**username=wiener**
+  - 1st step: POST /admin-roles   
+    username=carlos&action=upgrade > access denied   
+  - 2nd step Confirmation: POST /admin-roles   
+    action=upgrade&**confirmed=true**&**username=wiener**   
     **Replace cookies with attacker's one** and reply it > OK   
 - **Referer**-based access control   
   GET /admin-roles?**username=wiener**&action=upgrade   
