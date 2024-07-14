@@ -841,14 +841,14 @@
     ```  
   - Append roleid to uppdate   
     Body {"email":"edisonchen2019@gmail.com", **"roleid": 2**}   
-- **URL-based access control** can be circumvented
+- **URL-based** access control can be circumvented
   - GET /admin > access denied
   - GET /  > response 200
     X-Original-Url: /admin
   - Delete the user `<a href="/admin/delete?username=carlos">`   
     GET `/?username=carlos`   
     `X-Original-Url: /admin/delete`   
-- Method-based access control can be circumvented
+- **Method-based** access control can be circumvented
   - **Admin upgrade user**
     POST /admin-roles   
     username=carlos&action=upgrade   
@@ -856,11 +856,21 @@
     Right click repeater of POST /admin-roles > **Change request method**
     change the session to own cookies
     **GET** /admin-roles?**username=wiener**&action=upgrade
-- User ID controlled by request parameter
-- User ID controlled by request parameter, with unpredictable user IDs   
-- User ID controlled by request parameter with data leakage in redirect
-- User ID controlled by request parameter with password disclosure
-- Insecure direct object references
+- **User ID **controlled by **request parameter**
+  - GET /my-account?`id=carlos`   
+- User ID controlled by request parameter, with unpredictable user IDs
+  - GET /my-account?`id=75b04a0a-1476-4e20-9b58-f2e7b77de253`
+  - Dicover other user ID in website   
+- **User ID** controlled by **request parameter** with **data leakage in redirect**
+  - change the id to another user (horizontal privilege escalation)   
+  - GET /my-account?`id=carlos` > 302 response code
+  - Redirect to /login page but body response leak the API key   
+- **User ID** controlled by **request parameter** with **password disclosure**
+  - GET /my-account?`id=administrator`
+  - response leak the administrator password
+- **Insecure direct object references**
+  - view other chat history   
+    GET /download-transcript/`1.txt`
 - Multi-step process with no access control on one step   
 - Referer-based access control   
 
