@@ -1,23 +1,7 @@
 # Preliminary
-[Github Basic writing and formatting syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
-
-# Windows pre-requiste setup
-1. Burp Suite Pro
-2. OWASP Zap
-4. Install [chocolatey](https://chocolatey.org/install#individual) via PowerShell: Windows package manager to install and manage software
-   - `choco install postman -y`
-   - `choco install git -y`
-   - `choco install python -y`
-   - `choco install wget -y`
-   - `choco install curl -y`
-5. Cygwin
-8. Nmap 
-9. Wireshark 
-10. Metaploit 
-11. SQlmap 
-12. Nikto 
-13. Web Browser Extensions: Foxy Proxy, Wappalyzer, User-Agent Switcher, and HTTP Headers
-14. Virtualization Software: VirtualBox or VMware Workstation Player
+- [Github Basic writing and formatting syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+- [Windows installation tools](#windows-installation-tools)
+- [Web Penetration Testing Learning path](#web-penetration-testing-learning-path)
 
 # Web Penetration Testing Learning path
 1. [TryhackMe - Web Fundamentals](https://tryhackme.com/path/outline/web)  
@@ -922,4 +906,22 @@ Content for Prototype Pollution...
 
 ## Essential Skills
 Content for Essential Skills...
+
+# Windows installation tools
+1. Burp Suite Pro
+2. OWASP Zap
+4. Install [chocolatey](https://chocolatey.org/install#individual) via PowerShell: Windows package manager to install and manage software
+   - `choco install postman -y`
+   - `choco install git -y`
+   - `choco install python -y`
+   - `choco install wget -y`
+   - `choco install curl -y`
+5. Cygwin
+8. Nmap 
+9. Wireshark 
+10. Metaploit 
+11. SQlmap 
+12. Nikto 
+13. Web Browser Extensions: Foxy Proxy, Wappalyzer, User-Agent Switcher, and HTTP Headers
+14. Virtualization Software: VirtualBox or VMware Workstation Player
 
