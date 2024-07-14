@@ -878,10 +878,10 @@
     action=upgrade&**confirmed=true**&**username=wiener**
     **Replace cookies with attacker's one** and reply it > OK   
 - **Referer**-based access control   
-  GET /admin-roles?**username=wiener**&action=upgrade
-  Referer: https://0a6700d3044a5e898157ed94008d007c.web-security-academy.net/admin
-  Login as wiener user, obtain the cookie, replace in the original admin's request
-  Missing referer > get unauthorized error > paste back the referrer > OK
+  GET /admin-roles?**username=wiener**&action=upgrade   
+  Referer: https://0a6700d3044a5e898157ed94008d007c.web-security-academy.net/admin   
+  Login as wiener user, obtain the cookie, replace in the original admin's request   
+  Missing referer > get unauthorized error > paste back the referrer > OK   
 
 ## File Upload
 Content for File Upload...
