@@ -784,7 +784,7 @@
 - Authentication bypass via information disclosure
   - GET /admin > HTTP/2 401 Unauthorized
   - `TRACE` /admin > send repeater request > HTTP/2 200 > response X-Custom-IP-Authorization: 116.87.25.165
-  - Click **Proxy settings** > Scoll to **"Match and Replace rules"** > click "Add" > **Type: Request Header** > Replace: X-Custom-IP-Authorization: 127.0.0.1   
+  - Click **Proxy settings** > Scoll to **"Match and Replace rules"** > click "Add" > **Type: Request Header** > Replace: **X-Custom-IP-Authorization: 127.0.0.1 **  
     Burp Proxy will now add this header to every request you send
   - Now can access Admin page
 - Information disclosure in **version control history**
