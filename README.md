@@ -790,8 +790,8 @@
 - Information disclosure in **version control history**
   - Manual browse to /.git   
   - Download the git directory: Windows > Cygwin Tool > wget -r https://0afe0009032545248bb6a7c000df0033.web-security-academy.net/.git/   
-  - git log, git show, git diff HEAD^ HEAD   
-  - the hard-coded password in diff on admin.conf file   
+  - View commit history "Remove admin password from config" `git log`  
+  - the hard-coded password in diff on admin.conf file `git show` `git diff HEAD^ HEAD`
 
 ## Access Control
 Content for Access Control...
