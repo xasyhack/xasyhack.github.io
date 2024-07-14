@@ -1,6 +1,24 @@
 # Preliminary
 [Github Basic writing and formatting syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
 
+# Windows pre-requiste setup
+1. Burp Suite Pro
+2. OWASP Zap
+4. Install [chocolatey](https://chocolatey.org/install#individual) via PowerShell: Windows package manager to install and manage software
+   - `choco install postman -y`
+   - `choco install git -y`
+   - `choco install python -y`
+   - `choco install wget -y`
+   - `choco install curl -y`
+5. Cygwin
+8. Nmap 
+9. Wireshark 
+10. Metaploit 
+11. SQlmap 
+12. Nikto 
+13. Web Browser Extensions: Foxy Proxy, Wappalyzer, User-Agent Switcher, and HTTP Headers
+14. Virtualization Software: VirtualBox or VMware Workstation Player
+
 # Web Penetration Testing Learning path
 1. [TryhackMe - Web Fundamentals](https://tryhackme.com/path/outline/web)  
 1. [PortSwigger - Web Security Academy](https://portswigger.net/web-security/all-topics)
@@ -772,12 +790,25 @@
 
 ### Information Disclosure Lab
 - Information disclosure in error messages
-  - GET /product?productId=`"example"`
+  - GET /product?**productId=`"example"`**
   - full stack trace leaked: HTTP/2 500 Internal Server Error...**Apache Struts 2 2.3.31**
 - Information disclosure on debug page
+  - Target Site Map > Right click Engagement Tools > **Find Comments**
+  - cgi-bin/phpinfo.php （SECRET_KEY environment variable)   
 - Source code disclosure via backup files
+  - Target Site Map > Right click Engagement Tools > **Discover content**
+  - Found /backup directory, browse to backup/ProductTemplate.java.bak to access the source code > DB connection contains hard-coded password   
 - Authentication bypass via information disclosure
-- Information disclosure in version control history   
+  - GET /admin > HTTP/2 401 Unauthorized
+  - `TRACE` /admin > send repeater request > HTTP/2 200 > response X-Custom-IP-Authorization: 116.87.25.165
+  - Click **Proxy settings** > Scoll to **"Match and Replace rules"** > click "Add" > **Type: Request Header** > Replace: X-Custom-IP-Authorization: 127.0.0.1   
+    Burp Proxy will now add this header to every request you send
+  - Now can access Admin page
+- Information disclosure in **version control history**
+  - Manual browse to /.git   
+  - Download the git directory: Windows > Cygwin Tool > wget -r https://0afe0009032545248bb6a7c000df0033.web-security-academy.net/.git/   
+  - git log, git show, git diff HEAD^ HEAD   
+  - the hard-coded password in diff on admin.conf file   
 
 ## Access Control
 Content for Access Control...
