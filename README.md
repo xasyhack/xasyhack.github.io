@@ -798,8 +798,8 @@
 - vertical access control: admin (privilege account type)
 - horizontal access control: access other user's resource
 - context-dependent access control (referer, location)
-- hidden fields to determine the user's access rights or role at login
-  - <input type="hidden" name="role" value="admin">   
+- hidden fields to determine the user's access rights or role at login     
+  - `<input type="hidden" name="role" value="admin">`
   - URL param https://insecure-website.com/login/home.jsp?`role=1`
   
 **Mitigation**
@@ -811,7 +811,7 @@
   ```javascript
   const jwt = require('jsonwebtoken');
   const token = jwt.sign({ userId: 12345, role: 'admin' }, 'your_secret_key', { expiresIn: '1h' });
- ```
+  ```
 
 ### Access Control Lab
 - Unprotected admin functionality
