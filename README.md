@@ -798,14 +798,39 @@
 - vertical access control: admin (privilege account type)
 - horizontal access control: access other user's resource
 - context-dependent access control (referer, location)
-
+- hidden fields to determine the user's access rights or role at login
+  - <input type="hidden" name="role" value="admin">   
+  - URL param https://insecure-website.com/login/home.jsp?`role=1`
+  
 **Mitigation**
 - Never rely on obfuscation alone for access control
 - Use a single application-wide mechanism for enforcing access controls
 - Declare the access that is allowed for each resource
 - Deny access by default
+- Use JWT for managing user roles and access rights
+  ```javascript
+  const jwt = require('jsonwebtoken');
+  const token = jwt.sign({ userId: 12345, role: 'admin' }, 'your_secret_key', { expiresIn: '1h' });
+ ```
 
 ### Access Control Lab
+- Unprotected admin functionality
+  - browse /**robots.txt**
+  - Disallow: /**administrator-panel**
+- Unprotected admin functionality with unpredictable URL
+  - Target Site Map > Right click Engagement Tools > **Find script**
+    adminPanelTag.setAttribute('href', '/admin-8trs8m');
+- User role controlled by request parameter
+- User role can be modified in user profile
+- User ID controlled by request parameter
+- User ID controlled by request parameter, with unpredictable user IDs
+- User ID controlled by request parameter with data leakage in redirect
+- User ID controlled by request parameter with password disclosure
+- Insecure direct object references
+- URL-based access control can be circumvented
+- Method-based access control can be circumvented
+- Multi-step process with no access control on one step
+- Referer-based access control   
 
 ## File Upload
 Content for File Upload...
