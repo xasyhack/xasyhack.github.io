@@ -1093,6 +1093,10 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
     username=User0&email=user%40ginandjuice.shop&password=123456
     ```
 - Exploiting time-sensitive vulnerabilities   
+  - request 1: POST /forgot-password csrf=qkTrYHsMf4bkS7bfcve9Pkkk9xdDOJd9&username=wiener   
+  - request 2: POST /forgot-password csrf=qkTrYHsMf4bkS7bfcve9Pkkk9xdDOJd9&username=carlos   
+  - send requests in paralle (check miliseconds)   
+  - Email retrieve the same toke same as carlos https://0a6900f80434cae2813702630092000a.web-security-academy.net/forgot-password?**user=carlos**&**token=fb72ceec9631530954d3e0dc2077c72fbbe7d981**
 
 ## SSRF (Server-Side Request Forgery)
 Content for SSRF...
