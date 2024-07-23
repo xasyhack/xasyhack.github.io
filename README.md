@@ -1099,9 +1099,47 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
   - Email retrieve the same toke same as carlos https://0a6900f80434cae2813702630092000a.web-security-academy.net/forgot-password?**user=carlos**&**token=fb72ceec9631530954d3e0dc2077c72fbbe7d981**
 
 ## SSRF (Server-Side Request Forgery)
-Content for SSRF...
+**SSRF impacts**
+- unauthorized actions or access to data within the organization
+- abitrary command execution
+
+**SSRF types**
+- Basic SSRF
+  `GET /fetch?url=http://internal-service.local/admin`
+- Blind SSRF (cannot see the response but can infer based on response times or logs)
+  `GET /fetch?url=http://internal-service.local/admin/slow-endpoint`
+- SSRF to Access Internal Services
+  `GET /fetch?url=http://localhost:8080/admin`
+- SSRF to Access Cloud Metadata Services
+  `GET /fetch?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/`
+- SSRF to Scan Internal Networks
+  `GET /fetch?url=http://192.168.1.1:22/`
+- SSRF to Exploit Local File Inclusion (LFI)
+  `GET /fetch?url=file:///etc/passwd`
+- SSRF with DNS Rebinding
+  The attacker sends a request to http://attacker.com, and through DNS rebinding, the domain resolves to an internal IP address.
+  `GET /fetch?url=http://malicious.com/xss`
+- SSRF to Relay Attacks (bypassing IP restriction)
+  `GET /fetch?url=http://external-service.com/api?token=secret`
+- SSRF to Exploit Third-Party APIs
+  `GET /fetch?url=http://api.thirdparty.com/userinfo?user_id=admin`
+
+**Mitigation**
+- Input Validation
+- allowlist to restrict which URLs the server can request
+- firewall rules to prevent the server from making requests to internal or restricted IP ranges
+- Metadata Service Protection: Block access to cloud metadata services from untrusted sources
+- Network Segmentation: Segment the network to limit the server's ability to access internal services.
+- Logging and Monitoring: Implement logging and monitoring to detect suspicious activity.   
 
 ### SSRF Lab
+- Basic SSRF against the local server
+- ddd
+- ddd
+- ddd
+- ddd
+- ddd
+- ddd
 
 ## NoSQL Injection
 Content for NoSQL Injection...
