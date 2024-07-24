@@ -1221,7 +1221,7 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
 
 ## NoSQL Injection
 Impact: Bypass authentication or protection; Extract or edit data; DoS; Execute code   
-Types: synxtax (break the NoSQL query syntax), operator (manipulate queries)
+Types: synxtax (break the NoSQL query syntax), operator (manipulate queries)   
 [MongoDB commands doc](https://www.mongodb.com/docs/v4.2/reference/operator/query/)
 
 **NoSQL Injection Usage and Knowledge**
@@ -1262,7 +1262,7 @@ Types: synxtax (break the NoSQL query syntax), operator (manipulate queries)
 - ORM/ODM framework
   
 ### NoSQL Injection Lab
-- Detecting NoSQL injection
+- **Detecting NoSQL injection**
   - URL encode all payloads chrs
   - Test for syntax error
     - Syntax error: `'` > Command failed with error 139 (JSInterpreterFailure): &apos;SyntaxError: unterminated string literal
@@ -1272,7 +1272,7 @@ Types: synxtax (break the NoSQL query syntax), operator (manipulate queries)
     - true: `Gifts' && 1 && 'x`> product listing
   - Submit a always true condition
     `Gifts'||1||'` > list out all products
-- Exploiting NoSQL operator injection to bypass authentication
+- Exploiting NoSQL operator injection to **bypass authentication**
   - username not equal to nothing + actual password > login
     "username": `{"$ne":""}`   
     "password": "peter"   
