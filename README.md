@@ -1370,12 +1370,12 @@ Interfere with an application's processing of XML to view files on the applicati
 
 | **Language**           | **Library/Parser** | **Code to Disable XXE**                                           |
 |------------------------|---------------------|------------------------------------------------------------------|
-| **Java**               | DOM Parser          | ```java<br>factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);<br>``` |
-|                        | SAX Parser          | ```java<br>factory.setFeature("http://xml.org/sax/features/external-general-entities", false);<br>``` |
-| **Python**             | lxml                | ```python<br>parser = etree.XMLParser(resolve_entities=False)<br>``` |
-| **PHP**                | libxml              | ```php<br>libxml_disable_entity_loader(true);<br>``` |
-| **.NET (C#)**          | XmlReader           | ```csharp<br>settings.DtdProcessing = DtdProcessing.Ignore;<br>``` |
-| **JavaScript (Node.js)** | xml2js             | ```javascript<br>parseStringPromise(data, { explicitArray: false });<br>``` |
+| **Java**               | DOM Parser          | ```factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);``` |
+|                        | SAX Parser          | ```factory.setFeature("http://xml.org/sax/features/external-general-entities", false);``` |
+| **Python**             | lxml                | ```parser = etree.XMLParser(resolve_entities=False)``` |
+| **PHP**                | libxml              | ```libxml_disable_entity_loader(true);``` |
+| **.NET (C#)**          | XmlReader           | ```settings.DtdProcessing = DtdProcessing.Ignore;``` |
+| **JavaScript (Node.js)** | xml2js             | ```parseStringPromise(data, { explicitArray: false });``` |
   
 ### XXE Injection Lab
 - Exploiting XXE using external entities to **retrieve files**
