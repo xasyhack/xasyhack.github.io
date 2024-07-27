@@ -1587,8 +1587,8 @@ CONNECT
     username=../administrator > Invalid route   
     username=../../../../../administrator > Error: Unexpected response from API   
     username=`/../../../../../openapi.json%23` > Error: **/api/internal/v1/users/{username}/field/{field}**   
-  - Test for **field name**
-    username=administrator/field/invalid > The provided field name "invalid" does not exist
+  - Test for **field name**   
+    username=administrator/field/invalid > The provided field name "invalid" does not exist   
     username=administrator/field/passwordResetToken#   
     Result: Error: **This version of API only** supports the email field for security reasons   
   - Try **other version API**   
