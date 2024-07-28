@@ -1776,8 +1776,8 @@ email=wiener@normal-user.com
      - Go to latest GET .chat triggered by your script   > noticed the session cookies was not sent with the request > response specifies SameSite=Strict   
   -  Identify a reflected XSS in sudomain
      - In the response of GET /resources/js/chat.js > Access-Control-Allow-Origin: https://**cms-**0a540012047094f381f67fc5001d00ea.web-security-academy.net   > discover subdomain
-     - A reflected XSS exploited in username textbox `<p>Invalid username: <script>alert(1)</script></p>`
-     - POST /login request containing the XSS payload > repeater  > change request method   
+     - A **reflected XSS exploited in username** textbox `<p>Invalid username: <script>alert(1)</script></p>`
+     - **POST /login** request containing the XSS payload > repeater  > **change request method**   
        `GET /login?username=<script>alert(1)</script>&password=123456`
      - Copy URL > `https://cms-0a540012047094f381f67fc5001d00ea.web-security-academy.net/login?username=%3Cscript%3Ealert%281%29%3C%2Fscript%3E&password=123456` > confirm xss exploit   
   -  Bypass the SameSite restriction
@@ -1805,7 +1805,8 @@ email=wiener@normal-user.com
      - Go to latest GET /chat > confirm this request contain your session cookie   
   -  Deliver the exploit chain
      - Deliver the exploit to the victim
-     - Collaborator > Poll now   
+     - Collaborator > Poll now
+     - study the HTTP request to collaborator (Password inside of chat history)   
 - dd
 - dd
 - dd
