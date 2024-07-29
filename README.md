@@ -1862,7 +1862,7 @@ email=wiener@normal-user.com
           }
       </script>
     ```
-- CSRF where **Referer** validation depends on header being present
+- CSRF where **Referer** validation depends on header being **present**
   - study change email traffic and identify CSRF flaws
     POST /my-account/change-email
     Cookie: session=XXX
@@ -1882,7 +1882,7 @@ email=wiener@normal-user.com
             document.forms[0].submit();
           </script>
      ```
-- CSRF with broken Referer validation
+- CSRF with **broken Referer validation**
   - Application checks the Referer contains its own **domain name**
   - Many browsers strip the query string from the Referer header by default. You can override this behavior by making sure that the response containing your exploit has the Referrer-Policy: unsafe-url header set
   - Under HEAD, add `Referrer-Policy: unsafe-url`
