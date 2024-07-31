@@ -1992,25 +1992,42 @@ Content-Type: application/json
 }
 
 ```
+**Pre-flight checks**   
+- Pre-flight check was added to the CORS specification to protect legacy resources from the expanded request options allowed by CORS
+  ```
+  Request
+  OPTIONS /data HTTP/1.1
+   Host: <some website>
+   ...
+   Origin: https://normal-website.com
+   Access-Control-Request-Method: PUT
+   Access-Control-Request-Headers: Special-Request-Header
+
+  Response
+  HTTP/1.1 204 No Content
+   ...
+   Access-Control-Allow-Origin: https://normal-website.com
+   Access-Control-Allow-Methods: PUT, POST, OPTIONS
+   Access-Control-Allow-Headers: Special-Request-Header
+   Access-Control-Allow-Credentials: true
+   Access-Control-Max-Age: 240
+  ```
 
 **Testing for CORS misconfigurations**
-- change the origin header to an arbitrary value
-- change the origin header to the null value
+- change the origin header to an arbitrary value `Origin: https://example.com`   
+- change the origin header to the null value `Origin: null`   
 - change the origin header to one that begins with the origin of the site   
-- change the origin header to one that ends with the origin of the site   
-**Vulnerabilities**
-- Server-generated ACAO header from client-specified Origin header `Origin: https://example.com`   
-- CORS origin whitelists 'Access-Control-Allow-Origin: https://innocent-website.com`   
-- Whitelisted null origin value `Origin: null`   
-
-
+- change the origin header to one that ends with the origin of the site
+- `Access-Control-Allow-Origin: *` | `Access-Control-Allow-Credentials: true`   
+- `Access-Control-Allow-Origin: https://*.normal-website.com`    
+ 
 **Mitigation**
 - Limit Access-Control-Allow-Origin to specific, trusted origins.
 - Avoid using wildcard origins or credentials with wildcard origins.
 - 
 ### CORS Lab
 - Exploit the CORS misconfiguration to retrieve the administrator's API key
-  - check if CORS support > `Access-Control-Allow-Credential' in response
+  - check if **CORS support** > `Access-Control-Allow-Credential' in response
   - Resubmit /accountDetails with header `Origin: https://example.com`   > observe that origin reflected in `Access-Control-Allow-Origin`
   '''
   Request
@@ -2041,7 +2058,7 @@ Content-Type: application/json
    </script>
   ```
   - Access log, retrieve the victim's API key
-- CORS vulnerability with trusted null origin
+- CORS vulnerability with trusted **null origin**
   - Resubmit /accountDetails with header Origin: null >  observe that origin reflected in `Access-Control-Allow-Origin`
   - Craft payload with sandbox iframe
     ```
@@ -2056,7 +2073,7 @@ Content-Type: application/json
     };
    </script>"></iframe>
     ```
-- CORS vulnerability with trusted insecure protocols
+- CORS vulnerability with trusted **insecure protocols**
   - a website trusts an origin that is vulnerable to cross-site scripting (XSS), then an attacker could exploit the XSS to inject some JavaScript that uses CORS to retrieve sensitive information   
   - Origin: http://subdomain.lab-id > Confirming that the CORS configuration allows access from arbitrary subdomains, both HTTPS and HTTP
   - Product page check stock and observe that it is loaded using a HTTP url on a subdomain. Observe that the product ID parameter is vulnerable to XSS
@@ -2073,7 +2090,6 @@ Content-Type: application/json
    </script>
     ```
   - 
-- ddd
 
 ## Clickjacking
 Details about Clickjacking...
