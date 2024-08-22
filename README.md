@@ -2644,9 +2644,38 @@ Content-Type: application/json
   - Rendering in browser ```<><img src=1 onerror=alert(1)>```
 
 ## Insecure Deserialization
-Content for Insecure Deserialization...
+**How to identify insecure deserialization**
+```
+PHP
+O:4:"User":2:{s:4:"name":s:6:"carlos"; s:10:"isLoggedIn":b:1;}
+
+$user = unserialize($_COOKIE);
+if ($user->isAdmin === true) {
+// allow access to admin interface
+}
+
+Java
+encoded as ac ed in hexadecimal and rO0 in Base64
+java.io.Serializable; readObject(); InputStream
+```
 
 ### Insecure Deserialization Lab
+- Modifying serialized objects
+  - session cookies decoded from Base64 `O:4:"User":2:{s:8:"username";s:6:"wiener";s:5:"admin";b:0;}`
+  - update `"admin";b:1`;
+- Modifying serialized data types
+  - session cookies decoded from Base64 `O:4:"User":2:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"ybqk6zfha87yd7k0lkzcc8f5ynmyoqkn";}`
+  - Update the length of the username attribute to 13
+  - Change the username to administrator
+  - Change the access token to the integer 0. As this is no longer a string, you also need to remove the double-quotes surrounding the value
+  - Update the data type label for the access token by replacing s with i
+  - `O:4:"User":2:{s:8:"username";s:13:"administrator";s:12:"access_token";i:0;}`
+- Using application functionality to exploit insecure deserialization
+- sss
+- sss
+- sss
+- sss
+- sss
 
 ## Web LLM Attacks
 Content for Web LLM Attacks...
