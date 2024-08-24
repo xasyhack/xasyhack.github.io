@@ -2679,7 +2679,7 @@ java.io.Serializable; readObject(); InputStream
 - Using application **functionality** to exploit insecure deserialization
   - session cookies decoded from Base64 `O:4:"User":3:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"zonq68cope5blxe3agxjcwnpelorlj7l";s:11:"avatar_link";s:19:"users/wiener/avatar";}`
   - update "avatar_link" `"avatar_link";s:23:"/home/carlos/morale.txt";}`  
-- Arbitrary object injection in PHP
+- **Arbitrary object** injection in PHP
   - read the source code by appending a tilde (~) to the filename in the request line
     `GET /libs/CustomTemplate.php~`  
   - In the source code, notice the CustomTemplate class contains the __destruct() magic method. This will invoke the unlink() method on the lock_file_path attribute, which will delete the file on this path
@@ -2813,7 +2813,16 @@ java.io.Serializable; readObject(); InputStream
   - GET /cgi-bin/avatar.php?avatar=phar://wiener
 
 ## Web LLM Attacks
-Content for Web LLM Attacks...
+- A large language model (LLM) is a type of artificial intelligence model that has been trained on massive datasets of text to understand, generate, and manipulate human language. Use cases such as virtual assistant, Translation, SEO improvement, Analysis of user-generated content.
+- Key Characteristics of Large Language Models
+  - Scale of Training Data
+  - Deep Neural Networks
+  - Understanding and Generating Text
+  - Transformer Architecture
+  - Pre-training and Fine-tuning 
+- Example of Large Language Models: GPT (OpenAI), BERT; LaMDA (Google)
+
+![How LLM APIs work](https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F45a190f1-f77d-42f7-ab40-0e9ed29ad224_2018x1200.png)
 
 ### Web LLM Attacks Lab
 
