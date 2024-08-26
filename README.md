@@ -9,7 +9,7 @@
    - [Burp Suite Certified Practitioner Exam Study](https://github.com/botesjuan/Burp-Suite-Certified-Practitioner-Exam-Study#identified)
 1. [iNE - eWPT Web Application Penetration Tester](https://security.ine.com/certifications/ewpt-certification/)
 
-# Payload, github, hacker blogger
+# Payload, HackTricks, hacker blogger
 - [HackTricks](https://book.hacktricks.xyz/)
 - [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)  
 - [Seven Seas Security - Portswigger walkthrough](https://www.youtube.com/@7SeasSecurity)
