@@ -3225,7 +3225,7 @@ LLM -> API: create_email_forwarding_rule('peter')
 	    {{/with}}
 	{{/with}}
     ```
- - rm command to remove carlos file: https://YOUR-LAB-ID.web-security-academy.net/?message=<URL Encode PAYLOAD> 
+  - rm command to remove carlos file: `https://YOUR-LAB-ID.web-security-academy.net/?message=<URL Encode PAYLOAD>`
 - dd
 - dd
   
