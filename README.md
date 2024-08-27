@@ -1,6 +1,7 @@
 # Preliminary
 - [Github Basic writing and formatting syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
 - [Windows installation tools](#windows-installation-tools)
+- yof9/]E33G?6H}|\9gzZr|8!}N]:";p^
 
 # Web Penetration Testing Learning path
 1. [TryhackMe - Web Fundamentals](https://tryhackme.com/path/outline/web)  
@@ -3271,11 +3272,18 @@ LLM -> API: create_email_forwarding_rule('peter')
         $this->delete();
     }
     ```
+  - set the target file as your avatar, then view the comment to execute the template
+    `user.setAvatar('/home/carlos/.ssh/id_rsa','image/jpg')`
   - Delete the user's avatar
     blog-post-author-display=`user.gdprDelete()`  
   
 ## Web Cache Poisoning
-Content for Web Cache Poisoning...
+- Web cache poisoning is an attacker exploits the behavior of a web server and cache so that a harmful HTTP response is served to other users
+- impact: XSS, JavaScript injection, open redirection
+- steps
+  - **Identify and evaluate unkeyed inputs**: Hackers first look for parts of a website that don't properly check what information is being sent. These unchecked parts (called "unkeyed inputs") allow hackers to send unexpected information.
+  - **Elicit a harmful response from the back-end server**: Next, the hacker sends some harmful or misleading information to the website. The goal is to get the website to respond in a way that helps the hacker, like displaying incorrect data or running a dangerous command.
+  - **Get the response cached**: Finally, if the website saves (or "caches") this harmful response, the bad information might be shown to everyone who visits the website later. This makes the attack even more dangerous, because it spreads automatically to other visitors.  
 
 ### Web Cache Poisoning Lab
 
