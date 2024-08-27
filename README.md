@@ -1,7 +1,6 @@
 # Preliminary
 - [Github Basic writing and formatting syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
 - [Windows installation tools](#windows-installation-tools)
-- yof9/]E33G?6H}|\9gzZr|8!}N]:";p^
 
 # Web Penetration Testing Learning path
 1. [TryhackMe - Web Fundamentals](https://tryhackme.com/path/outline/web)  
