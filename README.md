@@ -3823,7 +3823,80 @@ LLM -> API: create_email_forwarding_rule('peter')
     `"GET /?/login'>click+here</a>+to+login+with+your+new+password:+GgfkWVd8so</p>`
 
 ## HTTP request smuggling
-Content for OAuth Authentication...
+- Content-Length Header – defines the size of the request body in bytes.
+- Transfer-Encoding Header – sends the request body in chunks that are separated by newline. Typically, the chunk ends with 0.  
+
+**Attacks**
+- Session hijacking
+- Web cache poisoning
+- Bypassing a web application firewall (WAF)
+- Cross-site scripting (XSS)
+  
+**HTTP Request Smuggling Examples**
+- CL.TE (Content-Length.Transfer-Encoding) Vulnerabilities
+  - The front-end server uses the Content-Length header and the back-end server uses the Transfer-Encoding header.
+  - The** front-end server** processes the **Content-Length header** and determines that this request is 13 bytes
+  - This request is forwarded on to the back-end server. The **back-end server** processes the **Transfer-Encoding header** and treats the message body as using chunked encoding. It processes the first chunk, which is stated to be zero-length, and so is treated as terminating the request
+  -  following bytes, SMUGGLED, are left unprocessed and the back-end server will treat these as being the start of the next request 
+  ```
+  POST / HTTP/1.1
+  Host: website.com
+  Content-Length: 13
+  Transfer-Encoding: chunked
+ 
+  0
+  SMUGGLED
+  ```
+- TE.CL (Transfer-Encoding.Content-Length) Vulnerabilities
+  - the front-end server uses the Transfer-Encoding header and the back-end server uses the Content-Length header.
+  - The **front-end server** processes the **Transfer-Encoding header** and treats the message body as using chunked encoding. It processes the **first chunk**, which is stated to be **8 bytes** long. **Second chunk**, which is stated to be **zero-length,** and so is treated as terminating the request.
+  - The **back-end server** processes the **Content-Length header** and determines that the request body is **3 bytes**
+  - following bytes, starting with SMUGGLED, are left unprocessed, and the back-end server will treat these as being the start of the next request
+  ```
+  POST / HTTP/1.1
+  Host: vulnerable-website.com
+  Content-Length: 3
+  Transfer-Encoding: chunked
+
+  8
+  SMUGGLED
+  0
+  ```
+- TE-TE Behavior (Transfer-Encoding) Vulnerabilities  
+  the front-end and back-end servers both support the Transfer-Encoding header, but one of the servers can be induced not to process it by obfuscating the header in some way.
+  ```
+  Transfer-Encoding: xchunked
+  Transfer-Encoding: chunked
+
+  Transfer-Encoding: chunked
+  Transfer-Encoding: x
+
+  X: X[\n]Transfer-Encoding: chunked
+  Transfer-Encoding: xchunked
+
+  Transfer-Encoding
+  : chunked
+  Transfer-Encoding
+  : chunked
+  ```
+**Methodology**
+- Pre-requiste
+  - The front-end server forwards multiple requests to a back-end server, using the same network connection.
+  - The back-end is in disagreement with the front-end regarding where the message ends.
+  - The ambiguous message sent by the attacker is interpreted by the back-end server as two individual HTTP requests.
+  - The second request is designed to perform a malicious action, which cannot be accomplished by the first request.  
+- Vulnerable HTTP feature: Keep Alive mode, Pipelined queries, Chunked queries and responses
+
+**Attack types**
+- https://www.cobalt.io/blog/a-pentesters-guide-to-http-request-smuggling
+
+**Mitigation**
+- Interpret HTTP headers consistently on front-end and back-end servers
+- Disable vulnerable optimizations such as Transfer-Encoding or Content-Length header
+- Avoid use of load balancers, content delivery networks (CDNs), or reverse proxies if not required in your setup
+- Use HTTP/
+- Disable connection reuse on the back-end server
+- Configure the front-end server to normalize ambiguous requests  
 
 ### HTTP request smuggling Lab
 
