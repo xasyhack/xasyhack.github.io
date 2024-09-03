@@ -3909,6 +3909,7 @@ LLM -> API: create_email_forwarding_rule('peter')
   send repeater for GET / > under Burp Inspector pane > **Request attributes > select "HTTP/1" tab** > `GET / HTTP/2`
 - Disable automatic update of content-length > Burp setting > **uncheck "update Content-Length"**
 - Show non-printable characters > click the tab "\n" on repeater pane
+- You need to include the trailing sequence `\r\n\r\n` following the **final 0**
 
 - HTTP request smuggling, basic CL.TE vulnerability
   - Info:  This lab involves a front-end and back-end server, and the back-end server doesn't support chunked encoding. The front-end server rejects requests that aren't using the GET or POST method
