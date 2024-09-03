@@ -3765,7 +3765,7 @@ LLM -> API: create_email_forwarding_rule('peter')
     file: /resources/js/tracking.js
     body: alert(document.cookie)
   - Send the requests untill you get a cache hit with your exploit server URL reflected in the response > Alert prompt 
-- Routing-based **SSRF**
+- **Routing-based SSRF**
   - Observe that you can also access the home page by supplying an absolute URL in the request
     `GET https://YOUR-LAB-ID.web-security-academy.net/`
   - send to intruder
@@ -3783,7 +3783,7 @@ LLM -> API: create_email_forwarding_rule('peter')
     ```
   - Delete the users (Change the absolute URL in your request to point to /admin/delete)
     `GET https://YOUR-LAB-ID.web-security-academy.net/admin/delete?csrf=QCT5OmPeAAPnyTKyETt29LszLL7CbPop&username=carlos`
-- **SSRF** via flawed request parsing
+- **SSRF via flawed request** parsing
   - send to intruder
     - Deselect Update Host header to match target.
     - Replace the host header with the following IP address
