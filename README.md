@@ -3908,8 +3908,11 @@ LLM -> API: create_email_forwarding_rule('peter')
   - detect the CL.TE vulnerability
   - confirm the CL.TE vulnerability
 
-**Attack types**
-- https://www.cobalt.io/blog/a-pentesters-guide-to-http-request-smuggling
+Finding HTTP request smuggling vulnerabilities
+- ![CL.TE timing vulnerabilities](img/CL.TE_timing.png)
+- ![TE.CL timing vulnerabilities](img/TE.CL_timing.png)
+- ![CL.TE different response vulnerabilities](img/CL.TE_different_response.png)
+- ![TE.CL different response vulnerabilities](img/TE.CL_different_response.png)
 
 **Mitigation**
 - Interpret HTTP headers consistently on front-end and back-end servers
