@@ -4071,9 +4071,13 @@ Response: Communication timed out. (chunked size is 5)
 
 **How to calcualte chunked size**
 - chunked size TE end with variable
-  ![CL.TE vulnerabilities](img/chunked size - TE - variable.png)
+  ![CL.TE vulnerabilities](img/chunked%20size%20-%20TE%20-%20variable.png)
 - chunked size TE end with 0
-  ![CL.TE vulnerabilities](img/chunked size - TE - 0.png)
+  ![CL.TE vulnerabilities](img/chunked%20size%20-%20TE%20-%200.png)
+
+**How to calcualte content length**
+- dd
+- dd
 
 ### HTTP request smuggling Lab
 - HTTP request smuggling, basic CL.TE vulnerability
@@ -4167,7 +4171,7 @@ Response: Communication timed out. (chunked size is 5)
     0\r\n
     \r\n
     ```
-- Exploiting HTTP request smuggling to bypass front-end security controls, CL.TE vulnerability
+- Exploiting HTTP request smuggling to **bypass front-end security controls, CL.TE** vulnerability
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. There's an admin panel at /admin, but the front-end server blocks access to it. To solve the lab, smuggle a request to the back-end server that accesses the admin panel and deletes the user carlos.
   - https://www.youtube.com/watch?v=L6GikFq4Xbc
     ```
@@ -4186,12 +4190,12 @@ Response: Communication timed out. (chunked size is 5)
 
     x=
     ```
-- Exploiting HTTP request smuggling to bypass front-end security controls, TE.CL vulnerability
+- Exploiting HTTP request smuggling to **bypass front-end security controls, TE.CL** vulnerability
   - Info: This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. There's an admin panel at /admin, but the front-end server blocks access to it. To solve the lab, smuggle a request to the back-end server that accesses the admin panel and deletes the user carlos.
   - https://www.youtube.com/watch?v=XvqAbDo5DI0
     ```
     ```
-- Exploiting HTTP request smuggling to reveal front-end request rewriting
+- Exploiting HTTP request smuggling to **reveal front-end request rewriting**
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. There's an admin panel at /admin, but it's only accessible to people with the IP address **127.0.0.1**. The front-end server adds an HTTP header to incoming requests containing their IP address. It's **similar to the X-Forwarded-For header** but has a different name. To solve the lab, smuggle a request to the back-end server that reveals the header that is added by the front-end server. Then smuggle a request to the back-end server that includes the added header, accesses the admin panel, and deletes the user carlos.
 - dd
 - dd 
