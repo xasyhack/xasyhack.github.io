@@ -59,16 +59,27 @@
 
 **Advanced topics (11~94 labs)**
 - [Insecure Deserialization](#insecure-deserialization)
+  - [Lab](#insecure-deserialization-lab)
 - [Web LLM Attacks](#web-llm-attacks)
+  - [Lab](#web-llm-attacks-lab)
 - [GraphQL API](#graphql-api)
+  - [Lab](#graphql-api-lab)
 - [Server-side Template Injection](#server-side-template-injection)
+  - [Lab](#server-side-template-injection-lab)
 - [Web Cache Poisoning](#web-cache-poisoning)
+  - [Lab](#web-cache-poisoning-lab)
 - [HTTP Host Header](#http-host-header)
+  - [Lab](#http-host-header-lab)
 - [HTTP request smuggling](#http-request-smuggling)
+  - [Lab](#http-request-smuggling-lab)
 - [OAuth Authentication](#oauth-authentication)
+  - [Lab](#oauth-authentication-lab)
 - [JWT Attacks](#jwt-attacks)
+  - [Lab](#jwt-attacks-lab)
 - [Prototype Pollution](#prototype-pollution)
+  - [Lab](#prototype-pollution-lab)
 - [Essential Skills](#essential-skills)
+  - [Lab](#essential-skills-lab)
 
 **Burp extension**  
 - Hackvertor: Encoding and Decoding, data transformation (hashing, encryption, decryptin, convert, string) [SQL injection]
