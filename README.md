@@ -4049,16 +4049,22 @@ Response: Communication timed out. (chunked size is 5)
 - Avoid use of load balancers, content delivery networks (CDNs), or reverse proxies if not required in your setup
 - Use HTTP/
 - Disable connection reuse on the back-end server
-- Configure the front-end server to normalize ambiguous requests  
+- Configure the front-end server to normalize ambiguous requests
 
-### HTTP request smuggling Lab
-**Burp suite no: lab supports HTTP/2, switch protocols in Burp Repeater from the Request attributes section of the Inspector panel**  
+**Pre-requisite/setup for attacks in Burp Suite**  
 - Downgrade HTTP protocol to HTTP/1.1
   send repeater for GET / > under Burp Inspector pane > **Request attributes > select "HTTP/1" tab** > `GET / HTTP/2`
 - Disable automatic update of content-length > Burp setting > **uncheck "update Content-Length"**
 - Show non-printable characters > click the tab "\n" on repeater pane
 - You need to include the trailing sequence `\r\n\r\n` following the **final 0**
 
+**How to calcualte chunked size**
+- chunked size TE end with variable
+  ![CL.TE vulnerabilities](img/chunked size - TE - variable.png)
+- chunked size TE end with 0
+  ![CL.TE vulnerabilities](img/chunked size - TE - 0.png)
+
+### HTTP request smuggling Lab
 - HTTP request smuggling, basic CL.TE vulnerability
   - Info:  This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. The front-end server rejects requests that **aren't using the GET or POST method**
   - https://www.youtube.com/watch?v=4S5fkKJ4SM4
