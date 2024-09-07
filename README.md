@@ -4415,6 +4415,7 @@ Response: Communication timed out. (chunked size is 5)
     ```
 - [14] HTTP/2 request smuggling via **CRLF** injection
   - Info: This lab is vulnerable to request smuggling because the front-end server downgrades HTTP/2 requests and fails to adequately sanitize incoming headers. To solve the lab, use an HTTP/2-exclusive request smuggling vector to gain access to another user's account. The victim accesses the home page every 15 seconds.
+  - https://www.youtube.com/watch?v=unVNdJ1IWpw  
   - search few items
     ```
     POST /
