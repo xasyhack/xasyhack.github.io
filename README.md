@@ -4504,6 +4504,7 @@ Response: Communication timed out. (chunked size is 5)
   - Copy the session cookie and delete carlos user
 - [17] **Bypassing access controls via HTTP/2 request tunnelling (Expert)**
   - Info: This lab is vulnerable to request smuggling because the **front-end server downgrades HTTP/2 requests and fails to adequately sanitize incoming header names**. To solve the lab, access the admin panel at /admin as the administrator user and delete the user carlos.
+  - https://www.youtube.com/watch?v=5Xqy0Qvi-S0  
   - Confirming the vulnerability. Append an arbitrary header to the end of the request and try smuggling a Host header in its name.
     ```
     GET /
