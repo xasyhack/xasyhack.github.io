@@ -4098,7 +4098,7 @@ Response: Communication timed out. (chunked size is 5)
     G
     ```
     ![CL.TE vulnerabilities](img/CL.TE%20vulnerabilities.png)
- - second request throw response "Unrecognized method GPOST"
+  - second request throw response "Unrecognized method GPOST"
    - Info: This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. The front-end server rejects requests that **aren't using the GET or POST method** 
    - https://www.youtube.com/watch?v=kIRIV-BwBTE
      ```
@@ -4118,7 +4118,7 @@ Response: Communication timed out. (chunked size is 5)
      \r\n
      ```
      ![TE.CL vulnerabilities](img/CL.TE%20vulnerabilities.png)
-- HTTP request smuggling, obfuscating the TE header
+- HTTP request smuggling, basic **TE.CL vulnerability**
   - Info: This lab involves a front-end and back-end server, and the **two servers handle duplicate HTTP request headers in different ways**. The front-end server rejects requests that **aren't using the GET or POST method**.
   - https://www.youtube.com/watch?v=TUsc14YH6LE
     ```
