@@ -4646,6 +4646,7 @@ Response: Communication timed out. (chunked size is 5)
    ```
 - Client-side desync (Expert)
   - Info: This lab is vulnerable to client-side desync attacks because the server ignores the Content-Length header on requests to some endpoints. You can exploit this to induce a victim's browser to disclose its session cookie.
+  - https://www.youtube.com/watch?v=QapdENfSXzE  
   - Identify a vulnerable endpoint  > GET / > repeater > change to POST method > disable "udpate content-length" > change the content-length to 1 or higher, but leave the body empty > observer that the server responds immediately and suggested that it is ignoring the specified "content-length"
   - Identify a client-side desync vector in Burp > 2nd request get 404 not found  
     Request 1: > Enabled HTTP/1 connection reuse + Enable "update content-length"
