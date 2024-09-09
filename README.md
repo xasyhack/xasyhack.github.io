@@ -4775,7 +4775,136 @@ Response: Communication timed out. (chunked size is 5)
    `pauseMarker=['Content-Length: CORRECT(159)\r\n\r\n']` or `pauseMarker=['\r\n\r\nPOST']`
 
 ## OAuth Authentication
-Content for OAuth Authentication...
+**OAuth summary**
+- OAuth is a commonly used authorization framework that enables websites and web applications to request limited access to a user's account on another application
+- **How does OAuth 2.0 work**
+  - **Client application: website that wants to access the user's data.**
+  - **Resource owner: user whose data the client application wants to account**
+  - **OAuth service provider:  controls the user's data and access**
+- OAuth grant type
+  - authorization code
+    - [OAuth Code Flow](https://curity.io/resources/learn/oauth-code-flow/)
+    - Authorization request param: **client_id**, **response_type: token**, state, scope, redirect_url, code_challenge, code_challenge_method
+    - Token endpoint request param: **client_id**, **client_secret**, **grant_type: authorization_code**, **code**, **redirect_url**, code_verifier
+    - Request
+      ```
+      GET https://provider.com/oauth2/authorize?
+	    response_type=token&
+	    client_id=your-client-id&
+	    redirect_uri=https://yourapp.com/callback&
+	    scope=openid profile email&
+	    state=xyz123
+      ```
+      Resposne
+      ```
+      https://yourapp.com/callback#access_token=abc123def456ghi789jkl012mno345pqr678stu901vwx234yz56789&token_type=Bearer&expires_in=3600&state=xyz123
+      ```
+    - Authorization request
+      ```
+      GET /authorization?client_id=12345&redirect_uri=https://client-app.com/callback&response_type=code&scope=openid%20profile&state=ae13d489bd00e3c24 HTTP/1.1
+      Host: oauth-authorization-server.com
+      ```
+    - User login and consent
+    - Authorization code grant
+      ```
+      GET /callback?code=a1b2c3d4e5f6g7h8&state=ae13d489bd00e3c24 HTTP/1.1
+      Host: client-app.com
+      ```
+    - Access token request
+      ```
+      POST /token HTTP/1.1
+      Host: oauth-authorization-server.com
+      …
+      client_id=12345&client_secret=SECRET&redirect_uri=https://client-app.com/callback&grant_type=authorization_code&code=a1b2c3d4e5f6g7h8
+      ```
+    - Access token grant
+      ```
+      {
+	    "access_token": "z0y9x8w7v6u5",
+	    "token_type": "Bearer",
+	    "expires_in": 3600,
+	    "scope": "openid profile",
+	    …
+	}
+      ```
+    - API call
+      ```
+      GET /userinfo HTTP/1.1
+      Host: oauth-resource-server.com
+      Authorization: Bearer z0y9x8w7v6u5
+      ```
+    - Resource grant
+      ```
+      {
+	    "username":"carlos",
+	    "email":"carlos@carlos-montoya.net",
+	    …
+	}
+      ```
+    ![Authorization code grant type](https://portswigger.net/web-security/images/oauth-authorization-code-flow.jpg)
+  - implicit grant type
+    - [OAuth Implicit Flow](https://curity.io/resources/learn/oauth-implicit-flow/)
+    - Authorize request param: **client_id**, **response_type: token**, state, scope, redirect_url
+    - Request
+      ```
+      GET https://provider.com/oauth2/authorize?
+	    response_type=token&
+	    client_id=your-client-id&
+	    redirect_uri=https://yourapp.com/callback&
+	    scope=openid profile email&
+	    state=xyz123
+      ```
+      Resposne
+      ```
+      https://yourapp.com/callback#access_token=abc123def456ghi789jkl012mno345pqr678stu901vwx234yz56789&token_type=Bearer&expires_in=3600&state=xyz123
+      ```
+    - Authorization request
+      ```
+      GET /authorization?client_id=12345&redirect_uri=https://client-app.com/callback&response_type=token&scope=openid%20profile&state=ae13d489bd00e3c24 HTTP/1.1
+      Host: oauth-authorization-server.com
+      ```
+    - User login and consent  
+    - Access token grant
+      ```
+      GET /callback#access_token=z0y9x8w7v6u5&token_type=Bearer&expires_in=5000&scope=openid%20profile&state=ae13d489bd00e3c24 HTTP/1.1
+      Host: client-app.com
+      ```
+    - API call
+      ```
+      GET /userinfo HTTP/1.1
+      Host: oauth-resource-server.com
+      Authorization: Bearer z0y9x8w7v6u5
+      ```
+    - Resource grant
+      ```
+      {
+	    "username":"carlos",
+	    "email":"carlos@carlos-montoya.net"
+	}
+      ```
+    ![Implicit grant type](https://portswigger.net/web-security/images/oauth-implicit-flow.jpg))
+
+**OpenID Connect**  
+[OpenID Connect Authorization Code Flow](https://curity.io/resources/learn/openid-code-flow/)
+- How OpenID Connect Works
+  - User Sign In > RP request > OP authenticate > OP return access token > RP send access token to user device > Endpoint returns user info
+  - End user navigates to a website or web application via a browser.
+  - End user clicks sign-in and types their username and password.
+  - The RP (Client) sends a request to the OpenID Provider (OP).
+  - The OP authenticates the User and obtains authorization.
+  - The OP responds with an Identity Token and usually an Access Token.
+  - The RP can send a request with the Access Token to the User device.
+  - The UserInfo Endpoint returns Claims about the End-User.  
+- OpenID Connect extends the OAuth protocol to provide a dedicated identity and authentication layer that sits on top of the basic OAuth implementation
+- **How does OpenID Connect work (Extra response type: id_token)**
+  - **Relying party: The application that is requesting authentication of a user. (OAuth client application)**
+  - **End user: The user who is being authenticated. (OAuth resource owner)**
+  - **OpenID provider: OAuth service**
+  - **ID token: information about the end user**
+  - **claim: information about the end user**
+
+**SAML 2.0 asseertion flow**
+![SAML 2.0 Assertion flow](https://developer.okta.com/img/authorization/oauth-saml2-assertion-grant-flow.png)
 
 ### OAuth Authenticatio Lab
 
