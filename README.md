@@ -5165,7 +5165,7 @@ Response: Communication timed out. (chunked size is 5)
       "k": "c2VjcmV0MQ"
     }
     ```
-  - Use "JSON Web Token" extension
+  - OR Use "JSON Web Token" extension
   - select "recalculate signature" > input secret key "secret1" > send request
 - ddd
 - ddd
