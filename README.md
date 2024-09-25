@@ -5104,6 +5104,10 @@ Response: Communication timed out. (chunked size is 5)
   }
   ```
 - Algorithm confusion attacks
+  - Obtain the server's public key
+  - Convert the public key to a suitable format
+  - Create a malicious JWT with a modified payload and the alg header set to HS256.
+  - Sign the token with HS256, using the public key as the secret.
   ```
   An attacker might switch the algorithm from RS256 (which requires public-private key pairs) to HS256 (which uses a shared secret)
   {
@@ -5117,7 +5121,12 @@ Response: Communication timed out. (chunked size is 5)
 - Use strong, randomly generated secret keys.
 - Sanitize and validate JWT headers.
 - Enforce strict algorithm policies.
-- 
+- Enforce a strict whitelist of permitted hosts for the jku header
+-  not vulnerable to path traversal or SQL injection via the kid
+-  set an expiration date for any tokens
+-  Avoid sending tokens in URL parameters
+-  include the aud (audience) claim (or similar) to specify the intended recipient of the token
+  
 ### JWT Attacks Lab
 - JWT authentication bypass via **unverified signature**
   - This lab uses a JWT-based mechanism for handling sessions. Due to implementation flaws, the server doesn't verify the signature of any JWTs that it receives. Modify your session token to gain access to the admin panel
@@ -5237,8 +5246,19 @@ Response: Communication timed out. (chunked size is 5)
       "kid": "../../../dev/null",
        "alg": "HS256"
      }
-     ``` 
-- dd
+     ```
+  - click `Sign` > select the Symmetric key
+- JWT authentication bypass via algorithm confusion (Expert)
+  - This lab uses a JWT-based mechanism for handling sessions. It uses a robust RSA key pair to sign and verify tokens. However, due to implementation flaws, this mechanism is vulnerable to algorithm confusion attacks. First obtain the server's public key. This is exposed via a standard endpoint. Use this key to sign a modified session token that gives you access to the admin panel.
+  - Obtain the server's public key
+    https://0a19004e03256aa7816bd9a600ca00a6.web-security-academy.net/`jwks.json`
+  - Generate a malicious signing key
+    - `New RSA key` > JWK option > paste the copied keys from jwks.json
+    - Right click the key > `Copy Public Key as PEM` > Decoder encode as Base64
+    - `New Symmetric Key` > Generate > replace k with the Based64 value PEM
+  - Modify and sign the token
+    - change `alg` to `HS256` in JWT header
+    - click `Sign` > select the Symmetric key
 - dd
 
 ## Prototype Pollution
