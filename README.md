@@ -5318,7 +5318,7 @@ Prototype pollution is a JavaScript vulnerability that enables an attacker to ad
   Debug start of the script, replacing YOUR-PROPERTY with one of the properties that you think is a potential gadget
 - Finding gaggets using DOM invader
 
-**Server-side prototype pollution  **
+**Server-side prototype pollution**
 - detecting via polluted property reflection
 - detecting without polluted property reflection
 - bypassing input filters
@@ -5331,8 +5331,11 @@ Prototype pollution is a JavaScript vulnerability that enables an attacker to ad
 
 **Mitigation**
 - Avoid Using __proto__: Do not merge or assign user-controlled input
-- Use Safe Librar "lodash"
-- Freezing Object Prototypes: "Object.freeze()","Object.create(null)"
+- Use Safe Librar "lodash"， "new Map()", "new Set()"
+- Freezing Object Prototypes: "Object.freeze()“
+- Preventing an object from inheriting properties: "Object.create(null)"
+- Preventing prototype pollution vulnerabilities (Patching)
+- Sanitizing property keys  
 
 ### Prototype Pollution Lab
 - **DOM XSS** via client-side prototype pollution
