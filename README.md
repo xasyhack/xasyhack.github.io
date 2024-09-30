@@ -13,6 +13,7 @@
 - [HackTricks](https://book.hacktricks.xyz/)
 - [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)  
 - [Seven Seas Security - Portswigger walkthrough](https://www.youtube.com/@7SeasSecurity)
+- [Burp Suite Certified Practitioner Exam Study](https://github.com/botesjuan/Burp-Suite-Certified-Practitioner-Exam-Study)
 
 # Table of Contents
 **Server-side topics (14~115 labs)**
