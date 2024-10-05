@@ -879,7 +879,7 @@
 5. User ID controlled by **request parameter**
    - change the id to another user (horizontal privilege escalation)   
    - GET /my-account?`id=carlos`
-6 **User ID controlled by request parameter**, with unpredictable user IDs
+6. **User ID controlled by request parameter**, with unpredictable user IDs
    - GET /my-account?`id=75b04a0a-1476-4e20-9b58-f2e7b77de253`
    - Dicover other user ID in website
 7. **User ID** controlled by **request parameter** with **data leakage in redirect**
