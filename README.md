@@ -540,17 +540,12 @@
 - Write code as clearly as possible
 - Note any references to other code that uses each component   
 
-### Business Logic Vulnerabilities Lab
+### Business Logic Vulnerabilities Lab    
 1. Excessive trust in **client-side control**s
    - The application **does not perform adequate server-side validation** of the price parameter. It trusts the value sent by the client without verifying it against a known, legitimate price from the database
    - POST /cart
     productId=1&redir=PRODUCT&quantity=1&**price=10**    
-2. **2FA broken logic**
-   - The application fails to properly bind the 2FA verification process to the original user's session   
-   - Login my account via 2FA
-   - Repeater: GET /login2 - change verify = victim user
-   - Intruder: POST /login2 - brute force mfa-code
-3. **High-level logic** vulnerability
+2. **High-level logic** vulnerability
    - The business logic does not account for the **possibility of negative quantities**, leading to incorrect calculations of total price and quantity. **Restrict user input to values that adhere to the business rule**.
    - store credit $200
    - Add one wish list item $1000
@@ -559,36 +554,30 @@
     POST /cart
     productId=12&redir=PRODUCT&**quantity=-6**
    - $1000 - $900 = total $100 place order
-4. **Low-level logic** flaw
+3. Inconsistent security controls
+   - **Trusted users won't always remain trustworthy**
+   - Use admin subdomain as email and login as admin type user
+   - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
+   - Update email as hacker**@DontWannaCry.com**  
+4. Flawed enforcement of **business rules**
+    - alternate 2 different coupon codes and reuse it multiple times (NEWCUST5, SIGNUP30)   
+5. **Low-level logic** flaw
    - The total price is calculated using an integer type that can only hold values up to a certain maximum (2,147,483,647 for a 32-bit signed integer). When the total price exceeds this value, it wraps around to the minimum negative value (-2,147,483,648) due to integer overflow.
    - observing: Burp Intruder Sniper > **Payloads null payloads> continue indefinitely** > **$2,147,483,647** > wrapped around to the minimum value (**-2,147,483,648**)   
    - Add Jacket to cart. Burp Intruder > Change quantity=99 > Payloads "Null payloads" > Generate 323 payloads > max concurrent 1 requests > -$-64060.96
    - Burp Repeater > change qty to 47 > $-1221.96
    - Add a cheaper item > increase quantity > until total reduce to <$100
-5. Inconsistent handling of **exceptional input**
+6. Inconsistent handling of **exceptional input**
    - **Site Map** > Right click target url > **Engagement Tools > Discover content** > click button "session is not running"
    - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
    - **Email** truncated to **255 chrs**
    - Register "[Long string chrs total of 255 including sudomain add]@dontwannacry.com.exploit-0a6500480408835d81947f9901c70002.exploit-server.net"
-6. Inconsistent security controls
-   - **Trusted users won't always remain trustworthy**
-   - Use admin subdomain as email and login as admin type user
-   - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
-   - Update email as hacker**@DontWannaCry.com**
 7. Weak isolation on dual-use endpoint
    - change password for admin (remove current-password param, and update username)
    - POST /my-account/change-password
    - original: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&username=wiener&~~scurrent-password=peter~~s&new-password-1=123456&new-password-2=123456
    - modified: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&**username=administrator**&&new-password-1=123456&new-password-2=123456
-8. **Password reset broken logic**
-   - **remove one parameter** at a time > deleting the name of the parameter as well as the **value**
-   - Users won't always supply mandatory input
-   - **temp-forgot-password-token**=~~sa5fk32fn68feb75ik9xp91sfoekxn11j~~s&username=wiener&new-password-1=123456&new-password-2=123456
-   - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456  
-9. **2FA simple bypass**
-   - Users won't always follow the **intended sequence**
-   - skip to logged in page after 1FA
-10. **Insufficient workflow** validation
+8. **Insufficient workflow** validation
     - **Add Jacket** into cart
       - POST /cart/checkout   
     - **Error**
@@ -596,15 +585,18 @@
       - Not enough store credit for this purchase
     - Send to **repeater** to a confirmation order page
       - GET **/cart/order-confirmation?order-confirmed=true**
-11. **Authentication bypass via flawed** state machine
+8. **Password reset broken logic**
+   - **remove one parameter** at a time > deleting the name of the parameter as well as the **value**
+   - Users won't always supply mandatory input
+   - **temp-forgot-password-token**=~~sa5fk32fn68feb75ik9xp91sfoekxn11j~~s&username=wiener&new-password-1=123456&new-password-2=123456
+   - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456
+9. **Authentication bypass via flawed** state machine
     - Login and intercept the next request
       - POST /login HTTP/1.1
       - csrf=5Y6EM5R6dxSayGitTEtdKdury3rwgN8X&username=wiener&password=peter   
     - **Drop the next request** GET /role-selector
-      - browse to admin page, now defaulted as administrator
-12. Flawed enforcement of **business rules**
-    - alternate 2 different coupon codes and reuse it multiple times (NEWCUST5, SIGNUP30)   
-13. **Infinite money logic** flaw
+      - browse to admin page, now defaulted as administrator     
+10. **Infinite money logic** flaw
     > [!Burp traffic]   
     > **add gift card** to cart   
       POST /cart   
@@ -632,7 +624,7 @@
     - **Test Macro** > Ok to go back Burp
     - Burp Intruder > **GET /my-account** > Sniper > **null payloads** > **generate 412 payloads** > max 1 concurrent request
     - Store credit++ (Refresh the page)
-14. Authentication bypass via **encryption oracle** **(SUPER HARD)**
+11. Authentication bypass via **encryption oracle** **(SUPER HARD)**
     - [Tutorial step by step](https://www.youtube.com/watch?v=62spVp-GVPI&t=1s)
     - Stay logged in and post a comment with invalid email to observe encrypted cookies
     ```
