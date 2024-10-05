@@ -554,7 +554,7 @@
     POST /cart
     productId=12&redir=PRODUCT&**quantity=-6**
    - $1000 - $900 = total $100 place order
-3. Inconsistent security controls
+3. **Inconsistent** security controls
    - **Trusted users won't always remain trustworthy**
    - Use admin subdomain as email and login as admin type user
    - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
@@ -572,7 +572,7 @@
    - admin page found > "Admin interface only available if logged in as a **DontWannaCry** user"
    - **Email** truncated to **255 chrs**
    - Register "[Long string chrs total of 255 including sudomain add]@dontwannacry.com.exploit-0a6500480408835d81947f9901c70002.exploit-server.net"
-7. Weak isolation on dual-use endpoint
+7. Weak isolation on **dual-use endpoint**
    - change password for admin (remove current-password param, and update username)
    - POST /my-account/change-password
    - original: csrf=hiBmOK76o47QdE1pZyFWgQiGNXSv73Od&username=wiener&~~scurrent-password=peter~~s&new-password-1=123456&new-password-2=123456
@@ -657,7 +657,7 @@
       Cookie: stay-logged-in=%52%72%76%64%79%4c%51%74%49%67%59%41%2b%58%65%5a%37%6d%4e%33%4e%62%64%73%63%48%52%2f%61%34%49%4a%54%41%4d%74%39%38%6a%79%6e%4f%59%3d;
       ```
     - Gain access as an admin and perform the required action
-  15. Bypassing access controls using **email address parsing discrepancies**
+  12. Bypassing access controls using **email address parsing discrepancies**
       - Investigate encoding discrepancies (Register account)
         - #1 hello@hacker.com > "Only emails with the ginandjuice.shop domain are allowed"
         - #2 abcfoo@ginandjuice.shop (abc Q encoding) > =?iso-8859-1?q?=61=62=63?=foo@ginandjuice.shop > "Registration blocked for security reasons"
