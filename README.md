@@ -24,7 +24,7 @@
 - [Authentication](#authentication)
   - [Lab (14)](#authentication-lab)
 - [Business Logic Vulnerabilities](#business-logic-vulnerabilities)
-  - [Lab (11)](#business-logic-vulnerabilities-lab)
+  - [Lab (12)](#business-logic-vulnerabilities-lab)
 - [Command Injection](#command-injection)
   - [Lab (5)](#command-injection-lab)
 - [Information Disclosure](#information-disclosure)
@@ -585,11 +585,6 @@
       - Not enough store credit for this purchase
     - Send to **repeater** to a confirmation order page
       - GET **/cart/order-confirmation?order-confirmed=true**
-8. **Password reset broken logic**
-   - **remove one parameter** at a time > deleting the name of the parameter as well as the **value**
-   - Users won't always supply mandatory input
-   - **temp-forgot-password-token**=~~sa5fk32fn68feb75ik9xp91sfoekxn11j~~s&username=wiener&new-password-1=123456&new-password-2=123456
-   - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456
 9. **Authentication bypass via flawed** state machine
     - Login and intercept the next request
       - POST /login HTTP/1.1
