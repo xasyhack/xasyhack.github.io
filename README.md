@@ -163,10 +163,6 @@
 Install: git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git sqlmap-dev  
 Update: python sqlmap.py --update 
 
-# SQLMap Cheat Sheet
-
-This cheat sheet summarizes useful SQLMap commands for detecting and exploiting SQL injection vulnerabilities.
-
 | **Command/Option**   | **Description**                                                                 | **Example**                                                                                       |
 |----------------------|---------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `-u`                 | Specify the URL to scan for SQL injection.                                       | `sqlmap -u "http://example.com/index.php?id=1"`                                                    |
