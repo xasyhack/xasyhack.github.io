@@ -161,6 +161,7 @@
 `SELECT * FROM all_tab_columns WHERE table_name = 'USERS'`  
 
 **SQLMap cheat sheet**
+https://github.com/sqlmapproject/sqlmap/wiki/Usage  
 Install: git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git sqlmap-dev  
 Update: python sqlmap.py --update 
 
