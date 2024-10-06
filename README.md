@@ -1428,8 +1428,7 @@ Interfere with an application's processing of XML to view files on the applicati
    "Type" : "AWS-HMAC",
    "AccessKeyId" : "LXV3KdlXvSOWCyEXAvRZ",
    "SecretAccessKey" : "LUN1SXrOIQwuNHqGBkybvvkXEE0YtdQWp0s09io9",
-   "Token" :    
- "DUz6RAWhqlG88IZPLdd0Ub5z5W2VVBFTpqonDCFCAZPd8AtRNQcJRQMyNnvKGLETEXVbqBxeuGt4OMXI87hkeYK5AWhOaRa5C1xKdviiTVMbn9LrtTktJGZOOdENDfqdgVZ31lloO8YcmDBUJmSjLntu7hWZxcpl9DkQpA6MVGPgPqzzfr78cNrZcTOCspN9z77CqHQhzrAEZVUOfCLfl4WpWnQiimURVkgNs1Yk36fgHBpFOVtAFiRdtUTW1TX4",
+   "Token" :  "DUz6RAWhqlG88IZPLdd0Ub5z5W2VVBFTpqonDCFCAZPd8AtRNQcJRQMyNnvKGLETEXVbqBxeuGt4OMXI87hkeYK5AWhOaRa5C1xKdviiTVMbn9LrtTktJGZOOdENDfqdgVZ31lloO8YcmDBUJmSjLntu7hWZxcpl9DkQpA6MVGPgPqzzfr78cNrZcTOCspN9z77CqHQhzrAEZVUOfCLfl4WpWnQiimURVkgNs1Yk36fgHBpFOVtAFiRdtUTW1TX4",
    "Expiration" : "2030-07-26T06:38:10.254304923Z"
    }
    ```   
