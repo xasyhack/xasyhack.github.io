@@ -85,6 +85,7 @@
   - [Lab](#essential-skills-lab)
 
 **Burp extension**  
+- SQLiPy Sqlmap Integration: Install jython2.7.2; python2.7 > start API  
 - Hackvertor: Encoding and Decoding, data transformation (hashing, encryption, decryptin, convert, string) [SQL injection]
 - Turbo Intruder: sending large numbers of HTTP requests and analyzing the results [Brute-force]
 - Logger++: allows the logs to be searched to locate entries which match a specified pattern [Information disclosure]
