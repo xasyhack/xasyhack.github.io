@@ -143,6 +143,22 @@
 - Substring: Others: SUBSTRING('footbar', 4, 2); Oracle: SUBSTR('footbar', 4, 2)
 - [SQL injection cheat sheet](https://portswigger.net/web-security/sql-injection/cheat-sheet)
 
+**Querying Database Type and Version**
+| **Database Type** | **Query**                     |
+|-------------------|-------------------------------|
+| Microsoft          | `SELECT @@version`            |
+| MySQL              | `SELECT @@version`            |
+| Oracle             | `SELECT * FROM v$version`     |
+| PostgreSQL         | `SELECT version();`           |
+
+**Listing the contents of the database**
+`SELECT * FROM information_schema.tables`
+`SELECT * FROM information_schema.columns WHERE table_name = 'Users'`  
+
+**Listing the contents of an Oracle database**
+`SELECT * FROM all_tables`
+`SELECT * FROM all_tab_columns WHERE table_name = 'USERS'`
+
 **SQLMap cheat sheet**
 Install: git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git sqlmap-dev  
 Update: python sqlmap.py --update 
