@@ -440,7 +440,7 @@ Update: python sqlmap.py --update
 5. Username enumeration via **response timing**
    - **Bypass max attempt**:You have made too many incorrect login attempts. Please try again in 30 minute(s).
    - Enumerate username:Burp intruder>**Pitchfork** (Pair up payload 1:1, 2:2, 3:3)>  
-     **payload set 1: X-Forwarded-For: b§1§-->Numbers (1 to 100), Max fraction digits: 0**  
+     payload set 1: `X-Forwarded-For`: b§1§-->Numbers (1 to 100), Max fraction digits: 0**  
      payload set 2: username=**§user1§**: username wordlist  
      Observe the **response received (longer time)** for valid username (test few attempts to see the consistent longer response for same username)  
    - Enumerate password:Burp intruder>Pitchfork>  
