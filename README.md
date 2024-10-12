@@ -513,7 +513,8 @@ Update: python sqlmap.py --update
     - Your credentials: wiener:peter; Victim's username: carlos   
     - Decode d2llbmVyOjUxZGMzMGRkYzQ3M2Q0M2E2MDExZTllYmJhNmNhNzcw > wiener:51dc30ddc473d43a6011e9ebba6ca770
     - Base64 username:md5 password
-    - Burp Intruder Sniper > **Payload processing** > add > load password wordlist
+    - Log out account  
+    - In the most recent GET /my-account > Burp Intruder Sniper > **Payload processing** > add > load password wordlist
       - Hash: MD5   
       - Add prefix: carlos:
       - Encode: Base64-encode
