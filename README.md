@@ -537,7 +537,7 @@ Update: python sqlmap.py --update
       - POST /forgot-password?temp-forgot-password-token=
       - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456   
 25. Password reset poisoning via **middleware**
-    - **Perform password reset **  
+    - Perform password reset    
       Password reset url in email: https://0ade00ee03fb9d7081d461a700980052.web-security-academy.net/forgot-password?temp-forgot-password-token=5e8pujqdepap1aow7n5jiahx9ncik0wd   
     - Send to repeater and **perform password reset as victim user**   
       POST /forgot-password   
