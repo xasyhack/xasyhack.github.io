@@ -867,7 +867,7 @@ Update: python sqlmap.py --update
 4. Authentication bypass via **information** disclosure
    - GET /admin > HTTP/2 401 Unauthorized
    - `TRACE` /admin > send repeater request > HTTP/2 200 > response X-Custom-IP-Authorization: 116.87.25.165
-   - Click **Proxy settings** > Scoll to **"Match and Replace rules"** > click "Add" > **Type: Request Header** > Replace: **X-Custom-IP-Authorization: 127.0.0.1 **  
+   - Click **Proxy settings** > Scoll to **"Match and Replace rules"** > click "Add" > **Type: Request Header** > Replace: **X-Custom-IP-Authorization: 127.0.0.1**  
     Burp Proxy will now add this header to every request you send
    - Now can access Admin page
 5. Information disclosure in **version control history**
@@ -909,18 +909,18 @@ Update: python sqlmap.py --update
    - Change the cookie value > **Admin=true**
 4. **User role can be modified** in user profile
    - POST /my-account/change-email
-     Body {"email":"edisonchen2019@gmail.com"}
+     Body {"email":"test@gmail.com"}
    - Response
      ```   
      {
       "username": "wiener",
-      "email": "edisonchen2019@gmail.com",
+      "email": "test@gmail.com",
       "apikey": "ppquj0gz6sLCcuFt7ATXkID0dnsuJP4u",
       "roleid": 1
      }
      ```  
    - Append roleid to uppdate   
-     Body {"email":"edisonchen2019@gmail.com", **"roleid": 2**}       
+     Body {"email":"test@gmail.com", **"roleid": 2**}       
 5. User ID controlled by **request parameter**
    - change the id to another user (horizontal privilege escalation)   
    - GET /my-account?`id=carlos`
