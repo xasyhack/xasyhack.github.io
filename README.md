@@ -1026,7 +1026,7 @@ Update: python sqlmap.py --update
      Content-Disposition: form-data; name="avatar"; filename="`..%2f`exploit.php"   
      Response: The file avatars/../exploit.php has been uploaded.   
    - Browse the file, Uploaded as /files/avatars/..%2fexploit.php   
-     https://0aa000c804f4e4a281500c7b002200b4.web-security-academy.net/files/avatars/**exploit.php**
+     `https://0ab3005104045836840f2c6600130094.web-security-academy.net/files/exploit.php`
 4. Web shell upload via **extension blacklist bypass**
    - Change the requests for filename and content-type parameter
      Content-Disposition: form-data; name="avatar"; **filename=".htaccess"**
