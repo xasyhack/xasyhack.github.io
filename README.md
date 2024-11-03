@@ -1125,7 +1125,7 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
      - request 2: carlos@ginandjuice.shop   
    - send the requests in parallel   
    - Receive email of carlos@ginandjuice.shop, click the confirmation link to update your address accordingly.   
-5. Partial construction race conditions
+5. Partial construction race conditions (Expert)
    - **POST /register**   
      csrf=CRs0ranHwII63CbQnp32ZGxCEKavBZcO&username=`%s`&email=user%40ginandjuice.shop&password=123456
    - **send to turbbo intruder**
