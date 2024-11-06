@@ -2460,10 +2460,10 @@ Content-Type: application/json
 
 ### XSS Lab
 **XSS between HTML tags**
-1. **Reflected** XSS into HTML context with **nothing encoded**	
+1. **Reflected** XSS into HTML context with **nothing encoded**  
    **search box**: `<h1>0 search results for '<script>alert(1)</script>'</h1>`
-2. **Stored** XSS into HTML context with **nothing encoded**
-   **post comment**: `<script>alert(1)</script>`
+2. **Stored** XSS into HTML context with **nothing encoded**  
+   **post comment**: `<script>alert(1)</script>`  
 3. Reflected XSS into HTML context with most **tags and attributes blocked**
    - `<img src=1 onerror=print()>` > Error "**tag** is not allowed"  	
    - iterate and find a working tag html element  
