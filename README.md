@@ -2004,7 +2004,7 @@ email=wiener@normal-user.com
    - CSRF Poc generator > Remove the auto-submit <script> block and instead add the following code to inject the cookie    
      `<img src="https://YOUR-LAB-ID.web-security-academy.net/?search=test%0d%0aSet-Cookie:%20csrf=fake%3b%20SameSite=None" onerror="document.forms[0].submit();"/>`   
 7. **SameSite Lax bypass** via method override
-   - study the POST /my-account/change-email request > no CSRF cookie, no CSRF token, no SameSite attribute (Default Lax: Session cookie will be sent in cross-site GET requests)
+   - study the POST /my-account/change-email request > no CSRF token, no SameSite attribute (Default Lax: Session cookie will be sent in cross-site GET requests)
    - POST /my-account/change-email > repeater > change request method > method not allow
    - Overrding with _method param to query string
      `GET /my-account/change-email?email=foo%40web-security-academy.net&_method=POST HTTP/1.1`
