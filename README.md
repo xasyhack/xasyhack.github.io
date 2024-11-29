@@ -3295,8 +3295,8 @@ LLM -> API: create_email_forwarding_rule('peter')
     GET /api?query=query{__typename} > OK status  
   - Try IntrospectionQuery
     GraphQL introspection is not allowed, but the query contained __schema or __type  
-  - Overcome the introspection defenses by embedding a line break after __schema
-    Resposne： Right click GraphQL > Save graphQL queries to site map
+  - Overcome the introspection defenses by embedding a line break after __schema  
+    Resposne： Right click GraphQL > Save graphQL queries to site map  
   - Discover "deleteOrganizationUser" method
   - Change the id to 3 and delete carlos user
     ```
