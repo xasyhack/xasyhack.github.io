@@ -3708,6 +3708,7 @@ LLM -> API: create_email_forwarding_rule('peter')
 
 ### Web Cache Poisoning Lab
 - Web cache poisoning with an **unkeyed header**
+- Add `X-Forwarded-Host` header: YOUR-EXPLOIT-SERVER-ID.exploit-server.net  
   - study the traffic
     ```
     GET /
