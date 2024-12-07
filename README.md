@@ -74,7 +74,7 @@
 - [HTTP Host Header](#http-host-header)
   - [Lab (7)](#http-host-header-lab)
 - [HTTP request smuggling](#http-request-smuggling)
-  - [Lab] (21)(#http-request-smuggling-lab)
+  - [Lab (21)](#http-request-smuggling-lab)
 - [OAuth Authentication](#oauth-authentication)
   - [Lab (6)](#oauth-authentication-lab)
 - [JWT Attacks](#jwt-attacks)
