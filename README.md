@@ -4077,7 +4077,7 @@ LLM -> API: create_email_forwarding_rule('peter')
   - Replace the host header with the following IP address
   - Payloads: Numbers 0 - 255, step 1
     ```
-    GET /
+    GET / HTTP/2
     Host: 192.168.0.§0§
     ```
   - Resend the request with result of 302 resposne
@@ -4093,7 +4093,7 @@ LLM -> API: create_email_forwarding_rule('peter')
     - Replace the host header with the following IP address
     - Payloads: Numbers 0 - 255, step 1
     ```
-    GET /
+    GET https://0a0000f803087017822b5bb4008f0066.web-security-academy.net/ HTTP/2
     Host: 192.168.0.§0§
     ```
   - Resend the request with result of 302 resposne
