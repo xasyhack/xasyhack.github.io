@@ -4394,7 +4394,7 @@ Response: Communication timed out. (chunked size is 5)
      Transfer-Encoding: chunked
 
      5c
-     GPOST / HTTP/1.1
+     POST / HTTP/1.1
      Content-Type: application/x-www-form-urlencoded
      Content-Length: 15
 
