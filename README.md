@@ -4507,8 +4507,8 @@ Response: Communication timed out. (chunked size is 5)
     Content-Length: 6
 
     0
-
-   ```
+    \r\n
+    ```
 - [8] Exploiting HTTP request smuggling to **reveal front-end request rewriting**
   - Info: This lab involves a front-end and back-end server, and the **front-end server doesn't support chunked encoding**. There's an admin panel at /admin, but it's only accessible to people with the IP address **127.0.0.1**. The front-end server adds an HTTP header to incoming requests containing their IP address. It's **similar to the X-Forwarded-For header** but has a different name. To solve the lab, smuggle a request to the back-end server that reveals the header that is added by the front-end server. Then smuggle a request to the back-end server that includes the added header, accesses the admin panel, and deletes the user carlos.
   - https://www.youtube.com/watch?v=gRIUDNZt_po
