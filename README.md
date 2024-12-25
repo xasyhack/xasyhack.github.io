@@ -4653,8 +4653,8 @@ Response: Communication timed out. (chunked size is 5)
   - the response to the tracking.js request should be a redirect to your exploit server (auto refresh the tracking.js)
     ```
     GET /resources/js/tracking.js HTTP/2
-    Location: 
-    
+    Host: YOUR-LAB-ID.web-security-academy.net
+    Connection: close  
     ```
 - [12] Exploiting HTTP request smuggling to perform **web cache deception**
   - Info: This lab involves a front-end and back-end server, and the front-end server doesn't support chunked encoding. The front-end server is caching static resources. To solve the lab, perform a request smuggling attack such that the next user's request causes their API key to be saved in the cache. Then retrieve the victim user's API key from the cache and submit it as the lab solution. You will need to wait for 30 seconds from accessing the lab before attempting to trick the victim into caching their API key.
