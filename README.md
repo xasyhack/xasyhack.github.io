@@ -4884,7 +4884,7 @@ Response: Communication timed out. (chunked size is 5)
     ```
   - Change the request method to HEAD > change the :path header to tunnel a request for another arbitrary endpoint > 200 OK
     ```
-    name: path:
+    name: :path
 
     /?cachebuster=2 HTTP/1.1
     Host: YOUR-LAB-ID.web-security-academy.net
@@ -4903,7 +4903,7 @@ Response: Communication timed out. (chunked size is 5)
     ```
   - including an XSS payload in tunneling request > get Communication timed out
     ```
-    name: path:
+    name: :path
     
     /?cachebuster=3 HTTP/1.1
     Host: YOUR-LAB-ID.web-security-academy.net
