@@ -4876,7 +4876,7 @@ Response: Communication timed out. (chunked size is 5)
   - https://www.youtube.com/watch?v=gv0PhCdUmj4
   - smuggling an arbitrary header in the :path > receive a normal response > confirming that you're able to inject via the :path
     ```
-    name: path:
+    name: :path
 
     value:
     /?cachebuster=1 HTTP/1.1
